@@ -199,18 +199,22 @@ void A0::guiLogic()
 
 	ImGui::Begin("Shape Properties", &showDebugWindow, ImVec2(100,100), opacity,
 			windowFlags);
-		// Retrieve red color component from slider and store in the first element of
-		// m_shape_color.
-		ImGui::SliderFloat("Red Channel", &m_shape_color.r, 0.0f, 1.0f);
-
-
-		// Add more gui elements here here ...
-
 
 		// Create Button, and check if it was clicked:
 		if( ImGui::Button( "Quit Application" ) ) {
 			glfwSetWindowShouldClose(m_window, GL_TRUE);
 		}
+
+		// Retrieve red color component from slider and store in the first element of
+		// m_shape_color.
+		ImGui::SliderFloat("Red Channel", &m_shape_color.r, 0.0f, 1.0f);
+//        ImGui::SliderFloat("Green Channel", &m_shape_color.g, 0.0f, 1.0f);
+//        ImGui::SliderFloat("Blue Channel", &m_shape_color.b, 0.0f, 1.0f);
+
+
+		// Add more gui elements here here ...
+//        ImGui::SliderFloat("Rotation angle", &m_shape_rotation, 0.0f, 2.0f);
+
 
 		ImGui::Text( "Framerate: %.1f FPS", ImGui::GetIO().Framerate );
 
@@ -348,6 +352,11 @@ bool A0::keyInputEvent(int key, int action, int mods) {
 
 			// TODO - decrease shape size.
 
+			eventHandled = true;
+		}
+		if (key == GLFW_KEY_Q) {
+			// Close the window
+			glfwSetWindowShouldClose(m_window, GL_TRUE);
 			eventHandled = true;
 		}
 	}
