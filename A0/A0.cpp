@@ -30,6 +30,13 @@ A0::A0()
 
 }
 
+//void A0::reset() {
+//    this->m_shape_color = glm::vec3(1.0f, 1.0f, 1.0f);
+//    this->m_shape_translation = vec2(0.0f);
+//    this->m_shape_size = 1.0f;
+//    this->m_shape_rotation = 0.0f;
+//}
+
 //----------------------------------------------------------------------------------------
 // Destructor
 A0::~A0()
@@ -204,16 +211,22 @@ void A0::guiLogic()
 		if( ImGui::Button( "Quit Application" ) ) {
 			glfwSetWindowShouldClose(m_window, GL_TRUE);
 		}
+        if( ImGui::Button( "Reset" ) ) {
+            this->m_shape_color = glm::vec3(1.0f, 1.0f, 1.0f);
+            this->m_shape_translation = vec2(0.0f);
+            this->m_shape_size = 1.0f;
+            this->m_shape_rotation = 0.0f;
+        }
 
 		// Retrieve red color component from slider and store in the first element of
 		// m_shape_color.
 		ImGui::SliderFloat("Red Channel", &m_shape_color.r, 0.0f, 1.0f);
-//        ImGui::SliderFloat("Green Channel", &m_shape_color.g, 0.0f, 1.0f);
-//        ImGui::SliderFloat("Blue Channel", &m_shape_color.b, 0.0f, 1.0f);
+        ImGui::SliderFloat("Green Channel", &m_shape_color.g, 0.0f, 1.0f);
+        ImGui::SliderFloat("Blue Channel", &m_shape_color.b, 0.0f, 1.0f);
 
 
 		// Add more gui elements here here ...
-//        ImGui::SliderFloat("Rotation angle", &m_shape_rotation, 0.0f, 2.0f);
+        ImGui::SliderFloat("Rotation angle", &m_shape_rotation, 0.0f, 2.0*PI);
 
 
 		ImGui::Text( "Framerate: %.1f FPS", ImGui::GetIO().Framerate );
@@ -343,14 +356,18 @@ bool A0::keyInputEvent(int key, int action, int mods) {
 		if (key == GLFW_KEY_EQUAL) {
 			cout << "+ key pressed" << endl;
 
-			// TODO - increase shape size.
+			if (m_shape_size < 10.0f) {
+                m_shape_size+=0.2f;
+            }
 
 			eventHandled = true;
 		}
 		if (key == GLFW_KEY_MINUS) {
 			cout << "- key pressed" << endl;
 
-			// TODO - decrease shape size.
+            if (m_shape_size > 0.0f) {
+                m_shape_size-=0.2f;
+            }
 
 			eventHandled = true;
 		}
@@ -359,6 +376,13 @@ bool A0::keyInputEvent(int key, int action, int mods) {
 			glfwSetWindowShouldClose(m_window, GL_TRUE);
 			eventHandled = true;
 		}
+        if (key == GLFW_KEY_R) {
+            this->m_shape_color = glm::vec3(1.0f, 1.0f, 1.0f);
+            this->m_shape_translation = vec2(0.0f);
+            this->m_shape_size = 1.0f;
+            this->m_shape_rotation = 0.0f;
+            eventHandled = true;
+        }
 	}
 
 
