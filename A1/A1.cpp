@@ -13,6 +13,8 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
+#include "Cube.hpp"
+
 using namespace glm;
 using namespace std;
 
@@ -38,7 +40,9 @@ A1::A1()
 //----------------------------------------------------------------------------------------
 // Destructor
 A1::~A1()
-{}
+{
+	delete m_ptr;
+}
 
 //----------------------------------------------------------------------------------------
 /*
@@ -55,9 +59,9 @@ void A1::init()
 	
 
 	// DELETE FROM HERE...
-	Maze m(DIM);
-	m.digMaze();
-	m.printMaze();
+	m_ptr = new Maze(DIM);
+	m_ptr->digMaze();
+	m_ptr->printMaze();
 	// ...TO HERE
 	
 	// Set the background colour.
@@ -78,6 +82,8 @@ void A1::init()
 	col_uni = m_shader.getUniformLocation( "colour" );
 
 	initGrid();
+	
+	m_ptr->genMazeCubes(m_shader);
 
 	// Set up initial view and projection matrices (need to do this here,
 	// since it depends on the GLFW window being set up correctly).
@@ -139,6 +145,70 @@ void A1::initGrid()
 
 	// OpenGL has the buffer now, there's no need for us to keep a copy.
 	delete [] verts;
+
+	CHECK_GL_ERRORS;
+}
+
+void A1::initCube() {
+	GLfloat vertices[] = {
+    	0.0f, 0.0f, 0.0f,
+     	1.0f, 0.0f, 0.0f,
+     	1.0f, 1.0f, 0.0f,
+		0.0f, 1.0f, 0.0f,
+
+		0.0f, 0.0f, 1.0f,
+     	1.0f, 0.0f, 1.0f,
+     	1.0f, 1.0f, 1.0f,
+		0.0f, 1.0f, 1.0f
+	};
+
+	GLuint indices[] = {
+    	0, 1, 2,
+		0, 2, 3,
+
+		0, 1, 4,
+		4, 5, 1,
+
+		0, 4, 7,
+		0, 3, 7,
+
+		3, 7, 6,
+		3, 2, 6,
+
+		7, 6, 5,
+		7, 4, 5,
+
+		6, 2, 1,
+		6, 5, 1
+	};
+
+	// Create the vertex array to record buffer assignments.
+	glGenVertexArrays( 1, &m_cube_vao );
+	glBindVertexArray( m_cube_vao );
+
+
+	//VBO
+	glGenBuffers(1, &m_cube_vbo);
+	glBindBuffer(GL_ARRAY_BUFFER, m_cube_vbo);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+
+
+	//EBO
+	glGenBuffers(1, &m_cube_ebo);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_cube_ebo);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
+
+
+	// Attribute
+	GLint posAttrib = m_shader.getAttribLocation( "position" );
+	glEnableVertexAttribArray( posAttrib );
+	glVertexAttribPointer( posAttrib, 3, GL_FLOAT, GL_FALSE, 0, nullptr );
+
+	glBindVertexArray( 0 );
+	glBindBuffer( GL_ARRAY_BUFFER, 0 );
+	glBindBuffer( GL_ELEMENT_ARRAY_BUFFER, 0 );
+
+	
 
 	CHECK_GL_ERRORS;
 }
@@ -232,6 +302,12 @@ void A1::draw()
 		glUniform3f( col_uni, 1, 1, 1 );
 		glDrawArrays( GL_LINES, 0, (3+DIM)*4 );
 
+		m_ptr->drawMaze(col_uni);
+		// Cube a = Cube(m_shader, (float)0, 0.0f, (float)0);
+		// a.draw(col_uni);
+		// Cube b = Cube(m_shader, (float)1, 0.0f, (float)0);
+		// b.draw(col_uni);
+		
 		// Draw the cubes
 		// Highlight the active square.
 	m_shader.disable();

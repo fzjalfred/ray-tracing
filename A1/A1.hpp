@@ -31,6 +31,9 @@ protected:
 
 private:
 	void initGrid();
+	void initCube();
+
+	Maze* m_ptr = nullptr;
 
 	// Fields related to the shader and uniforms.
 	ShaderProgram m_shader;
@@ -42,6 +45,11 @@ private:
 	// Fields related to grid geometry.
 	GLuint m_grid_vao; // Vertex Array Object
 	GLuint m_grid_vbo; // Vertex Buffer Object
+
+	// Fields related to cube geometry.
+	GLuint m_cube_vao;
+	GLuint m_cube_vbo;
+	GLuint m_cube_ebo;
 
 	// Mouse event
 	bool clicked = false;

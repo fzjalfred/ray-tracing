@@ -88,6 +88,26 @@ void Maze::printMaze() {
 	}
 }
 
+void Maze::drawMaze(GLint col_uni) {
+	for (auto& i: cubes) {
+		i.draw(col_uni);
+	}
+}
+
+void Maze::genMazeCubes(ShaderProgram& m_shader) {
+	int i,j;
+	for (i=0; i<m_dim; i++) {
+		for (j=0; j<m_dim; j++) { 
+			if ( getValue(i,j)==1 ) {
+				cubes.push_back(Cube(m_shader, (float)i, 0.0f, (float)j));
+			} else {
+				
+			}
+		}
+		
+	}
+}
+
 
 void Maze::recDigMaze(int r, int c) {
 	int* p;

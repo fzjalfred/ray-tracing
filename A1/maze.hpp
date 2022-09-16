@@ -1,7 +1,8 @@
 // Termm--Fall 2022
 
 #pragma once
-
+#include "Cube.hpp"
+#include <vector>
 class Maze
 {
 public:
@@ -18,9 +19,12 @@ public:
 
 	void digMaze();
 	void printMaze(); // for debugging
+	void drawMaze(GLint col_uni);
+	void genMazeCubes(ShaderProgram& m_shader);
 private:
 	size_t m_dim;
 	int *m_values;
+	std::vector<Cube> cubes;
 	void recDigMaze(int r, int c);
 	int numNeighbors(int r, int c);
 };
