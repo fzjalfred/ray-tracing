@@ -21,6 +21,8 @@ static const size_t DIM = 16;
 glm::vec3 cameraPos   = glm::vec3( 0.0f, 2.*float(DIM)*2.0*M_SQRT1_2, float(DIM)*2.0*M_SQRT1_2 );
 glm::vec3 cameraFront = glm::vec3(0.0f, 0.0f, 0.0f);
 glm::vec3 cameraUp    = glm::vec3(0.0f, 1.0f,  0.0f);
+GLfloat camX = sin(0);
+GLfloat camZ = cos(0);
 glm::vec3 movefoward = cameraFront - cameraPos;
 
 //----------------------------------------------------------------------------------------
@@ -275,6 +277,13 @@ bool A1::mouseMoveEvent(double xPos, double yPos)
 		// Probably need some instance variables to track the current
 		// rotation amount, and maybe the previous X position (so 
 		// that you can rotate relative to the *change* in X.
+		
+		vec3 z_axis(0.0f,1.0f,0.0f);
+		if (clicked) {
+			camera_rotation = xPos - preXPos;
+			view *= glm::rotate(mat4(), camera_rotation*0.01f, z_axis);
+		}
+		preXPos = xPos;
 	}
 
 	return eventHandled;
@@ -290,6 +299,12 @@ bool A1::mouseButtonInputEvent(int button, int actions, int mods) {
 	if (!ImGui::IsMouseHoveringAnyWindow()) {
 		// The user clicked in the window.  If it's the left
 		// mouse button, initiate a rotation.
+		if (button == GLFW_MOUSE_BUTTON_1 && actions == GLFW_PRESS) {
+			clicked = true;
+		}
+		if (button == GLFW_MOUSE_BUTTON_1 && actions == GLFW_RELEASE) {
+			clicked = false;
+		}
 	}
 
 	return eventHandled;
@@ -305,11 +320,8 @@ bool A1::mouseScrollEvent(double xOffSet, double yOffSet) {
 	float cameraSpeed = 0.05f;
 	// glm::vec3 movefoward = cameraFront - cameraPos;
 	// Zoom in or out.
-	if (yOffSet == 1)
-		cameraPos += cameraSpeed * movefoward;
-	else
-		cameraPos -= cameraSpeed * movefoward;
-	view = glm::lookAt(cameraPos, cameraFront, cameraUp);
+	camera_scale = 1.0f + cameraSpeed * yOffSet;
+	view *= glm::scale(mat4(), vec3(camera_scale));
 
 	return eventHandled;
 }

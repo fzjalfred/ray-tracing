@@ -43,6 +43,12 @@ private:
 	GLuint m_grid_vao; // Vertex Array Object
 	GLuint m_grid_vbo; // Vertex Buffer Object
 
+	// Mouse event
+	bool clicked = false;
+	float camera_rotation = 0.0f;
+	float camera_scale = 1.0f;
+	double preXPos = 0.0;
+
 	// Matrices controlling the camera and projection.
 	glm::mat4 proj;
 	glm::mat4 view;
