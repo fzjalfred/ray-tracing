@@ -18,6 +18,11 @@ using namespace std;
 
 static const size_t DIM = 16;
 
+glm::vec3 cameraPos   = glm::vec3( 0.0f, 2.*float(DIM)*2.0*M_SQRT1_2, float(DIM)*2.0*M_SQRT1_2 );
+glm::vec3 cameraFront = glm::vec3(0.0f, 0.0f, 0.0f);
+glm::vec3 cameraUp    = glm::vec3(0.0f, 1.0f,  0.0f);
+glm::vec3 movefoward = cameraFront - cameraPos;
+
 //----------------------------------------------------------------------------------------
 // Constructor
 A1::A1()
@@ -297,7 +302,14 @@ bool A1::mouseButtonInputEvent(int button, int actions, int mods) {
 bool A1::mouseScrollEvent(double xOffSet, double yOffSet) {
 	bool eventHandled(false);
 
+	float cameraSpeed = 0.05f;
+	// glm::vec3 movefoward = cameraFront - cameraPos;
 	// Zoom in or out.
+	if (yOffSet == 1)
+		cameraPos += cameraSpeed * movefoward;
+	else
+		cameraPos -= cameraSpeed * movefoward;
+	view = glm::lookAt(cameraPos, cameraFront, cameraUp);
 
 	return eventHandled;
 }
