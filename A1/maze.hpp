@@ -21,10 +21,13 @@ public:
 	void printMaze(); // for debugging
 	void drawMaze(GLint col_uni);
 	void genMazeCubes(ShaderProgram& m_shader);
+
+	std::vector<Cube> cubes;
+	
 private:
 	size_t m_dim;
 	int *m_values;
-	std::vector<Cube> cubes;
+	
 	void recDigMaze(int r, int c);
 	int numNeighbors(int r, int c);
 };

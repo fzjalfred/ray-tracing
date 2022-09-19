@@ -219,6 +219,11 @@ void A1::initCube() {
  */
 void A1::appLogic()
 {
+	for (Cube& i: m_ptr->cubes) {
+		i.colour[0] = this->colour[0];
+		i.colour[1] = this->colour[1];
+		i.colour[2] = this->colour[2];
+	}
 	// Place per frame, application logic here ...
 }
 
@@ -289,6 +294,10 @@ void A1::draw()
 	// Create a global transformation for the model (centre it).
 	mat4 W;
 	W = glm::translate( W, vec3( -float(DIM)/2.0f, 0, -float(DIM)/2.0f ) );
+
+	glm::mat4 transform = glm::scale(mat4(), glm::vec3(1.0f, height_scale, 1.0f));
+
+	W *= transform;
 
 	m_shader.enable();
 		glEnable( GL_DEPTH_TEST );
@@ -424,6 +433,13 @@ bool A1::keyInputEvent(int key, int action, int mods) {
 	// Fill in with event handling code...
 	if( action == GLFW_PRESS ) {
 		// Respond to some key events.
+	}
+	if ( key == GLFW_KEY_EQUAL ) {
+		height_scale += 0.5f;
+	}
+	if ( key == GLFW_KEY_MINUS ) {
+		if (height_scale - 0.5f >= 0)
+			height_scale -= 0.5f;
 	}
 
 	return eventHandled;

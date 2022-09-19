@@ -13,6 +13,10 @@ class Cube {
 	GLuint m_cube_ebo;
 
     public:
+
+	float colour[3] = {0,0,0};
+
+
     Cube(ShaderProgram& m_shader, GLfloat x, GLfloat y, GLfloat z) {
     GLfloat vertices[] = {
     	x+0.0f, y+0.0f, z+0.0f,
@@ -79,7 +83,7 @@ class Cube {
 
     void draw(GLint col_uni) {
         glBindVertexArray( m_cube_vao );
-		glUniform3f( col_uni, 0, 0, 1 );
+		glUniform3f( col_uni, colour[0], colour[1], colour[2] );
 		glDrawElements(GL_TRIANGLES, 3*12, GL_UNSIGNED_INT, 0);
     }
 };
