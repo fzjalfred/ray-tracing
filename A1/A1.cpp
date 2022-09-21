@@ -488,6 +488,8 @@ bool A1::mouseMoveEvent(double xPos, double yPos)
 		if (clicked) {
 			camera_rotation = xPos - preXPos;
 			view *= glm::rotate(mat4(), camera_rotation*0.01f, z_axis);
+			recordReleaseX = preXPos;
+			shouldPersist = true;
 		}
 		preXPos = xPos;
 	}
@@ -511,8 +513,9 @@ bool A1::mouseButtonInputEvent(int button, int actions, int mods) {
 		}
 		if (button == GLFW_MOUSE_BUTTON_1 && actions == GLFW_RELEASE) {
 			clicked = false;
-			recordReleaseX = preXPos;
-			persistence = (recordReleaseX - recordClickX)/50;
+			if (shouldPersist)
+				persistence = (recordReleaseX - recordClickX)/50;
+			shouldPersist = false;
 		}
 	}
 

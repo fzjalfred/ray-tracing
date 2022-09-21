@@ -60,6 +60,7 @@ private:
 
 	// Mouse event
 	bool clicked = false;
+	bool shouldPersist = false;
 	float camera_rotation = 0.0f;
 	float camera_scale = 1.0f;
 	double preXPos = 0.0;
