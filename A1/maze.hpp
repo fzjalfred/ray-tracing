@@ -2,6 +2,7 @@
 
 #pragma once
 #include "Cube.hpp"
+#include "Sphere.hpp"
 #include <vector>
 class Maze
 {
@@ -27,6 +28,8 @@ public:
 private:
 	size_t m_dim;
 	int *m_values;
+
+	Sphere* player = NULL;
 	
 	void recDigMaze(int r, int c);
 	int numNeighbors(int r, int c);

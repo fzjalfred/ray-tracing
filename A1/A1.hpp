@@ -33,6 +33,8 @@ private:
 	void initGrid();
 	void initCube();
 
+	void reset();
+
 	Maze* m_ptr = nullptr;
 
 	// Fields related to the shader and uniforms.

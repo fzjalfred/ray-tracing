@@ -21,6 +21,7 @@ void Maze::reset()
 
 Maze::~Maze()
 {
+	delete player;
 	delete [] m_values;
 }
 
@@ -80,6 +81,10 @@ void Maze::printMaze() {
 		for (j=0; j<m_dim; j++) { 
 			if ( getValue(i,j)==1 ) {
 				printf("X");
+			} else if (getValue(i,j)==2) {
+				printf("O");
+			} else if (getValue(i,j)==3) {
+				printf("E");
 			} else {
 				printf(" ");
 			}
@@ -89,6 +94,9 @@ void Maze::printMaze() {
 }
 
 void Maze::drawMaze(GLint col_uni) {
+	if (player != NULL) {
+		player->draw(col_uni);
+	}
 	for (auto& i: cubes) {
 		i.draw(col_uni);
 	}
@@ -96,10 +104,15 @@ void Maze::drawMaze(GLint col_uni) {
 
 void Maze::genMazeCubes(ShaderProgram& m_shader) {
 	int i,j;
+	if (!cubes.empty()) {
+		cubes.clear();
+	}
 	for (i=0; i<m_dim; i++) {
 		for (j=0; j<m_dim; j++) { 
 			if ( getValue(i,j)==1 ) {
 				cubes.push_back(Cube(m_shader, (float)i, 0.0f, (float)j));
+			} else if ( getValue(i,j)==2 ) {
+				player = new Sphere(m_shader, (float)i, 0.0f, (float)j);
 			} else {
 				
 			}
@@ -195,7 +208,7 @@ void Maze::digMaze()
 	// pick random start location
 	s=random()%(m_dim-2)+1;
 	setValue(0,s,0);
-	setValue(1,s,0);
+	setValue(1,s,2);
 	// find an end location
 	do {
 		s=rand()%(m_dim-2)+1;

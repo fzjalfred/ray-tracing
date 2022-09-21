@@ -227,6 +227,16 @@ void A1::appLogic()
 	// Place per frame, application logic here ...
 }
 
+void A1::reset() {
+	this->height_scale = 1.0f;
+	this->camera_rotation = 0.0f;
+	this->camera_scale = 1.0f;
+	this->view = glm::lookAt( 
+		glm::vec3( 0.0f, 2.*float(DIM)*2.0*M_SQRT1_2, float(DIM)*2.0*M_SQRT1_2 ),
+		glm::vec3( 0.0f, 0.0f, 0.0f ),
+		glm::vec3( 0.0f, 1.0f, 0.0f ) );
+}
+
 //----------------------------------------------------------------------------------------
 /*
  * Called once per frame, after appLogic(), but before the draw() method.
@@ -247,6 +257,15 @@ void A1::guiLogic()
 	ImGui::Begin("Debug Window", &showDebugWindow, ImVec2(100,100), opacity, windowFlags);
 		if( ImGui::Button( "Quit Application" ) ) {
 			glfwSetWindowShouldClose(m_window, GL_TRUE);
+		}
+
+		if( ImGui::Button( "Reset" ) ) {
+            reset();
+        }
+
+		if ( ImGui::Button( "Dig" ) ) {
+			m_ptr->digMaze();
+			m_ptr->genMazeCubes(m_shader);
 		}
 
 		// Eventually you'll create multiple colour widgets with
@@ -433,14 +452,25 @@ bool A1::keyInputEvent(int key, int action, int mods) {
 	// Fill in with event handling code...
 	if( action == GLFW_PRESS ) {
 		// Respond to some key events.
+		if (key == GLFW_KEY_Q) {
+			glfwSetWindowShouldClose(m_window, GL_TRUE);
+		}
+		if (key == GLFW_KEY_R) {
+			reset();
+		}
+		if (key == GLFW_KEY_D) {
+			m_ptr->digMaze();
+			m_ptr->genMazeCubes(m_shader);
+		}
+		if ( key == GLFW_KEY_EQUAL ) {
+			height_scale += 0.5f;
+		}
+		if ( key == GLFW_KEY_MINUS ) {
+			if (height_scale - 0.5f >= 0)
+				height_scale -= 0.5f;
+		}
 	}
-	if ( key == GLFW_KEY_EQUAL ) {
-		height_scale += 0.5f;
-	}
-	if ( key == GLFW_KEY_MINUS ) {
-		if (height_scale - 0.5f >= 0)
-			height_scale -= 0.5f;
-	}
+	
 
 	return eventHandled;
 }
