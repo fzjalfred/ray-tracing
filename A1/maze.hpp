@@ -28,12 +28,12 @@ public:
 	void playerCheatMove(int key);
 
 	std::map<int, Cube> cubes;
+	Sphere* player = NULL;
 	
 private:
 	size_t m_dim;
 	int *m_values;
 
-	Sphere* player = NULL;
 	int player_x = 0;
 	int player_y = 0;
 	

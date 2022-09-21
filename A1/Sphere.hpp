@@ -5,6 +5,8 @@
 #include "cs488-framework/ShaderProgram.hpp"
 
 
+extern float player_colour[3];
+
 class Sphere {
 
     // Fields related to cube geometry.
@@ -75,7 +77,6 @@ class Sphere {
 
     public:
 
-	float colour[3] = {0,0,0};
 
 	GLfloat x;
 	GLfloat y;
@@ -96,7 +97,7 @@ class Sphere {
 
     void draw(GLint col_uni) {
         glBindVertexArray( m_cube_vao );
-		glUniform3f( col_uni, 1.0, 1.0, 1.0 );
+		glUniform3f( col_uni, player_colour[0], player_colour[1],player_colour[2]);
 		glDrawElements(GL_TRIANGLES, 3*12, GL_UNSIGNED_INT, 0);
     }
 };

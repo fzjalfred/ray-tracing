@@ -4,6 +4,7 @@
 #include "cs488-framework/GlErrorCheck.hpp"
 #include "cs488-framework/ShaderProgram.hpp"
 
+extern float cubes_colour[3];
 
 class Cube {
 
@@ -14,7 +15,11 @@ class Cube {
 
     public:
 
-	float colour[3] = {0,0,0};
+    static void updateColour(float a[3]) {
+		cubes_colour[0] = a[0];
+		cubes_colour[1] = a[1];
+		cubes_colour[2] = a[2];
+	}
 
 
     Cube(ShaderProgram& m_shader, GLfloat x, GLfloat y, GLfloat z) {
@@ -83,7 +88,7 @@ class Cube {
 
     void draw(GLint col_uni) {
         glBindVertexArray( m_cube_vao );
-		glUniform3f( col_uni, colour[0], colour[1], colour[2] );
+		glUniform3f( col_uni, cubes_colour[0], cubes_colour[1], cubes_colour[2] );
 		glDrawElements(GL_TRIANGLES, 3*12, GL_UNSIGNED_INT, 0);
     }
 };

@@ -32,6 +32,7 @@ protected:
 private:
 	void initGrid();
 	void initCube();
+	void initGround();
 
 	void reset();
 
@@ -53,6 +54,10 @@ private:
 	GLuint m_cube_vbo;
 	GLuint m_cube_ebo;
 
+	//Fields related to ground geometry.
+	GLuint m_ground_vao;
+	GLuint m_ground_vbo;
+
 	// Mouse event
 	bool clicked = false;
 	float camera_rotation = 0.0f;
@@ -67,5 +72,7 @@ private:
 	float height_scale = 1.0f;
 
 	float colour[3];
+	float playerColour[3];
+	float groundColour[3];
 	int current_col;
 };

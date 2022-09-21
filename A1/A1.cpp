@@ -27,6 +27,10 @@ GLfloat camX = sin(0);
 GLfloat camZ = cos(0);
 glm::vec3 movefoward = cameraFront - cameraPos;
 
+float cubes_colour[3] = {0, 0.3, 0.6};
+float ground_colour[3] = {0.75, 0.67,0.5};
+float player_colour[3] = {1.0, 0.2,1.0};
+
 //----------------------------------------------------------------------------------------
 // Constructor
 A1::A1()
@@ -82,6 +86,10 @@ void A1::init()
 	col_uni = m_shader.getUniformLocation( "colour" );
 
 	initGrid();
+	initGround();
+	colour[0] = cubes_colour[0];
+	colour[1] = cubes_colour[1];
+	colour[2] = cubes_colour[2];
 	
 	m_ptr->genMazeCubes(m_shader);
 
@@ -96,6 +104,37 @@ void A1::init()
 		glm::radians( 30.0f ),
 		float( m_framebufferWidth ) / float( m_framebufferHeight ),
 		1.0f, 1000.0f );
+}
+
+void A1::initGround() {
+	GLfloat vertices[] = {
+    	0.0f, 0.0f, 0.0f,
+     	1.0f*DIM, 0.0f, 0.0f,
+     	1.0f*DIM, 0.0f, 1.0f*DIM,
+		0.0f, 0.0f, 0.0f,
+     	0.0f, 0.0f, 1.0f*DIM,
+     	1.0f*DIM, 0.0f, 1.0f*DIM
+	};
+	// Create the vertex array to record buffer assignments.
+	glGenVertexArrays( 1, &m_ground_vao );
+	glBindVertexArray( m_ground_vao );
+
+	// Create the cube vertex buffer
+	glGenBuffers( 1, &m_ground_vbo );
+	glBindBuffer( GL_ARRAY_BUFFER, m_ground_vbo );
+	glBufferData( GL_ARRAY_BUFFER, sizeof(vertices),
+		vertices, GL_STATIC_DRAW );
+
+	// Specify the means of extracting the position values properly.
+	GLint posAttrib = m_shader.getAttribLocation( "position" );
+	glEnableVertexAttribArray( posAttrib );
+	glVertexAttribPointer( posAttrib, 3, GL_FLOAT, GL_FALSE, 0, nullptr );
+
+	// Reset state to prevent rogue code from messing with *my* 
+	// stuff!
+	glBindVertexArray( 0 );
+	glBindBuffer( GL_ARRAY_BUFFER, 0 );
+	glBindBuffer( GL_ELEMENT_ARRAY_BUFFER, 0 );
 }
 
 void A1::initGrid()
@@ -219,11 +258,20 @@ void A1::initCube() {
  */
 void A1::appLogic()
 {
-	for (auto& i: m_ptr->cubes) {
-		i.second.colour[0] = this->colour[0];
-		i.second.colour[1] = this->colour[1];
-		i.second.colour[2] = this->colour[2];
+	if (current_col == 0) {
+		Cube::updateColour(colour);
 	}
+	if (current_col == 1) {
+		player_colour[0] = colour[0];
+		player_colour[1] = colour[1];
+		player_colour[2] = colour[2];
+	}
+	if (current_col == 2) {
+		ground_colour[0] = colour[0];
+		ground_colour[1] = colour[1];
+		ground_colour[2] = colour[2];
+	}
+	
 	// Place per frame, application logic here ...
 }
 
@@ -235,6 +283,22 @@ void A1::reset() {
 		glm::vec3( 0.0f, 2.*float(DIM)*2.0*M_SQRT1_2, float(DIM)*2.0*M_SQRT1_2 ),
 		glm::vec3( 0.0f, 0.0f, 0.0f ),
 		glm::vec3( 0.0f, 1.0f, 0.0f ) );
+
+	float cubes_colour[3] = {0, 0.3, 0.6};
+	memcpy(::cubes_colour, cubes_colour, sizeof(cubes_colour)); 
+	float ground_colour[3] = {0.75, 0.67,0.5};
+	memcpy(::ground_colour, ground_colour, sizeof(ground_colour)); 
+	float player_colour[3] = {1.0,0.2,1.0};
+	memcpy(::player_colour, player_colour, sizeof(player_colour)); 
+	if (current_col == 0) {
+		memcpy(colour, cubes_colour, sizeof(cubes_colour));
+	}
+	if (current_col == 1) {
+		memcpy(colour, player_colour, sizeof(cubes_colour));
+	}
+	if (current_col == 2) {
+		memcpy(colour, ground_colour, sizeof(ground_colour)); 
+	}
 }
 
 //----------------------------------------------------------------------------------------
@@ -280,8 +344,25 @@ void A1::guiLogic()
 		ImGui::PushID( 0 );
 		ImGui::ColorEdit3( "##Colour", colour );
 		ImGui::SameLine();
-		if( ImGui::RadioButton( "##Col", &current_col, 0 ) ) {
+		if( ImGui::RadioButton( "Wall", &current_col, 0 ) ) {
 			// Select this colour.
+			colour[0] = cubes_colour[0];
+			colour[1] = cubes_colour[1];
+			colour[2] = cubes_colour[2];
+		}
+		ImGui::SameLine();
+		if( ImGui::RadioButton( "Player", &current_col, 1 ) ) {
+			// Select this colour.
+			colour[0] = player_colour[0];
+			colour[1] = player_colour[1];
+			colour[2] = player_colour[2];
+		}
+		ImGui::SameLine();
+		if( ImGui::RadioButton( "Ground", &current_col, 2 ) ) {
+			// Select this colour.
+			colour[0] = ground_colour[0];
+			colour[1] = ground_colour[1];
+			colour[2] = ground_colour[2];
 		}
 		ImGui::PopID();
 
@@ -329,6 +410,10 @@ void A1::draw()
 		glBindVertexArray( m_grid_vao );
 		glUniform3f( col_uni, 1, 1, 1 );
 		glDrawArrays( GL_LINES, 0, (3+DIM)*4 );
+
+		glBindVertexArray( m_ground_vao);
+		glUniform3f( col_uni, ground_colour[0], ground_colour[1], ground_colour[2] );
+		glDrawArrays( GL_TRIANGLES, 0, 3*2 );
 
 		m_ptr->drawMaze(col_uni);
 		// Cube a = Cube(m_shader, (float)0, 0.0f, (float)0);
@@ -464,11 +549,11 @@ bool A1::keyInputEvent(int key, int action, int mods) {
 			m_ptr->genMazeCubes(m_shader);
 		}
 		if ( key == GLFW_KEY_SPACE ) {
+			if (height_scale + 0.5f <= 10.0f)
 			height_scale += 0.5f;
 		}
 		if ( key == GLFW_KEY_BACKSPACE ) {
-			if (height_scale - 0.5f >= 0)
-				height_scale -= 0.5f;
+			height_scale -= 0.5f;
 		}
 		if (key == GLFW_KEY_UP) {
 			if (mods == GLFW_MOD_SHIFT) {
