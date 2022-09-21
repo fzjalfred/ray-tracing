@@ -4,6 +4,7 @@
 #include "Cube.hpp"
 #include "Sphere.hpp"
 #include <vector>
+#include <map>
 class Maze
 {
 public:
@@ -23,13 +24,18 @@ public:
 	void drawMaze(GLint col_uni);
 	void genMazeCubes(ShaderProgram& m_shader);
 
-	std::vector<Cube> cubes;
+	void playerMove(int key);
+	void playerCheatMove(int key);
+
+	std::map<int, Cube> cubes;
 	
 private:
 	size_t m_dim;
 	int *m_values;
 
 	Sphere* player = NULL;
+	int player_x = 0;
+	int player_y = 0;
 	
 	void recDigMaze(int r, int c);
 	int numNeighbors(int r, int c);

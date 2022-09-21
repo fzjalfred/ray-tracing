@@ -2,7 +2,9 @@
 
 #include <algorithm>
 #include <cstdio>
+#include <iostream>
 
+#include "A1.hpp"
 #include "maze.hpp"
 
 Maze::Maze( size_t D )
@@ -98,7 +100,7 @@ void Maze::drawMaze(GLint col_uni) {
 		player->draw(col_uni);
 	}
 	for (auto& i: cubes) {
-		i.draw(col_uni);
+		i.second.draw(col_uni);
 	}
 }
 
@@ -110,7 +112,7 @@ void Maze::genMazeCubes(ShaderProgram& m_shader) {
 	for (i=0; i<m_dim; i++) {
 		for (j=0; j<m_dim; j++) { 
 			if ( getValue(i,j)==1 ) {
-				cubes.push_back(Cube(m_shader, (float)i, 0.0f, (float)j));
+				cubes.insert(std::make_pair(j*m_dim+i, Cube(m_shader, (float)i, 0.0f, (float)j)));
 			} else if ( getValue(i,j)==2 ) {
 				player = new Sphere(m_shader, (float)i, 0.0f, (float)j);
 			} else {
@@ -121,6 +123,60 @@ void Maze::genMazeCubes(ShaderProgram& m_shader) {
 	}
 }
 
+void Maze::playerCheatMove(int key) {
+    int x = player_x;
+	int y = player_y;
+
+    if (key == GLFW_KEY_UP) {
+		y -= 1;
+	}
+    if (key == GLFW_KEY_DOWN) {
+		y += 1;
+    }
+    if (key == GLFW_KEY_LEFT) {
+		x -= 1;
+    }
+    if (key == GLFW_KEY_RIGHT) {
+		x += 1;
+    }
+	
+	if (0<=x && x<m_dim && 0<=y && y<m_dim) {
+            if (m_values[y * m_dim + x] == 1) {
+                m_values[y * m_dim + x] = 0;
+                std::map<int, Cube>::iterator it = cubes.find(y * m_dim + x);
+                if (it != cubes.end()) {
+                    cubes.erase(it);
+                }
+            }
+            player_x = x;
+            player_y = y;
+            player->rePosition(x, y);
+        }
+	
+}
+
+void Maze::playerMove(int key) {
+    int x = player_x;
+	int y = player_y;
+
+    if (key == GLFW_KEY_UP) {
+		y -= 1;
+	}
+    if (key == GLFW_KEY_DOWN) {
+		y += 1;
+    }
+    if (key == GLFW_KEY_LEFT) {
+		x -= 1;
+    }
+    if (key == GLFW_KEY_RIGHT) {
+		x += 1;
+    }
+	if (m_values[y*m_dim+x] != 1 && 0<=x && x<m_dim && 0<=y && y<m_dim) {
+		player_x = x;
+		player_y = y;
+		player->rePosition(x, y);
+	}	
+}
 
 void Maze::recDigMaze(int r, int c) {
 	int* p;
@@ -209,6 +265,8 @@ void Maze::digMaze()
 	s=random()%(m_dim-2)+1;
 	setValue(0,s,0);
 	setValue(1,s,2);
+	player_x = 1;
+	player_y = s;
 	// find an end location
 	do {
 		s=rand()%(m_dim-2)+1;

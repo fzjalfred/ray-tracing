@@ -12,13 +12,8 @@ class Sphere {
 	GLuint m_cube_vbo;
 	GLuint m_cube_ebo;
 
-    public:
-
-	float colour[3] = {0,0,0};
-
-
-    Sphere(ShaderProgram& m_shader, GLfloat x, GLfloat y, GLfloat z) {
-    GLfloat vertices[] = {
+	void init() {
+		GLfloat vertices[] = {
     	x+0.0f, y+0.0f, z+0.0f,
      	x+1.0f, y+0.0f, z+0.0f,
      	x+1.0f, y+1.0f, z+0.0f,
@@ -50,35 +45,53 @@ class Sphere {
 		6, 5, 1
 	};
 
-	// Create the vertex array to record buffer assignments.
-	glGenVertexArrays( 1, &m_cube_vao );
-	glBindVertexArray( m_cube_vao );
+        // Create the vertex array to record buffer assignments.
+        glGenVertexArrays(1, &m_cube_vao);
+        glBindVertexArray(m_cube_vao);
 
+        // VBO
+        glGenBuffers(1, &m_cube_vbo);
+        glBindBuffer(GL_ARRAY_BUFFER, m_cube_vbo);
+        glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices,
+                     GL_STATIC_DRAW);
 
-	//VBO
-	glGenBuffers(1, &m_cube_vbo);
-	glBindBuffer(GL_ARRAY_BUFFER, m_cube_vbo);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+        // EBO
+        glGenBuffers(1, &m_cube_ebo);
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_cube_ebo);
+        glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices,
+                     GL_STATIC_DRAW);
 
+        // Attribute
+        GLint posAttrib = m_shader.getAttribLocation("position");
+        glEnableVertexAttribArray(posAttrib);
+        glVertexAttribPointer(posAttrib, 3, GL_FLOAT, GL_FALSE, 0, nullptr);
 
-	//EBO
-	glGenBuffers(1, &m_cube_ebo);
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_cube_ebo);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
+        glBindVertexArray(0);
+        glBindBuffer(GL_ARRAY_BUFFER, 0);
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 
+        CHECK_GL_ERRORS;
+        }
 
-	// Attribute
-	GLint posAttrib = m_shader.getAttribLocation( "position" );
-	glEnableVertexAttribArray( posAttrib );
-	glVertexAttribPointer( posAttrib, 3, GL_FLOAT, GL_FALSE, 0, nullptr );
+    public:
 
-	glBindVertexArray( 0 );
-	glBindBuffer( GL_ARRAY_BUFFER, 0 );
-	glBindBuffer( GL_ELEMENT_ARRAY_BUFFER, 0 );
+	float colour[3] = {0,0,0};
+
+	GLfloat x;
+	GLfloat y;
+	GLfloat z;
+	ShaderProgram& m_shader;
+
+	void rePosition(int xPos, int yPos) {
+		x =(float)xPos;
+		y = 0.0f; 
+		z = (float)yPos;
+		init();
+	}
 
 	
-
-	CHECK_GL_ERRORS;
+    Sphere(ShaderProgram& m_shader, GLfloat x, GLfloat y, GLfloat z): m_shader(m_shader), x(x),y(y), z(z) {
+		init();
     }
 
     void draw(GLint col_uni) {

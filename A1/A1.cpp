@@ -219,10 +219,10 @@ void A1::initCube() {
  */
 void A1::appLogic()
 {
-	for (Cube& i: m_ptr->cubes) {
-		i.colour[0] = this->colour[0];
-		i.colour[1] = this->colour[1];
-		i.colour[2] = this->colour[2];
+	for (auto& i: m_ptr->cubes) {
+		i.second.colour[0] = this->colour[0];
+		i.second.colour[1] = this->colour[1];
+		i.second.colour[2] = this->colour[2];
 	}
 	// Place per frame, application logic here ...
 }
@@ -450,6 +450,7 @@ bool A1::keyInputEvent(int key, int action, int mods) {
 	bool eventHandled(false);
 
 	// Fill in with event handling code...
+	
 	if( action == GLFW_PRESS ) {
 		// Respond to some key events.
 		if (key == GLFW_KEY_Q) {
@@ -462,12 +463,41 @@ bool A1::keyInputEvent(int key, int action, int mods) {
 			m_ptr->digMaze();
 			m_ptr->genMazeCubes(m_shader);
 		}
-		if ( key == GLFW_KEY_EQUAL ) {
+		if ( key == GLFW_KEY_SPACE ) {
 			height_scale += 0.5f;
 		}
-		if ( key == GLFW_KEY_MINUS ) {
+		if ( key == GLFW_KEY_BACKSPACE ) {
 			if (height_scale - 0.5f >= 0)
 				height_scale -= 0.5f;
+		}
+		if (key == GLFW_KEY_UP) {
+			if (mods == GLFW_MOD_SHIFT) {
+				m_ptr->playerCheatMove(GLFW_KEY_UP);
+			} else {
+				m_ptr->playerMove(GLFW_KEY_UP);
+			}
+		}
+		if (key == GLFW_KEY_DOWN) {
+			if (mods == GLFW_MOD_SHIFT) {
+				m_ptr->playerCheatMove(GLFW_KEY_DOWN);
+			} else {
+				m_ptr->playerMove(GLFW_KEY_DOWN);
+			}
+			
+		}
+		if (key == GLFW_KEY_LEFT) {
+			if (mods == GLFW_MOD_SHIFT) {
+				m_ptr->playerCheatMove(GLFW_KEY_LEFT);
+			} else {
+				m_ptr->playerMove(GLFW_KEY_LEFT);
+			}
+		}
+		if (key == GLFW_KEY_RIGHT) {
+			if (mods == GLFW_MOD_SHIFT) {
+				m_ptr->playerCheatMove(GLFW_KEY_RIGHT);
+			} else {
+				m_ptr->playerMove(GLFW_KEY_RIGHT);
+			}
 		}
 	}
 	
