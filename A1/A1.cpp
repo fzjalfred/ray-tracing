@@ -30,6 +30,7 @@ glm::vec3 movefoward = cameraFront - cameraPos;
 float cubes_colour[3] = {0, 0.3, 0.6};
 float ground_colour[3] = {0.75, 0.67,0.5};
 float player_colour[3] = {1.0, 0.2,1.0};
+float height_scale = 1.0f;
 
 //----------------------------------------------------------------------------------------
 // Constructor
@@ -276,7 +277,7 @@ void A1::appLogic()
 }
 
 void A1::reset() {
-	this->height_scale = 1.0f;
+	height_scale = 1.0f;
 	this->camera_rotation = 0.0f;
 	this->camera_scale = 1.0f;
 	this->view = glm::lookAt( 
@@ -551,9 +552,11 @@ bool A1::keyInputEvent(int key, int action, int mods) {
 		if ( key == GLFW_KEY_SPACE ) {
 			if (height_scale + 0.5f <= 10.0f)
 			height_scale += 0.5f;
+			m_ptr->player->init();
 		}
 		if ( key == GLFW_KEY_BACKSPACE ) {
 			height_scale -= 0.5f;
+			m_ptr->player->init();
 		}
 		if (key == GLFW_KEY_UP) {
 			if (mods == GLFW_MOD_SHIFT) {

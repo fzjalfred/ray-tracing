@@ -69,7 +69,6 @@ private:
 	glm::mat4 view;
 
 	// Model adjust
-	float height_scale = 1.0f;
 
 	float colour[3];
 	float playerColour[3];
