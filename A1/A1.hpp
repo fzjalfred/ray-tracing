@@ -64,6 +64,11 @@ private:
 	float camera_scale = 1.0f;
 	double preXPos = 0.0;
 
+	float recordClickX;
+	float recordReleaseX;
+
+	float persistence = 0;
+
 	// Matrices controlling the camera and projection.
 	glm::mat4 proj;
 	glm::mat4 view;

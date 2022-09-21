@@ -27,6 +27,8 @@ GLfloat camX = sin(0);
 GLfloat camZ = cos(0);
 glm::vec3 movefoward = cameraFront - cameraPos;
 
+vec3 z_axis(0.0f,1.0f,0.0f);
+
 float cubes_colour[3] = {0, 0.3, 0.6};
 float ground_colour[3] = {0.75, 0.67,0.5};
 float player_colour[3] = {1.0, 0.2,1.0};
@@ -272,6 +274,21 @@ void A1::appLogic()
 		ground_colour[1] = colour[1];
 		ground_colour[2] = colour[2];
 	}
+
+	if (persistence>0) {
+		view *= glm::rotate(mat4(), persistence*0.01f, z_axis);
+		persistence = persistence/1.03-0.001;
+		if (persistence < 0) {
+			persistence = 0;
+		}
+	}
+	if (persistence<0) {
+		view *= glm::rotate(mat4(), persistence*0.01f, z_axis);
+		persistence = persistence/1.03+0.001;
+		if (persistence > 0) {
+			persistence = 0;
+		}
+	}
 	
 	// Place per frame, application logic here ...
 }
@@ -468,7 +485,6 @@ bool A1::mouseMoveEvent(double xPos, double yPos)
 		// rotation amount, and maybe the previous X position (so 
 		// that you can rotate relative to the *change* in X.
 		
-		vec3 z_axis(0.0f,1.0f,0.0f);
 		if (clicked) {
 			camera_rotation = xPos - preXPos;
 			view *= glm::rotate(mat4(), camera_rotation*0.01f, z_axis);
@@ -491,9 +507,12 @@ bool A1::mouseButtonInputEvent(int button, int actions, int mods) {
 		// mouse button, initiate a rotation.
 		if (button == GLFW_MOUSE_BUTTON_1 && actions == GLFW_PRESS) {
 			clicked = true;
+			recordClickX = preXPos;
 		}
 		if (button == GLFW_MOUSE_BUTTON_1 && actions == GLFW_RELEASE) {
 			clicked = false;
+			recordReleaseX = preXPos;
+			persistence = (recordReleaseX - recordClickX)/50;
 		}
 	}
 
