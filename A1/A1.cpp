@@ -521,6 +521,7 @@ bool A1::mouseButtonInputEvent(int button, int actions, int mods) {
 		if (button == GLFW_MOUSE_BUTTON_1 && actions == GLFW_RELEASE) {
 			clicked = false;
 			released = frame_counter;
+			persistence = 0;
 		}
 	}
 
