@@ -261,6 +261,7 @@ void A1::initCube() {
  */
 void A1::appLogic()
 {
+	frame_counter++;
 	if (current_col == 0) {
 		Cube::updateColour(colour);
 	}
@@ -277,23 +278,24 @@ void A1::appLogic()
 
 	if (persistence>0) {
 		view *= glm::rotate(mat4(), persistence*0.01f, z_axis);
-		persistence = persistence/1.03-0.001;
-		if (persistence < 0) {
-			persistence = 0;
-		}
+		// persistence = persistence/1.03-0.001;
+		// if (persistence < 0) {
+		// 	persistence = 0;
+		// }
 	}
 	if (persistence<0) {
 		view *= glm::rotate(mat4(), persistence*0.01f, z_axis);
-		persistence = persistence/1.03+0.001;
-		if (persistence > 0) {
-			persistence = 0;
-		}
+		// persistence = persistence/1.03+0.001;
+		// if (persistence > 0) {
+		// 	persistence = 0;
+		// }
 	}
 	
 	// Place per frame, application logic here ...
 }
 
 void A1::reset() {
+	persistence = 0;
 	height_scale = 1.0f;
 	this->camera_rotation = 0.0f;
 	this->camera_scale = 1.0f;
@@ -484,6 +486,11 @@ bool A1::mouseMoveEvent(double xPos, double yPos)
 		// Probably need some instance variables to track the current
 		// rotation amount, and maybe the previous X position (so 
 		// that you can rotate relative to the *change* in X.
+		if (frame_counter - released < 1 && shouldPersist) {
+			persistence = (recordReleaseX - recordClickX)*0.01f;
+			shouldPersist = false;
+			released = false;
+		}
 		
 		if (clicked) {
 			camera_rotation = xPos - preXPos;
@@ -513,9 +520,7 @@ bool A1::mouseButtonInputEvent(int button, int actions, int mods) {
 		}
 		if (button == GLFW_MOUSE_BUTTON_1 && actions == GLFW_RELEASE) {
 			clicked = false;
-			if (shouldPersist)
-				persistence = (recordReleaseX - recordClickX)/50;
-			shouldPersist = false;
+			released = frame_counter;
 		}
 	}
 

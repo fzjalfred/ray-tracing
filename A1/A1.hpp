@@ -59,8 +59,10 @@ private:
 	GLuint m_ground_vbo;
 
 	// Mouse event
+	unsigned int frame_counter = 0;
 	bool clicked = false;
 	bool shouldPersist = false;
+	unsigned int released = false;
 	float camera_rotation = 0.0f;
 	float camera_scale = 1.0f;
 	double preXPos = 0.0;
