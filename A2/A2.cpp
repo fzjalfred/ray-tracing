@@ -11,7 +11,11 @@ using namespace std;
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 #include <glm/gtx/io.hpp>
+#include <algorithm>
 using namespace glm;
+
+float cameraScale = 5;
+
 
 //----------------------------------------------------------------------------------------
 // Constructor
@@ -36,7 +40,7 @@ A2::A2()
 // Destructor
 A2::~A2()
 {
-
+	delete cube;
 }
 
 //----------------------------------------------------------------------------------------
@@ -57,6 +61,14 @@ void A2::init()
 	generateVertexBuffers();
 
 	mapVboDataToVertexAttributeLocation();
+
+	view = glm::lookAt( 
+		glm::vec3( 0.0f, 10.0f, 10.0f ),
+		glm::vec3( 0.0f, -1.0f, -1.0f ),
+		glm::vec3( 0.0f, 1.0f, 0.0f ) );
+
+	cube = new Cube(-1, -1, -1, 2.0f);
+	
 }
 
 //----------------------------------------------------------------------------------------
@@ -180,6 +192,44 @@ void A2::drawLine(
 	m_vertexData.numVertices += 2;
 }
 
+void A2::drawWorldFrame() {
+	for (int i = 0; i<8; i++) {
+		auto p = worldFrame[i];
+		vec4 pos2d = view*p;
+		worldFrame2d[i] = pos2d;
+		// std::cout<<"x:"<< pos2d[0]<<" y:"<<pos2d[1]<<" z:"<<pos2d[2]<<std::endl;
+	}
+	std::for_each(worldFrame2d.begin(), worldFrame2d.end(), [](vec4 &c){ c /= cameraScale; });
+	setLineColour(vec3(0.0f, 0.0f, 1.0f));
+	drawLine(vec2(worldFrame2d[0][0], worldFrame2d[0][1]), vec2(worldFrame2d[1][0], worldFrame2d[1][1]));
+	setLineColour(vec3(0.0f, 1.0f, 1.0f));
+	drawLine(vec2(worldFrame2d[0][0], worldFrame2d[0][1]), vec2(worldFrame2d[2][0], worldFrame2d[2][1]));
+	setLineColour(vec3(1.0f, 0.0f, 1.0f));
+	drawLine(vec2(worldFrame2d[0][0], worldFrame2d[0][1]), vec2(worldFrame2d[3][0], worldFrame2d[3][1]));
+}
+
+void A2::drawCube(Cube* cube) {
+	std::vector<vec4> verts = cube->vertices2d;
+	std::for_each(verts.begin(), verts.end(), [](vec4 &c){ c /= cameraScale; });
+	setLineColour(vec3(1.0f, 1.0f, 1.0f));
+
+	drawLine(vec2(verts[0][0], verts[0][1]), vec2(verts[1][0], verts[1][1]));
+	drawLine(vec2(verts[1][0], verts[1][1]), vec2(verts[2][0], verts[2][1]));
+	//std::cout<<"("<<verts[1][0]<<", "<<verts[1][1]<<") " <<"("<<verts[2][0]<<", "<<verts[2][1]<<") "<<endl;
+	drawLine(vec2(verts[2][0], verts[2][1]), vec2(verts[3][0], verts[3][1]));
+	drawLine(vec2(verts[3][0], verts[3][1]), vec2(verts[0][0], verts[0][1]));
+
+	drawLine(vec2(verts[0][0], verts[0][1]), vec2(verts[4][0], verts[4][1]));
+	drawLine(vec2(verts[1][0], verts[1][1]), vec2(verts[5][0], verts[5][1]));
+	drawLine(vec2(verts[2][0], verts[2][1]), vec2(verts[6][0], verts[6][1]));
+	drawLine(vec2(verts[3][0], verts[3][1]), vec2(verts[7][0], verts[7][1]));
+
+	drawLine(vec2(verts[4][0], verts[4][1]), vec2(verts[5][0], verts[5][1]));
+	drawLine(vec2(verts[5][0], verts[5][1]), vec2(verts[6][0], verts[6][1]));
+	drawLine(vec2(verts[6][0], verts[6][1]), vec2(verts[7][0], verts[7][1]));
+	drawLine(vec2(verts[7][0], verts[7][1]), vec2(verts[4][0], verts[4][1]));
+}
+
 //----------------------------------------------------------------------------------------
 /*
  * Called once per frame, before guiLogic().
@@ -188,23 +238,29 @@ void A2::appLogic()
 {
 	// Place per frame, application logic here ...
 
+	cube -> simpleProj(view);
+
 	// Call at the beginning of frame, before drawing lines:
 	initLineData();
 
 	// Draw outer square:
 	setLineColour(vec3(1.0f, 0.7f, 0.8f));
-	drawLine(vec2(-0.5f, -0.5f), vec2(0.5f, -0.5f));
-	drawLine(vec2(0.5f, -0.5f), vec2(0.5f, 0.5f));
-	drawLine(vec2(0.5f, 0.5f), vec2(-0.5f, 0.5f));
-	drawLine(vec2(-0.5f, 0.5f), vec2(-0.5f, -0.5f));
+	drawLine(vec2(-0.95f, -0.95f), vec2(0.95f, -0.95f));
+	drawLine(vec2(0.95f, -0.95f), vec2(0.95f, 0.95f));
+	drawLine(vec2(0.95f, 0.95f), vec2(-0.95f, 0.95f));
+	drawLine(vec2(-0.95f, 0.95f), vec2(-0.95f, -0.95f));
 
 
-	// Draw inner square:
-	setLineColour(vec3(0.2f, 1.0f, 1.0f));
-	drawLine(vec2(-0.25f, -0.25f), vec2(0.25f, -0.25f));
-	drawLine(vec2(0.25f, -0.25f), vec2(0.25f, 0.25f));
-	drawLine(vec2(0.25f, 0.25f), vec2(-0.25f, 0.25f));
-	drawLine(vec2(-0.25f, 0.25f), vec2(-0.25f, -0.25f));
+	// // Draw inner square:
+	// setLineColour(vec3(0.2f, 1.0f, 1.0f));
+	// drawLine(vec2(-0.25f, -0.25f), vec2(0.25f, -0.25f));
+	// drawLine(vec2(0.25f, -0.25f), vec2(0.25f, 0.25f));
+	// drawLine(vec2(0.25f, 0.25f), vec2(-0.25f, 0.25f));
+	// drawLine(vec2(-0.25f, 0.25f), vec2(-0.25f, -0.25f));
+
+	drawCube(cube);
+	drawWorldFrame();
+	//cube->simpleProj();
 }
 
 //----------------------------------------------------------------------------------------
@@ -317,7 +373,24 @@ bool A2::mouseMoveEvent (
 ) {
 	bool eventHandled(false);
 
-	// Fill in with event handling code...
+	if (!ImGui::IsMouseHoveringAnyWindow()) {
+		// Put some code here to handle rotations.  Probably need to
+		// check whether we're *dragging*, not just moving the mouse.
+		// Probably need some instance variables to track the current
+		// rotation amount, and maybe the previous X position (so 
+		// that you can rotate relative to the *change* in X.
+		if (pressed) {
+			double camera_rotation = xPos - preXPos;
+			double angle = camera_rotation/90;
+			mat4 rotationY = glm::mat4(1.0f);
+			rotationY[0][0] = cos(angle);
+			rotationY[0][2] = -sin(angle);
+			rotationY[2][0] = sin(angle);
+			rotationY[2][2] = cos(angle);
+			view *= rotationY;
+		}
+		preXPos = xPos;
+	}
 
 	return eventHandled;
 }
@@ -334,6 +407,16 @@ bool A2::mouseButtonInputEvent (
 	bool eventHandled(false);
 
 	// Fill in with event handling code...
+	if (!ImGui::IsMouseHoveringAnyWindow()) {
+		// The user clicked in the window.  If it's the left
+		// mouse button, initiate a rotation.
+		if (button == GLFW_MOUSE_BUTTON_1 && actions == GLFW_PRESS) {
+			pressed = true;
+		}
+		if (button == GLFW_MOUSE_BUTTON_1 && actions == GLFW_RELEASE) {
+			pressed = false;
+		}
+	}
 
 	return eventHandled;
 }

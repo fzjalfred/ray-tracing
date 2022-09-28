@@ -9,6 +9,7 @@
 #include <glm/glm.hpp>
 
 #include <vector>
+#include "Cube.hpp"
 
 // Set a global maximum number of vertices in order to pre-allocate VBO data
 // in one shot, rather than reallocating each frame.
@@ -67,6 +68,17 @@ protected:
 	GLuint m_vao;            // Vertex Array Object
 	GLuint m_vbo_positions;  // Vertex Buffer Object
 	GLuint m_vbo_colours;    // Vertex Buffer Object
+
+	Cube* cube;
+	void drawCube(Cube*);
+
+	glm::mat4 view;
+	bool pressed;
+	double preXPos;
+
+	std::vector<vec4> worldFrame = {vec4(0,0,0,1), vec4(1,0,0,1), vec4(0,1,0,1), vec4(0,0,1,1)};
+	std::vector<vec4> worldFrame2d = {vec4(0,0,0,1), vec4(1,0,0,1), vec4(0,1,0,1), vec4(0,0,1,1)};
+	void drawWorldFrame();
 
 	VertexData m_vertexData;
 
