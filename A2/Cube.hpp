@@ -38,11 +38,11 @@ class Cube {
 
     }
 
-	void simpleProj(mat4 view) {
+	void simpleProj(mat4 view, mat4 model) {
 		
 		for (int i = 0; i<8; i++) {
 			auto p = vertices[i];
-			vec4 pos2d = view*p;
+			vec4 pos2d = view*model*p;
 			vertices2d[i] = pos2d;
 			// std::cout<<"x:"<< pos2d[0]<<" y:"<<pos2d[1]<<" z:"<<pos2d[2]<<std::endl;
 		}

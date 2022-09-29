@@ -31,6 +31,7 @@ public:
 
 class A2 : public CS488Window {
 private:
+	Cube cube = Cube(-1, -1, -1, 2.0f);
 	enum {
 		RotateView,
 		TranslateView,
@@ -80,12 +81,12 @@ protected:
 	GLuint m_vbo_positions;  // Vertex Buffer Object
 	GLuint m_vbo_colours;    // Vertex Buffer Object
 
-	Cube* cube;
-	void drawCube(Cube*);
+	void drawCube();
 
 	// interaction model
 	int interaction;
 
+	glm::mat4 model;
 	glm::mat4 view;
 	mat4 mylookAt(vec3  const & eye, vec3  const & center, vec3  const & up);
 	bool leftMousePressed;

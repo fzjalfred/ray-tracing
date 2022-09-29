@@ -14,7 +14,15 @@ using namespace std;
 #include <algorithm>
 using namespace glm;
 
+#include "utils.hpp"
+
 float cameraScale = 5;
+
+vec4 viewXaxis = vec4(-1,0,0,1);
+vec4 viewYaxis = vec4(0,1,0,1);
+vec4 viewZaxis = vec4(0,0,-1,1);
+vec4 viewOrigin = vec4(0,0,1,0);
+
 
 
 //----------------------------------------------------------------------------------------
@@ -40,7 +48,7 @@ A2::A2()
 // Destructor
 A2::~A2()
 {
-	delete cube;
+	
 }
 
 //----------------------------------------------------------------------------------------
@@ -62,12 +70,13 @@ void A2::init()
 
 	mapVboDataToVertexAttributeLocation();
 
+	model = mat4(1.0f);
+
 	view = mylookAt( 
 		glm::vec3( 0.0f, 0.0f, 1.0f ),
 		glm::vec3( 0.0f, 0.0f, 0.0f ),
 		glm::vec3( 0.0f, 1.0f, 0.0f ) );
 
-	cube = new Cube(-1, -1, -1, 2.0f);
 	
 }
 
@@ -78,20 +87,26 @@ mat4 A2::mylookAt(vec3  const & eye, vec3  const & center, vec3  const & up) {
     vec3  s = normalize(cross(f, u)); // camera X-axis
     u = cross(s, f);
 
-    mat4 Result(1.0f);
-    Result[0][0] = s.x;
-    Result[1][0] = s.y;
-    Result[2][0] = s.z;
-    Result[0][1] = u.x;
-    Result[1][1] = u.y;
-    Result[2][1] = u.z;
-    Result[0][2] =-f.x;
-    Result[1][2] =-f.y;
-    Result[2][2] =-f.z;
-    Result[3][0] =-dot(s, eye);
-    Result[3][1] =-dot(u, eye);
-    Result[3][2] = dot(f, eye);
-    return Result;
+    mat4 res(1.0f);
+    res[0][0] = s.x;
+    res[1][0] = s.y;
+    res[2][0] = s.z;
+    res[0][1] = u.x;
+    res[1][1] = u.y;
+    res[2][1] = u.z;
+    res[0][2] =-f.x;
+    res[1][2] =-f.y;
+    res[2][2] =-f.z;
+    res[3][0] =-dot(s, eye);
+	cout<<"dot s:"<<-dot(s, eye)<<endl;
+    res[3][1] =-dot(u, eye);
+	cout<<"dot u:"<<-dot(u, eye)<<endl;
+    res[3][2] = dot(f, eye);
+	cout<<"dot f:"<<-dot(f, eye)<<endl;
+
+	
+
+    return res;
 
 }
 
@@ -232,8 +247,9 @@ void A2::drawWorldFrame() {
 	drawLine(vec2(worldFrame2d[0][0], worldFrame2d[0][1]), vec2(worldFrame2d[3][0], worldFrame2d[3][1]));
 }
 
-void A2::drawCube(Cube* cube) {
-	std::vector<vec4> verts = cube->vertices2d;
+void A2::drawCube() {
+	cube.simpleProj(view, inverse(model));
+	std::vector<vec4> verts = cube.vertices2d;
 	std::for_each(verts.begin(), verts.end(), [](vec4 &c){ c /= cameraScale; });
 	setLineColour(vec3(1.0f, 1.0f, 1.0f));
 
@@ -262,8 +278,6 @@ void A2::appLogic()
 {
 	// Place per frame, application logic here ...
 
-	cube -> simpleProj(view);
-
 	// Call at the beginning of frame, before drawing lines:
 	initLineData();
 
@@ -282,7 +296,7 @@ void A2::appLogic()
 	// drawLine(vec2(0.25f, 0.25f), vec2(-0.25f, 0.25f));
 	// drawLine(vec2(-0.25f, 0.25f), vec2(-0.25f, -0.25f));
 
-	drawCube(cube);
+	drawCube();
 	drawWorldFrame();
 	//cube->simpleProj();
 }
@@ -315,6 +329,7 @@ void A2::guiLogic()
 		if( ImGui::RadioButton( "Translate View", &interaction, 1 ) ) {
 			// Select this colour.
 			interaction = TranslateView;
+			std::cout<<"translateView"<<endl;
 		}
 		if( ImGui::RadioButton( "Perspective", &interaction, 2 ) ) {
 			// Select this colour.
@@ -427,12 +442,99 @@ bool A2::mouseMoveEvent (
 				if (rightMousePressed) {
 					double camera_rotation = yPos - preYPos;
 					double angle = camera_rotation/90;
+					// mat4 rotationZ = glm::mat4(1.0f);
+					// rotationZ[0][0] = cos(angle);
+					// rotationZ[0][1] = -sin(angle);
+					// rotationZ[1][0] = sin(angle);
+					// rotationZ[1][1] = cos(angle);
+					mat4 transBack = mat4(1);
+					transBack[3][0] = -viewOrigin[0];
+					transBack[3][1] = -viewOrigin[1];
+					transBack[3][2] = -viewOrigin[2];
+
+					mat4 rotationZ = myRotate(angle, viewZaxis);
+					mat4 combine = inverse(transBack)*rotationZ*transBack;
+					viewXaxis = combine*viewXaxis;
+					viewYaxis = combine*viewYaxis;
+					view *= combine;
+				}
+				if (leftMousePressed) {
+					double camera_rotation = yPos-preYPos;
+					double angle = camera_rotation/90;
+					// mat4 rotationX = glm::mat4(1.0f);
+					// rotationX[1][1] = cos(angle);
+					// rotationX[1][2] = -sin(angle);
+					// rotationX[2][1] = sin(angle);
+					// rotationX[2][2] = cos(angle);
+					mat4 transBack = mat4(1);
+					transBack[3][0] = -viewOrigin[0];
+					transBack[3][1] = -viewOrigin[1];
+					transBack[3][2] = -viewOrigin[2];
+					mat4 rotationX = myRotate(angle, viewXaxis);
+					mat4 combine = inverse(transBack)*rotationX*transBack;
+					viewYaxis = combine*viewYaxis;
+					viewZaxis = combine*viewZaxis;
+					view *= combine;
+				}
+				if (middleMousePressed) {
+					double camera_rotation = xPos - preXPos;
+					double angle = camera_rotation/90;
+					// mat4 rotationY = glm::mat4(1.0f);
+					// rotationY[0][0] = cos(angle);
+					// rotationY[0][2] = -sin(angle);
+					// rotationY[2][0] = sin(angle);
+					// rotationY[2][2] = cos(angle);
+					mat4 transBack = mat4(1);
+					transBack[3][0] = -viewOrigin[0];
+					transBack[3][1] = -viewOrigin[1];
+					transBack[3][2] = -viewOrigin[2];
+					mat4 rotationY = myRotate(angle, viewYaxis);
+					mat4 combine = inverse(transBack)*rotationY*transBack;
+					viewXaxis = combine*viewXaxis;
+					viewZaxis = combine*viewZaxis;
+					view *= combine;
+				}
+				break;
+			case TranslateView: {
+					mat4 translate = mat4(1.0f);
+					double xTrans = xPos - preXPos;
+					double yTrans = yPos - preYPos;
+					if (rightMousePressed) {
+						translate[3][2] = -xTrans/100;
+						viewOrigin[2] += xTrans/100;
+					}
+					if (leftMousePressed) {
+						translate[3][0] = -xTrans/100;
+						viewOrigin[0] += xTrans/100;
+					}
+					if (middleMousePressed) {
+						translate[3][1] = -xTrans/100;
+						viewOrigin[1] += xTrans/100;
+					}
+					view *= translate;
+				}
+				break;
+			case Perspective:
+				if (rightMousePressed) {
+					
+				}
+				if (leftMousePressed) {
+					
+				}
+				if (middleMousePressed) {
+					
+				}
+				break;
+			case RotateModel:
+				if (rightMousePressed) {
+					double camera_rotation = yPos - preYPos;
+					double angle = camera_rotation/90;
 					mat4 rotationZ = glm::mat4(1.0f);
 					rotationZ[0][0] = cos(angle);
 					rotationZ[0][1] = -sin(angle);
 					rotationZ[1][0] = sin(angle);
 					rotationZ[1][1] = cos(angle);
-					view *= rotationZ;
+					model *= rotationZ;
 				}
 				if (leftMousePressed) {
 					double camera_rotation = yPos-preYPos;
@@ -442,7 +544,7 @@ bool A2::mouseMoveEvent (
 					rotationX[1][2] = -sin(angle);
 					rotationX[2][1] = sin(angle);
 					rotationX[2][2] = cos(angle);
-					view *= rotationX;
+					model *= rotationX;
 				}
 				if (middleMousePressed) {
 					double camera_rotation = xPos - preXPos;
@@ -452,7 +554,45 @@ bool A2::mouseMoveEvent (
 					rotationY[0][2] = -sin(angle);
 					rotationY[2][0] = sin(angle);
 					rotationY[2][2] = cos(angle);
-					view *= rotationY;
+					model *= rotationY;
+				}
+				break;
+			case TranslateModel:
+				if (rightMousePressed) {
+					double xTrans = xPos - preXPos;
+					double yTrans = yPos - preYPos;
+					mat4 translate = mat4(1.0f);
+					translate[3][0] = -xTrans/100;
+					translate[3][1] = yTrans/100;
+					model *= translate;
+				}
+				if (leftMousePressed) {
+					
+				}
+				if (middleMousePressed) {
+					
+				}
+				break;
+			case ScaleModel:
+				if (rightMousePressed) {
+					
+				}
+				if (leftMousePressed) {
+					
+				}
+				if (middleMousePressed) {
+					
+				}
+				break;
+			case Viewport:
+				if (rightMousePressed) {
+					
+				}
+				if (leftMousePressed) {
+					
+				}
+				if (middleMousePressed) {
+					
 				}
 				break;
 		}
