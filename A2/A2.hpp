@@ -30,6 +30,17 @@ public:
 
 
 class A2 : public CS488Window {
+private:
+	enum {
+		RotateView,
+		TranslateView,
+		Perspective,
+		RotateModel,
+		TranslateModel,
+		ScaleModel,
+		Viewport
+	};
+
 public:
 	A2();
 	virtual ~A2();
@@ -72,8 +83,15 @@ protected:
 	Cube* cube;
 	void drawCube(Cube*);
 
+	// interaction model
+	int interaction;
+
 	glm::mat4 view;
-	bool pressed;
+	mat4 mylookAt(vec3  const & eye, vec3  const & center, vec3  const & up);
+	bool leftMousePressed;
+	bool middleMousePressed;
+	bool rightMousePressed;
+	double preYPos;
 	double preXPos;
 
 	std::vector<vec4> worldFrame = {vec4(0,0,0,1), vec4(1,0,0,1), vec4(0,1,0,1), vec4(0,0,1,1)};

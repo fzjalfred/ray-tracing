@@ -62,13 +62,37 @@ void A2::init()
 
 	mapVboDataToVertexAttributeLocation();
 
-	view = glm::lookAt( 
-		glm::vec3( 0.0f, 10.0f, 10.0f ),
-		glm::vec3( 0.0f, -1.0f, -1.0f ),
+	view = mylookAt( 
+		glm::vec3( 0.0f, 0.0f, 1.0f ),
+		glm::vec3( 0.0f, 0.0f, 0.0f ),
 		glm::vec3( 0.0f, 1.0f, 0.0f ) );
 
 	cube = new Cube(-1, -1, -1, 2.0f);
 	
+}
+
+mat4 A2::mylookAt(vec3  const & eye, vec3  const & center, vec3  const & up) {
+	
+    vec3  f = normalize(center - eye); // camera Z-axis
+    vec3  u = normalize(up); // camera Y-axis
+    vec3  s = normalize(cross(f, u)); // camera X-axis
+    u = cross(s, f);
+
+    mat4 Result(1.0f);
+    Result[0][0] = s.x;
+    Result[1][0] = s.y;
+    Result[2][0] = s.z;
+    Result[0][1] = u.x;
+    Result[1][1] = u.y;
+    Result[2][1] = u.z;
+    Result[0][2] =-f.x;
+    Result[1][2] =-f.y;
+    Result[2][2] =-f.z;
+    Result[3][0] =-dot(s, eye);
+    Result[3][1] =-dot(u, eye);
+    Result[3][2] = dot(f, eye);
+    return Result;
+
 }
 
 //----------------------------------------------------------------------------------------
@@ -284,7 +308,26 @@ void A2::guiLogic()
 
 
 		// Add more gui elements here here ...
-
+		if( ImGui::RadioButton( "Rotation View", &interaction, 0 ) ) {
+			// Select this colour.
+			interaction = RotateView;
+		}
+		if( ImGui::RadioButton( "Translate View", &interaction, 1 ) ) {
+			// Select this colour.
+			interaction = TranslateView;
+		}
+		if( ImGui::RadioButton( "Perspective", &interaction, 2 ) ) {
+			// Select this colour.
+			interaction = Perspective;
+		}
+		if( ImGui::RadioButton( "Rotate Model", &interaction, 3 ) ) {
+			// Select this colour.
+			interaction = RotateModel;
+		}
+		if( ImGui::RadioButton( "Translate Model", &interaction, 4 ) ) {
+			// Select this colour.
+			interaction = TranslateModel;
+		}
 
 		// Create Button, and check if it was clicked:
 		if( ImGui::Button( "Quit Application" ) ) {
@@ -379,16 +422,42 @@ bool A2::mouseMoveEvent (
 		// Probably need some instance variables to track the current
 		// rotation amount, and maybe the previous X position (so 
 		// that you can rotate relative to the *change* in X.
-		if (pressed) {
-			double camera_rotation = xPos - preXPos;
-			double angle = camera_rotation/90;
-			mat4 rotationY = glm::mat4(1.0f);
-			rotationY[0][0] = cos(angle);
-			rotationY[0][2] = -sin(angle);
-			rotationY[2][0] = sin(angle);
-			rotationY[2][2] = cos(angle);
-			view *= rotationY;
+		switch(interaction) {
+			case RotateView:
+				if (rightMousePressed) {
+					double camera_rotation = yPos - preYPos;
+					double angle = camera_rotation/90;
+					mat4 rotationZ = glm::mat4(1.0f);
+					rotationZ[0][0] = cos(angle);
+					rotationZ[0][1] = -sin(angle);
+					rotationZ[1][0] = sin(angle);
+					rotationZ[1][1] = cos(angle);
+					view *= rotationZ;
+				}
+				if (leftMousePressed) {
+					double camera_rotation = yPos-preYPos;
+					double angle = camera_rotation/90;
+					mat4 rotationX = glm::mat4(1.0f);
+					rotationX[1][1] = cos(angle);
+					rotationX[1][2] = -sin(angle);
+					rotationX[2][1] = sin(angle);
+					rotationX[2][2] = cos(angle);
+					view *= rotationX;
+				}
+				if (middleMousePressed) {
+					double camera_rotation = xPos - preXPos;
+					double angle = camera_rotation/90;
+					mat4 rotationY = glm::mat4(1.0f);
+					rotationY[0][0] = cos(angle);
+					rotationY[0][2] = -sin(angle);
+					rotationY[2][0] = sin(angle);
+					rotationY[2][2] = cos(angle);
+					view *= rotationY;
+				}
+				break;
 		}
+		
+		preYPos = yPos;
 		preXPos = xPos;
 	}
 
@@ -411,10 +480,22 @@ bool A2::mouseButtonInputEvent (
 		// The user clicked in the window.  If it's the left
 		// mouse button, initiate a rotation.
 		if (button == GLFW_MOUSE_BUTTON_1 && actions == GLFW_PRESS) {
-			pressed = true;
+			leftMousePressed = true;
 		}
 		if (button == GLFW_MOUSE_BUTTON_1 && actions == GLFW_RELEASE) {
-			pressed = false;
+			leftMousePressed = false;
+		}
+		if (button == GLFW_MOUSE_BUTTON_2 && actions == GLFW_PRESS) {
+			rightMousePressed = true;
+		}
+		if (button == GLFW_MOUSE_BUTTON_2 && actions == GLFW_RELEASE) {
+			rightMousePressed = false;
+		}
+		if (button == GLFW_MOUSE_BUTTON_3 && actions == GLFW_PRESS) {
+			middleMousePressed = true;
+		}
+		if (button == GLFW_MOUSE_BUTTON_3 && actions == GLFW_RELEASE) {
+			middleMousePressed = false;
 		}
 	}
 

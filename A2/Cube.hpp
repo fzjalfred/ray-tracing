@@ -34,7 +34,6 @@ class Cube {
 		};
 		for (int i = 0; i< 8; i+=1) {
 			vertices[i] = vec4(cube[i*3], cube[i*3+1], cube[i*3+2], 1.0f);
-			std::cout<<"cube: "<< cube[i*3]<<", "<<cube[i*3+1]<<", "<<cube[i*3+2]<<std::endl;
 		}
 
     }
