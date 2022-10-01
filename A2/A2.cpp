@@ -18,12 +18,15 @@ using namespace glm;
 
 float cameraScale = 5;
 
-vec4 viewXaxis = vec4(-1,0,0,1);
-vec4 viewYaxis = vec4(0,1,0,1);
-vec4 viewZaxis = vec4(0,0,-1,1);
-vec4 viewOrigin = vec4(0,0,1,0);
+vec4 viewXaxis = vec4(-1,0,0,0);
+vec4 viewYaxis = vec4(0,1,0,0);
+vec4 viewZaxis = vec4(0,0,-1,0);
+vec4 viewOrigin = vec4(0,0,1,1);
 
-
+vec4 modelXaxis = vec4(1,0,0,0);
+vec4 modelYaxis = vec4(0,1,0,0);
+vec4 modelZaxis = vec4(0,0,1,0);
+vec4 modelOrigin = vec4(0,0,0,1);
 
 //----------------------------------------------------------------------------------------
 // Constructor
@@ -80,6 +83,27 @@ void A2::init()
 	
 }
 
+void A2::reset() {
+	model = mat4(1.0f);
+	view = mylookAt( 
+		glm::vec3( 0.0f, 0.0f, 1.0f ),
+		glm::vec3( 0.0f, 0.0f, 0.0f ),
+		glm::vec3( 0.0f, 1.0f, 0.0f ) );
+
+	worldFrame = {vec4(0,0,0,1), vec4(1,0,0,1), vec4(0,1,0,1), vec4(0,0,1,1)};
+	objectFrame = {vec4(0,0,0,1), vec4(1,0,0,1), vec4(0,1,0,1), vec4(0,0,1,1)};
+	
+	viewXaxis = vec4(-1,0,0,0);
+	viewYaxis = vec4(0,1,0,0);
+	viewZaxis = vec4(0,0,-1,0);
+	viewOrigin = vec4(0,0,1,1);
+
+	modelXaxis = vec4(1,0,0,0);
+	modelYaxis = vec4(0,1,0,0);
+	modelZaxis = vec4(0,0,1,0);
+	modelOrigin = vec4(0,0,0,1);
+}
+
 mat4 A2::mylookAt(vec3  const & eye, vec3  const & center, vec3  const & up) {
 	
     vec3  f = normalize(center - eye); // camera Z-axis
@@ -98,13 +122,8 @@ mat4 A2::mylookAt(vec3  const & eye, vec3  const & center, vec3  const & up) {
     res[1][2] =-f.y;
     res[2][2] =-f.z;
     res[3][0] =-dot(s, eye);
-	cout<<"dot s:"<<-dot(s, eye)<<endl;
     res[3][1] =-dot(u, eye);
-	cout<<"dot u:"<<-dot(u, eye)<<endl;
     res[3][2] = dot(f, eye);
-	cout<<"dot f:"<<-dot(f, eye)<<endl;
-
-	
 
     return res;
 
@@ -231,7 +250,42 @@ void A2::drawLine(
 	m_vertexData.numVertices += 2;
 }
 
+void A2::drawObjectFrame() {
+	std::vector<vec4> objectFrame2d = {vec4(0,0,0,1), vec4(1,0,0,1), vec4(0,1,0,1), vec4(0,0,1,1)};
+	for (int i = 0; i<8; i++) {
+		auto p = objectFrame[i];
+		vec4 pos2d = view*model*p;
+		objectFrame2d[i] = pos2d;
+		// std::cout<<"x:"<< pos2d[0]<<" y:"<<pos2d[1]<<" z:"<<pos2d[2]<<std::endl;
+	}
+	std::for_each(objectFrame2d.begin(), objectFrame2d.end(), [](vec4 &c){ c /= cameraScale; });
+	setLineColour(vec3(0.5f, 0.5f, 1.0f));
+	drawLine(vec2(objectFrame2d[0][0], objectFrame2d[0][1]), vec2(objectFrame2d[1][0], objectFrame2d[1][1]));
+	setLineColour(vec3(0.5f, 1.0f, 1.5f));
+	drawLine(vec2(objectFrame2d[0][0], objectFrame2d[0][1]), vec2(objectFrame2d[2][0], objectFrame2d[2][1]));
+	setLineColour(vec3(1.0f, 0.5f, 1.5f));
+	drawLine(vec2(objectFrame2d[0][0], objectFrame2d[0][1]), vec2(objectFrame2d[3][0], objectFrame2d[3][1]));
+}
+
 void A2::drawWorldFrame() {
+	std::vector<vec4> worldFrame2d = {vec4(0,0,0,1), vec4(1,0,0,1), vec4(0,1,0,1), vec4(0,0,1,1)};
+	for (int i = 0; i<8; i++) {
+		auto p = worldFrame[i];
+		vec4 pos2d = view*p;
+		worldFrame2d[i] = pos2d;
+		// std::cout<<"x:"<< pos2d[0]<<" y:"<<pos2d[1]<<" z:"<<pos2d[2]<<std::endl;
+	}
+	std::for_each(worldFrame2d.begin(), worldFrame2d.end(), [](vec4 &c){ c /= cameraScale; });
+	setLineColour(vec3(0.0f, 0.0f, 1.0f));
+	drawLine(vec2(worldFrame2d[0][0], worldFrame2d[0][1]), vec2(worldFrame2d[1][0], worldFrame2d[1][1]));
+	setLineColour(vec3(0.0f, 1.0f, 1.0f));
+	drawLine(vec2(worldFrame2d[0][0], worldFrame2d[0][1]), vec2(worldFrame2d[2][0], worldFrame2d[2][1]));
+	setLineColour(vec3(1.0f, 0.0f, 1.0f));
+	drawLine(vec2(worldFrame2d[0][0], worldFrame2d[0][1]), vec2(worldFrame2d[3][0], worldFrame2d[3][1]));
+}
+
+void A2::drawFrame(std::vector<vec4> worldFrame) {
+	std::vector<vec4> worldFrame2d = worldFrame;
 	for (int i = 0; i<8; i++) {
 		auto p = worldFrame[i];
 		vec4 pos2d = view*p;
@@ -248,7 +302,7 @@ void A2::drawWorldFrame() {
 }
 
 void A2::drawCube() {
-	cube.simpleProj(view, inverse(model));
+	cube.simpleProj(view, model);
 	std::vector<vec4> verts = cube.vertices2d;
 	std::for_each(verts.begin(), verts.end(), [](vec4 &c){ c /= cameraScale; });
 	setLineColour(vec3(1.0f, 1.0f, 1.0f));
@@ -297,8 +351,10 @@ void A2::appLogic()
 	// drawLine(vec2(-0.25f, 0.25f), vec2(-0.25f, -0.25f));
 
 	drawCube();
+	//*** draw view frame for debug ***//
+	//drawFrame(vector<vec4> {viewOrigin, viewOrigin+viewXaxis, viewOrigin+viewYaxis, viewOrigin+viewZaxis});
+	drawObjectFrame();
 	drawWorldFrame();
-	//cube->simpleProj();
 }
 
 //----------------------------------------------------------------------------------------
@@ -322,30 +378,41 @@ void A2::guiLogic()
 
 
 		// Add more gui elements here here ...
-		if( ImGui::RadioButton( "Rotation View", &interaction, 0 ) ) {
+		if( ImGui::RadioButton( "Rotation View (O)", &interaction, 0 ) ) {
 			// Select this colour.
 			interaction = RotateView;
 		}
-		if( ImGui::RadioButton( "Translate View", &interaction, 1 ) ) {
+		if( ImGui::RadioButton( "Translate View (E)", &interaction, 1 ) ) {
 			// Select this colour.
 			interaction = TranslateView;
-			std::cout<<"translateView"<<endl;
 		}
-		if( ImGui::RadioButton( "Perspective", &interaction, 2 ) ) {
+		if( ImGui::RadioButton( "Perspective (P)", &interaction, 2 ) ) {
 			// Select this colour.
 			interaction = Perspective;
 		}
-		if( ImGui::RadioButton( "Rotate Model", &interaction, 3 ) ) {
+		if( ImGui::RadioButton( "Rotate Model (R)", &interaction, 3 ) ) {
 			// Select this colour.
 			interaction = RotateModel;
 		}
-		if( ImGui::RadioButton( "Translate Model", &interaction, 4 ) ) {
+		if( ImGui::RadioButton( "Translate Model (T)", &interaction, 4 ) ) {
 			// Select this colour.
 			interaction = TranslateModel;
 		}
+		if( ImGui::RadioButton( "Scale Model (S)", &interaction, 5 ) ) {
+			// Select this colour.
+			interaction = ScaleModel;
+		}
+		if( ImGui::RadioButton( "Viewport (V)", &interaction, 6 ) ) {
+			// Select this colour.
+			interaction = Viewport;
+		}
+
+		if( ImGui::Button( "Reset(A)" ) ) {
+			reset();
+		}
 
 		// Create Button, and check if it was clicked:
-		if( ImGui::Button( "Quit Application" ) ) {
+		if( ImGui::Button( "Quit Application(Q)" ) ) {
 			glfwSetWindowShouldClose(m_window, GL_TRUE);
 		}
 
@@ -440,7 +507,7 @@ bool A2::mouseMoveEvent (
 		switch(interaction) {
 			case RotateView:
 				if (rightMousePressed) {
-					double camera_rotation = yPos - preYPos;
+					double camera_rotation = xPos - preXPos;
 					double angle = camera_rotation/90;
 					// mat4 rotationZ = glm::mat4(1.0f);
 					// rotationZ[0][0] = cos(angle);
@@ -454,12 +521,12 @@ bool A2::mouseMoveEvent (
 
 					mat4 rotationZ = myRotate(angle, viewZaxis);
 					mat4 combine = inverse(transBack)*rotationZ*transBack;
-					viewXaxis = combine*viewXaxis;
-					viewYaxis = combine*viewYaxis;
+					viewXaxis = inverse(combine)*viewXaxis;
+					viewYaxis = inverse(combine)*viewYaxis;
 					view *= combine;
 				}
 				if (leftMousePressed) {
-					double camera_rotation = yPos-preYPos;
+					double camera_rotation = xPos - preXPos;
 					double angle = camera_rotation/90;
 					// mat4 rotationX = glm::mat4(1.0f);
 					// rotationX[1][1] = cos(angle);
@@ -472,8 +539,9 @@ bool A2::mouseMoveEvent (
 					transBack[3][2] = -viewOrigin[2];
 					mat4 rotationX = myRotate(angle, viewXaxis);
 					mat4 combine = inverse(transBack)*rotationX*transBack;
-					viewYaxis = combine*viewYaxis;
-					viewZaxis = combine*viewZaxis;
+					// viewXaxis = combine*viewXaxis;
+					viewYaxis = inverse(combine)*viewYaxis;
+					viewZaxis = inverse(combine)*viewZaxis;
 					view *= combine;
 				}
 				if (middleMousePressed) {
@@ -490,8 +558,8 @@ bool A2::mouseMoveEvent (
 					transBack[3][2] = -viewOrigin[2];
 					mat4 rotationY = myRotate(angle, viewYaxis);
 					mat4 combine = inverse(transBack)*rotationY*transBack;
-					viewXaxis = combine*viewXaxis;
-					viewZaxis = combine*viewZaxis;
+					viewXaxis = inverse(combine)*viewXaxis;
+					viewZaxis = inverse(combine)*viewZaxis;
 					view *= combine;
 				}
 				break;
@@ -527,7 +595,7 @@ bool A2::mouseMoveEvent (
 				break;
 			case RotateModel:
 				if (rightMousePressed) {
-					double camera_rotation = yPos - preYPos;
+					double camera_rotation = xPos - preXPos;
 					double angle = camera_rotation/90;
 					mat4 rotationZ = glm::mat4(1.0f);
 					rotationZ[0][0] = cos(angle);
@@ -537,7 +605,7 @@ bool A2::mouseMoveEvent (
 					model *= rotationZ;
 				}
 				if (leftMousePressed) {
-					double camera_rotation = yPos-preYPos;
+					double camera_rotation = xPos - preXPos;
 					double angle = camera_rotation/90;
 					mat4 rotationX = glm::mat4(1.0f);
 					rotationX[1][1] = cos(angle);
@@ -558,19 +626,23 @@ bool A2::mouseMoveEvent (
 				}
 				break;
 			case TranslateModel:
-				if (rightMousePressed) {
+				{
+					mat4 translate = mat4(1.0f);
 					double xTrans = xPos - preXPos;
 					double yTrans = yPos - preYPos;
-					mat4 translate = mat4(1.0f);
-					translate[3][0] = -xTrans/100;
-					translate[3][1] = yTrans/100;
+					if (rightMousePressed) {
+						translate[3][2] = +xTrans/100;
+						modelOrigin[2] += xTrans/100;
+					}
+					if (leftMousePressed) {
+						translate[3][0] = +xTrans/100;
+						modelOrigin[0] += xTrans/100;
+					}
+					if (middleMousePressed) {
+						translate[3][1] = +xTrans/100;
+						modelOrigin[1] += xTrans/100;
+					}
 					model *= translate;
-				}
-				if (leftMousePressed) {
-					
-				}
-				if (middleMousePressed) {
-					
 				}
 				break;
 			case ScaleModel:
@@ -684,6 +756,35 @@ bool A2::keyInputEvent (
 	bool eventHandled(false);
 
 	// Fill in with event handling code...
-
+	if( action == GLFW_PRESS ) {
+		// Respond to some key events.
+		if (key == GLFW_KEY_Q) {
+			glfwSetWindowShouldClose(m_window, GL_TRUE);
+		}
+		if (key == GLFW_KEY_A) {
+			reset();
+		}
+		if (key == GLFW_KEY_O) {
+			interaction = RotateView;
+		}
+		if (key == GLFW_KEY_E) {
+			interaction = TranslateView;
+		}
+		if (key == GLFW_KEY_P) {
+			interaction = Perspective;
+		}
+		if (key == GLFW_KEY_R) {
+			interaction = RotateModel;
+		}
+		if (key == GLFW_KEY_T) {
+			interaction = TranslateModel;
+		}
+		if (key == GLFW_KEY_S) {
+			interaction = ScaleModel;
+		}
+		if (key == GLFW_KEY_V) {
+			interaction = Viewport;
+		}
+	}
 	return eventHandled;
 }

@@ -81,7 +81,7 @@ protected:
 	GLuint m_vbo_positions;  // Vertex Buffer Object
 	GLuint m_vbo_colours;    // Vertex Buffer Object
 
-	void drawCube();
+	void reset();
 
 	// interaction model
 	int interaction;
@@ -96,8 +96,12 @@ protected:
 	double preXPos;
 
 	std::vector<vec4> worldFrame = {vec4(0,0,0,1), vec4(1,0,0,1), vec4(0,1,0,1), vec4(0,0,1,1)};
-	std::vector<vec4> worldFrame2d = {vec4(0,0,0,1), vec4(1,0,0,1), vec4(0,1,0,1), vec4(0,0,1,1)};
+	std::vector<vec4> objectFrame = {vec4(0,0,0,1), vec4(1,0,0,1), vec4(0,1,0,1), vec4(0,0,1,1)};
+
 	void drawWorldFrame();
+	void drawObjectFrame();
+	void drawFrame(std::vector<vec4> worldFrame);
+	void drawCube();
 
 	VertexData m_vertexData;
 
