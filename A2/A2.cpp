@@ -17,6 +17,7 @@ using namespace glm;
 #include "utils.hpp"
 
 float cameraScale = 5;
+float translationRatio = 76.0f;
 
 vec4 viewXaxis = vec4(-1,0,0,0);
 vec4 viewYaxis = vec4(0,1,0,0);
@@ -568,29 +569,33 @@ bool A2::mouseMoveEvent (
 					double xTrans = xPos - preXPos;
 					double yTrans = yPos - preYPos;
 					if (rightMousePressed) {
-						translate[3][2] = -xTrans/100;
-						viewOrigin[2] += xTrans/100;
+						translate[3][2] = -xTrans/translationRatio;
+						viewOrigin[2] += xTrans/translationRatio;
 					}
 					if (leftMousePressed) {
-						translate[3][0] = -xTrans/100;
-						viewOrigin[0] += xTrans/100;
+						translate[3][0] = -xTrans/translationRatio;
+						viewOrigin[0] += xTrans/translationRatio;
 					}
 					if (middleMousePressed) {
-						translate[3][1] = -xTrans/100;
-						viewOrigin[1] += xTrans/100;
+						translate[3][1] = -xTrans/translationRatio;
+						viewOrigin[1] += xTrans/translationRatio;
 					}
 					view *= translate;
 				}
 				break;
 			case Perspective:
-				if (rightMousePressed) {
-					
-				}
-				if (leftMousePressed) {
-					
-				}
-				if (middleMousePressed) {
-					
+				{
+					mat4 scale = mat4(1.0f);
+					double xTrans = xPos - preXPos;
+					if (leftMousePressed) {
+						
+					}
+					if (middleMousePressed) {
+						
+					}
+					if (rightMousePressed) {
+						
+					}
 				}
 				break;
 			case RotateModel:
@@ -631,40 +636,49 @@ bool A2::mouseMoveEvent (
 					double xTrans = xPos - preXPos;
 					double yTrans = yPos - preYPos;
 					if (rightMousePressed) {
-						translate[3][2] = +xTrans/100;
-						modelOrigin[2] += xTrans/100;
+						translate[3][2] = +xTrans/translationRatio;
+						modelOrigin[2] += xTrans/translationRatio;
 					}
 					if (leftMousePressed) {
-						translate[3][0] = +xTrans/100;
-						modelOrigin[0] += xTrans/100;
+						translate[3][0] = +xTrans/translationRatio;
+						modelOrigin[0] += xTrans/translationRatio;
 					}
 					if (middleMousePressed) {
-						translate[3][1] = +xTrans/100;
-						modelOrigin[1] += xTrans/100;
+						translate[3][1] = +xTrans/translationRatio;
+						modelOrigin[1] += xTrans/translationRatio;
 					}
 					model *= translate;
 				}
 				break;
-			case ScaleModel:
-				if (rightMousePressed) {
-					
-				}
-				if (leftMousePressed) {
-					
-				}
-				if (middleMousePressed) {
-					
+			case ScaleModel: 
+				{
+					mat4 scale = mat4(1.0f);
+					double scaleRatio = 1.0f + (xPos - preXPos)/translationRatio;
+					if (leftMousePressed) {
+						scale[0][0] = scaleRatio;
+					}
+					if (middleMousePressed) {
+						scale[1][1] = scaleRatio;
+					}
+					if (rightMousePressed) {
+						scale[2][2] = scaleRatio;
+					}
+					model *= scale;
 				}
 				break;
 			case Viewport:
-				if (rightMousePressed) {
-					
-				}
-				if (leftMousePressed) {
-					
-				}
-				if (middleMousePressed) {
-					
+				{
+					mat4 scale = mat4(1.0f);
+					double xTrans = xPos - preXPos;
+					if (leftMousePressed) {
+						
+					}
+					if (middleMousePressed) {
+						
+					}
+					if (rightMousePressed) {
+						
+					}
 				}
 				break;
 		}
