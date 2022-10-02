@@ -88,6 +88,7 @@ protected:
 
 	glm::mat4 model;
 	glm::mat4 view;
+	glm::mat4 project;
 	mat4 mylookAt(vec3  const & eye, vec3  const & center, vec3  const & up);
 	bool leftMousePressed;
 	bool middleMousePressed;

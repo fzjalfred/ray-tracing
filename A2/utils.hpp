@@ -36,6 +36,20 @@ mat4 myRotate(double theta, vec4 axis) {
     return res;
 }
 
+mat4 myPerspective(double aspect, double FOV,
+float near,
+float far) {
+    mat4 res (1.0f);
+    res[0][0] = aspect*(1/tan(FOV/2));
+    res[1][1] = 1/tan(FOV/2);
+    // res[0][0] = 1;
+    // res[1][1] = 1;
+    res[2][2] = -(far + near)/(far - near);
+    res[2][3] = -1;
+    res[3][2] = - 2*(far*near)/(far - near); 
+
+    return res;
+}
 
 
 

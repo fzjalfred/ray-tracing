@@ -15,9 +15,8 @@ using namespace glm;
 
 class Cube {
 
-	std::vector<vec4> vertices = std::vector<vec4> (8);
-	
     public:
+	std::vector<vec4> vertices = std::vector<vec4> (8);
 	std::vector<vec4> vertices2d = std::vector<vec4> (8);
 
     Cube(float x, float y, float z, float length = 1.0f) {

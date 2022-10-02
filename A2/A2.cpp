@@ -15,9 +15,17 @@ using namespace std;
 using namespace glm;
 
 #include "utils.hpp"
+const float PI = 3.14159265f;
+
 
 float cameraScale = 5;
 float translationRatio = 76.0f;
+
+double FOV = 30;
+float near = 1.0f;
+float far = 1.0f;
+float depthZPlane = -1;
+
 
 vec4 viewXaxis = vec4(-1,0,0,0);
 vec4 viewYaxis = vec4(0,1,0,0);
@@ -81,7 +89,11 @@ void A2::init()
 		glm::vec3( 0.0f, 0.0f, 0.0f ),
 		glm::vec3( 0.0f, 1.0f, 0.0f ) );
 
-	
+	project = myPerspective(float( m_framebufferWidth ) / float( m_framebufferHeight ), glm::radians(FOV), near, far);
+	// project = glm::perspective( 
+	// 	glm::radians( 30.0f ),
+	// 	float( m_framebufferWidth ) / float( m_framebufferHeight ),
+	// 	-10.0f, -20.0f );
 }
 
 void A2::reset() {
@@ -303,9 +315,16 @@ void A2::drawFrame(std::vector<vec4> worldFrame) {
 }
 
 void A2::drawCube() {
-	cube.simpleProj(view, model);
+	// cube.simpleProj(view, model);
+
+	for (int i = 0; i<8; i++) {
+		auto p = cube.vertices[i];
+		vec4 pos2d = project*view*model*p;
+		cube.vertices2d[i] = pos2d;
+		// std::cout<<"x:"<< pos2d[0]<<" y:"<<pos2d[1]<<" z:"<<pos2d[2]<<std::endl;
+	}
 	std::vector<vec4> verts = cube.vertices2d;
-	std::for_each(verts.begin(), verts.end(), [](vec4 &c){ c /= cameraScale; });
+	std::for_each(verts.begin(), verts.end(), [](vec4 &c){ c/=c[3]; c /= cameraScale;  });
 	setLineColour(vec3(1.0f, 1.0f, 1.0f));
 
 	drawLine(vec2(verts[0][0], verts[0][1]), vec2(verts[1][0], verts[1][1]));
