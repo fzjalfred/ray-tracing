@@ -87,5 +87,18 @@ bool clip(vec2& A, vec2& B, vec2 P, vec2 n) {
     return true;
 }
 
+bool clip(vec4& A, vec4& B, vec4 P, vec4 n) {
+    float wecA = dot((A-P), n);
+    float wecB = dot((B-P), n);
+    if ( wecA < 0 && wecB < 0 ) return false;
+    if ( wecA >= 0 && wecB >= 0 ) return true;
+    float t = wecA / (wecA - wecB);
+    if ( wecA < 0 )
+        A = A + t*(B-A);
+    else
+        B = A + t*(B-A);
+    return true;
+}
+
 
 #endif

@@ -111,9 +111,11 @@ void A2::init()
 	model = mat4(1.0f);
 
 	this->windowMatrix = mat4(1.0f);
-	windowMatrix[0][0] = 0.20f;
-	windowMatrix[1][1] = 0.20f;
-	windowMatrix[2][2] = 0.20f;
+
+	windowBefore = mat4(1.0f);
+	windowBefore[0][0] = 0.2f;
+	windowBefore[1][1] = 0.2f;
+	windowBefore[2][2] = 0.2f;
 
 	view = mylookAt( 
 		glm::vec3( 0.0f, 0.0f, 1.0f ),
@@ -150,6 +152,7 @@ void A2::reset() {
 
 	windowStart = vec2(-0.95, 0.95);
 	windowEnd = vec2(0.95, -0.95);
+	windowMatrix = mat4(1.0f);
 }
 
 mat4 A2::mylookAt(vec3  const & eye, vec3  const & center, vec3  const & up) {
@@ -314,11 +317,12 @@ bool A2::clipWindow(vec2& A, vec2& B) {
 
 void A2::drawObjectFrame() {
 	std::vector<vec4> objectFrame2d = {vec4(0,0,0,1), vec4(1,0,0,1), vec4(0,1,0,1), vec4(0,0,1,1)};
-	for (int i = 0; i<8; i++) {
+	for (int i = 0; i<objectFrame2d.size(); i++) {
 		auto p = objectFrame[i];
-		vec4 pos2d = project*windowMatrix*view*model*p;
+		vec4 pos2d = project*windowBefore*view*model*p;
 		pos2d/=pos2d[3];
-		objectFrame2d[i] = pos2d;
+		pos2d[2] = p[2];
+		objectFrame2d[i] = windowMatrix*pos2d;
 		// std::cout<<"x:"<< pos2d[0]<<" y:"<<pos2d[1]<<" z:"<<pos2d[2]<<std::endl;
 	}
 	setLineColour(vec3(0.5f, 0.5f, 1.0f));
@@ -331,11 +335,12 @@ void A2::drawObjectFrame() {
 
 void A2::drawWorldFrame() {
 	std::vector<vec4> worldFrame2d = {vec4(0,0,0,1), vec4(1,0,0,1), vec4(0,1,0,1), vec4(0,0,1,1)};
-	for (int i = 0; i<8; i++) {
+	for (int i = 0; i<worldFrame2d.size(); i++) {
 		auto p = worldFrame[i];
-		vec4 pos2d = project*windowMatrix*view*p;
+		vec4 pos2d = project*windowBefore*view*p;
 		pos2d/=pos2d[3];
-		worldFrame2d[i] = pos2d;
+		pos2d[2] = p[2];
+		worldFrame2d[i] = windowMatrix*pos2d;
 		// std::cout<<"x:"<< pos2d[0]<<" y:"<<pos2d[1]<<" z:"<<pos2d[2]<<std::endl;
 	}
 	setLineColour(vec3(0.0f, 0.0f, 1.0f));
@@ -348,10 +353,12 @@ void A2::drawWorldFrame() {
 
 void A2::drawFrame(std::vector<vec4> worldFrame) {
 	std::vector<vec4> worldFrame2d = worldFrame;
-	for (int i = 0; i<8; i++) {
+	for (int i = 0; i<worldFrame2d.size(); i++) {
 		auto p = worldFrame[i];
-		vec4 pos2d = project*windowMatrix*view*p;
-		worldFrame2d[i] = pos2d;
+		vec4 pos2d = project*windowBefore*view*p;
+		pos2d/=pos2d[3];
+		pos2d[2] = p[2];
+		worldFrame2d[i] = windowMatrix*pos2d;
 		// std::cout<<"x:"<< pos2d[0]<<" y:"<<pos2d[1]<<" z:"<<pos2d[2]<<std::endl;
 	}
 	setLineColour(vec3(0.0f, 0.0f, 1.0f));
@@ -367,9 +374,10 @@ void A2::drawCube() {
 
 	for (int i = 0; i<8; i++) {
 		auto p = cube.vertices[i];
-		vec4 pos2d = project*windowMatrix*view*model*p;
+		vec4 pos2d = project*windowBefore*view*model*p;
 		pos2d/=pos2d[3];
-		cube.vertices2d[i] = pos2d;
+		pos2d[2] = p[2];
+		cube.vertices2d[i] = windowMatrix*pos2d;
 		// std::cout<<"x:"<< pos2d[0]<<" y:"<<pos2d[1]<<" z:"<<pos2d[2]<<std::endl;
 	}
 	std::vector<vec4> verts = cube.vertices2d;
@@ -430,6 +438,8 @@ void A2::appLogic()
 	//drawFrame(vector<vec4> {viewOrigin, viewOrigin+viewXaxis, viewOrigin+viewYaxis, viewOrigin+viewZaxis});
 	drawObjectFrame();
 	drawWorldFrame();
+	//*** draw midpoint of window for debug ***//
+	// drawLine(vec2(0,0), vec2(windowMatrix[3][0], windowMatrix[3][1]));
 }
 
 //----------------------------------------------------------------------------------------
@@ -758,8 +768,8 @@ bool A2::mouseMoveEvent (
 					if (leftMousePressed) {
 						windowEnd[0] = xPos/m_windowWidth*2 + -1;
 						windowEnd[1] = 1 - yPos/m_windowHeight*2;
-						windowMatrix[0][0] = (windowEnd[0] - windowStart[0])/1.9f/4.0f;
-						windowMatrix[1][1] = (windowEnd[1] - windowStart[1])/1.9f/4.0f;
+						windowMatrix[0][0] = (windowEnd[0] - windowStart[0])/1.9f;
+						windowMatrix[1][1] = (windowStart[1] - windowEnd[1])/1.9f;
 						//x translation
 						windowMatrix[3][0] = (windowEnd[0] + windowStart[0])/2.0f;
 						windowMatrix[3][1] = (windowEnd[1] + windowStart[1])/2.0f;
