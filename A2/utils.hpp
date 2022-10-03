@@ -44,10 +44,10 @@ float far) {
     res[1][1] = 1/tan(FOV/2);
     // res[0][0] = 1;
     // res[1][1] = 1;
-    res[2][2] = -(far + near)/(far - near);
+    res[2][2] = 1;
     //res[2][2] = far/(far - near);
     res[2][3] = -1;
-    res[3][2] = - 2*(far*near)/(far - near); 
+    res[3][2] = 1; 
     //res[3][2] = - (far*near)/(far - near); 
 
     return res;
@@ -61,10 +61,10 @@ float far) {
     res[1][1] = 1/tan(FOV/2);
     // res[0][0] = 1;
     // res[1][1] = 1;
-    res[2][2] = (far + near)/(far - near);
+    res[2][2] = 1;
     //res[2][2] = far/(far - near);
     res[2][3] = 1;
-    res[3][2] = - 2*(far*near)/(far - near); 
+    res[3][2] = 1; 
     //res[3][2] = - (far*near)/(far - near); 
 
     return res;

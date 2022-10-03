@@ -117,6 +117,7 @@ void A2::init()
 	mapVboDataToVertexAttributeLocation();
 
 	model = mat4(1.0f);
+	modelScale = mat4(1.0f);
 
 	this->windowMatrix = mat4(1.0f);
 
@@ -164,6 +165,7 @@ void A2::reset() {
 
 	far = -2.0f;
 	near = 1.0f;
+	modelScale = mat4(1.0f);
 }
 
 mat4 A2::mylookAt(vec3  const & eye, vec3  const & center, vec3  const & up) {
@@ -397,7 +399,7 @@ void A2::drawCube() {
 	// cube.simpleProj(view, model);
 
 	for (int i = 0; i<8; i++) {
-		auto p = view*model*cube.vertices[i];
+		auto p = view*model*modelScale*cube.vertices[i];
 		vec4 pos2d = project*windowBefore*p;
 		pos2d/=pos2d[3];
 		pos2d[2] = p[2];
@@ -772,7 +774,7 @@ bool A2::mouseMoveEvent (
 			case ScaleModel: 
 				{
 					mat4 scale = mat4(1.0f);
-					double scaleRatio = 1.0f + (xPos - preXPos)/translationRatio;
+					float scaleRatio = 1.0f + (xPos - preXPos)/translationRatio;
 					if (leftMousePressed) {
 						scale[0][0] = scaleRatio;
 					}
@@ -782,7 +784,7 @@ bool A2::mouseMoveEvent (
 					if (rightMousePressed) {
 						scale[2][2] = scaleRatio;
 					}
-					model *= scale;
+					modelScale *= scale;
 				}
 				break;
 			case Viewport:

@@ -93,6 +93,7 @@ protected:
 	glm::mat4 model;
 	glm::mat4 view;
 	glm::mat4 project = mat4(1.0f);
+	glm::mat4 modelScale;
 	glm::mat4 windowMatrix; 
 	glm::mat4 windowBefore;
 	mat4 mylookAt(vec3  const & eye, vec3  const & center, vec3  const & up);
