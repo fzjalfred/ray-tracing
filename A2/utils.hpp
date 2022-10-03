@@ -36,7 +36,7 @@ mat4 myRotate(double theta, vec4 axis) {
     return res;
 }
 
-mat4 myPerspective(double aspect, double FOV,
+mat4 myPerspectiveDownZ(double aspect, double FOV,
 float near,
 float far) {
     mat4 res (1.0f);
@@ -45,12 +45,47 @@ float far) {
     // res[0][0] = 1;
     // res[1][1] = 1;
     res[2][2] = -(far + near)/(far - near);
+    //res[2][2] = far/(far - near);
     res[2][3] = -1;
     res[3][2] = - 2*(far*near)/(far - near); 
+    //res[3][2] = - (far*near)/(far - near); 
 
     return res;
 }
 
+mat4 myPerspectiveUpZ(double aspect, double FOV,
+float near,
+float far) {
+    mat4 res (1.0f);
+    res[0][0] = aspect*(1/tan(FOV/2));
+    res[1][1] = 1/tan(FOV/2);
+    // res[0][0] = 1;
+    // res[1][1] = 1;
+    res[2][2] = (far + near)/(far - near);
+    //res[2][2] = far/(far - near);
+    res[2][3] = 1;
+    res[3][2] = - 2*(far*near)/(far - near); 
+    //res[3][2] = - (far*near)/(far - near); 
+
+    return res;
+}
+
+
+bool clip(vec2& A, vec2& B, vec2 P, vec2 n) {
+    auto l = [=] (vec2 x) {
+        return dot((x - P), n);
+    };
+    float wecA = dot((A-P), n);
+    float wecB = dot((B-P), n);
+    if ( wecA < 0 && wecB < 0 ) return false;
+    if ( wecA >= 0 && wecB >= 0 ) return true;
+    float t = wecA / (wecA - wecB);
+    if ( wecA < 0 )
+        A = A + t*(B-A);
+    else
+        B = A + t*(B-A);
+    return true;
+}
 
 
 #endif

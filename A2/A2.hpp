@@ -104,6 +104,11 @@ protected:
 	void drawFrame(std::vector<vec4> worldFrame);
 	void drawCube();
 
+
+	//Clipping window
+	bool clipWindow(vec2& A, vec2& B);
+
+
 	VertexData m_vertexData;
 
 	glm::vec3 m_currentLineColour;

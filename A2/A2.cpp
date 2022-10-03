@@ -37,6 +37,25 @@ vec4 modelYaxis = vec4(0,1,0,0);
 vec4 modelZaxis = vec4(0,0,1,0);
 vec4 modelOrigin = vec4(0,0,0,1);
 
+
+vec2 windowStart = vec2(-0.95, 0.95);
+vec2 windowEnd = vec2(0.95, -0.95);
+
+vec2 upP = windowStart;
+vec2 upN = vec2(windowStart[0], windowEnd[1]) - windowStart;
+vec2 leftP = windowStart;
+vec2 leftN = vec2(windowEnd[0], windowStart[1]) - windowStart;
+vec2 downP = windowEnd;
+vec2 downN = -upN;
+vec2 rightP = windowEnd;
+vec2 rightN = -leftN;
+
+
+void updatePandNormal() {
+
+}
+
+
 //----------------------------------------------------------------------------------------
 // Constructor
 VertexData::VertexData()
@@ -89,7 +108,7 @@ void A2::init()
 		glm::vec3( 0.0f, 0.0f, 0.0f ),
 		glm::vec3( 0.0f, 1.0f, 0.0f ) );
 
-	project = myPerspective(float( m_framebufferWidth ) / float( m_framebufferHeight ), glm::radians(FOV), near, far);
+	project = myPerspectiveDownZ(float( m_framebufferWidth ) / float( m_framebufferHeight ), glm::radians(FOV), near, far);
 	// project = glm::perspective( 
 	// 	glm::radians( 30.0f ),
 	// 	float( m_framebufferWidth ) / float( m_framebufferHeight ),
@@ -252,16 +271,30 @@ void A2::drawLine(
 		const glm::vec2 & V0,   // Line Start (NDC coordinate)
 		const glm::vec2 & V1    // Line End (NDC coordinate)
 ) {
+	vec2 A = V0;
+	vec2 B = V1;
+	if (!clipWindow(A, B)) {
+		return;
+	}
 
-	m_vertexData.positions[m_vertexData.index] = V0;
+	m_vertexData.positions[m_vertexData.index] = A;
 	m_vertexData.colours[m_vertexData.index] = m_currentLineColour;
 	++m_vertexData.index;
-	m_vertexData.positions[m_vertexData.index] = V1;
+	m_vertexData.positions[m_vertexData.index] = B;
 	m_vertexData.colours[m_vertexData.index] = m_currentLineColour;
 	++m_vertexData.index;
 
 	m_vertexData.numVertices += 2;
 }
+
+bool A2::clipWindow(vec2& A, vec2& B) {
+	if (clip(A, B, upP, upN) && clip(A, B, downP, downN) && clip(A, B, leftP, leftN) && clip(A, B, rightP, rightN)) {
+		return true;
+	}
+	return false;
+	// if (clip(up)&&clip(down)&&clip(left)&&clip(right))
+}
+
 
 void A2::drawObjectFrame() {
 	std::vector<vec4> objectFrame2d = {vec4(0,0,0,1), vec4(1,0,0,1), vec4(0,1,0,1), vec4(0,0,1,1)};
@@ -607,13 +640,24 @@ bool A2::mouseMoveEvent (
 					mat4 scale = mat4(1.0f);
 					double xTrans = xPos - preXPos;
 					if (leftMousePressed) {
-						
+						FOV += xTrans/translationRatio;
+						if (FOV < 5) {
+							FOV = 5;
+						}
+						if (FOV > 160) {
+							FOV = 160;
+						}
 					}
 					if (middleMousePressed) {
-						
+						near += xTrans/translationRatio;
 					}
 					if (rightMousePressed) {
-						
+						far += xTrans/translationRatio;
+					}
+					if (viewZaxis[2] < 0) {
+						project = myPerspectiveDownZ(float( m_framebufferWidth ) / float( m_framebufferHeight ), glm::radians(FOV), near, far);
+					} else {
+						project = myPerspectiveUpZ(float( m_framebufferWidth ) / float( m_framebufferHeight ), glm::radians(FOV), near, far);
 					}
 				}
 				break;
