@@ -74,6 +74,10 @@ protected:
 			const glm::vec2 & v0,
 			const glm::vec2 & v1
 	);
+	void drawLine (
+			const glm::vec3 & v0,
+			const glm::vec3 & v1
+	);
 
 	ShaderProgram m_shader;
 
@@ -104,12 +108,12 @@ protected:
 
 	void drawWorldFrame();
 	void drawObjectFrame();
-	void drawFrame(std::vector<vec4> worldFrame);
 	void drawCube();
 
 
 	//Clipping window
-	bool clipWindow(vec2& A, vec2& B);
+	// bool clipWindow(vec2& A, vec2& B);
+	bool clipWindow(vec3& A, vec3& B);
 	bool viewResizing = false;
 
 

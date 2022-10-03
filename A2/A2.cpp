@@ -23,7 +23,7 @@ float translationRatio = 76.0f;
 
 double FOV = 30;
 float near = 1.0f;
-float far = 1.0f;
+float far = -2.0f;
 float depthZPlane = -1;
 
 
@@ -41,24 +41,32 @@ vec4 modelOrigin = vec4(0,0,0,1);
 vec2 windowStart = vec2(-0.95, 0.95);
 vec2 windowEnd = vec2(0.95, -0.95);
 
-vec2 upP = windowStart;
-vec2 upN = vec2(windowStart[0], windowEnd[1]) - windowStart;
-vec2 leftP = windowStart;
-vec2 leftN = vec2(windowEnd[0], windowStart[1]) - windowStart;
-vec2 downP = windowEnd;
-vec2 downN = -upN;
-vec2 rightP = windowEnd;
-vec2 rightN = -leftN;
+vec3 upP = vec3(windowStart, 0);
+vec3 upN = vec3(vec2(windowStart[0], windowEnd[1]) - windowStart, 0);
+vec3 leftP = vec3(windowStart, 0);
+vec3 leftN = vec3(vec2(windowEnd[0], windowStart[1]) - windowStart, 0);
+vec3 downP = vec3(windowEnd, 0);
+vec3 downN = -upN;
+vec3 rightP = vec3(windowEnd, 0);
+vec3 rightN = -leftN;
 
 
 void updateClippingConfig() {
-	upP = windowStart;
-	upN = vec2(windowStart[0], windowEnd[1]) - windowStart;
-	leftP = windowStart;
-	leftN = vec2(windowEnd[0], windowStart[1]) - windowStart;
-	downP = windowEnd;
+	// upP = windowStart;
+	// upN = vec2(windowStart[0], windowEnd[1]) - windowStart;
+	// leftP = windowStart;
+	// leftN = vec2(windowEnd[0], windowStart[1]) - windowStart;
+	// downP = windowEnd;
+	// downN = -upN;
+	// rightP = windowEnd;
+	// rightN = -leftN;
+	upP = vec3(windowStart, 0);
+	upN = vec3(vec2(windowStart[0], windowEnd[1]) - windowStart, 0);
+	leftP = vec3(windowStart, 0);
+	leftN = vec3(vec2(windowEnd[0], windowStart[1]) - windowStart, 0);
+	downP = vec3(windowEnd, 0);
 	downN = -upN;
-	rightP = windowEnd;
+	rightP = vec3(windowEnd, 0);
 	rightN = -leftN;
 }
 
@@ -153,6 +161,9 @@ void A2::reset() {
 	windowStart = vec2(-0.95, 0.95);
 	windowEnd = vec2(0.95, -0.95);
 	windowMatrix = mat4(1.0f);
+
+	far = -2.0f;
+	near = 1.0f;
 }
 
 mat4 A2::mylookAt(vec3  const & eye, vec3  const & center, vec3  const & up) {
@@ -292,9 +303,9 @@ void A2::drawLine(
 ) {
 	vec2 A = V0;
 	vec2 B = V1;
-	if (!clipWindow(A, B)) {
-		return;
-	}
+	// if (!clipWindow(A, B)) {
+	// 	return;
+	// }
 
 	m_vertexData.positions[m_vertexData.index] = A;
 	m_vertexData.colours[m_vertexData.index] = m_currentLineColour;
@@ -306,8 +317,38 @@ void A2::drawLine(
 	m_vertexData.numVertices += 2;
 }
 
-bool A2::clipWindow(vec2& A, vec2& B) {
-	if (clip(A, B, upP, upN) && clip(A, B, downP, downN) && clip(A, B, leftP, leftN) && clip(A, B, rightP, rightN)) {
+void A2::drawLine(
+		const glm::vec3 & V0,   // Line Start (NDC coordinate)
+		const glm::vec3 & V1    // Line End (NDC coordinate)
+) {
+	vec3 A = V0;
+	vec3 B = V1;
+	if (!clipWindow(A, B)) {
+		return;
+	}
+
+	m_vertexData.positions[m_vertexData.index] = vec2(A);
+	m_vertexData.colours[m_vertexData.index] = m_currentLineColour;
+	++m_vertexData.index;
+	m_vertexData.positions[m_vertexData.index] = vec2(B);
+	m_vertexData.colours[m_vertexData.index] = m_currentLineColour;
+	++m_vertexData.index;
+
+	m_vertexData.numVertices += 2;
+}
+
+bool A2::clipWindow(vec3& A, vec3& B) {
+	// vec3 upP = vec3(windowStart, 0);
+	// vec3 upN = vec3(::upN, 0);
+	// vec3 leftP = vec3(::leftP, 0);
+	// vec3 leftN = vec3(::leftN, 0);
+	// vec3 downP = vec3(::downP, 0);;
+	// vec3 downN = vec3(::downN, 0);
+	// vec3 rightP = vec3(::rightP, 0);
+	// vec3 rightN = vec3(::rightN, 0);
+	if (clip(A, B, upP, upN) && clip(A, B, downP, downN) 
+	&& clip(A, B, leftP, leftN) && clip(A, B, rightP, rightN)
+	&& clip(A, B, vec3(0,0,far), vec3(0,0,1)) && clip(A, B, vec3(0,0,near), vec3(0,0,-1))) {
 		return true;
 	}
 	return false;
@@ -318,63 +359,46 @@ bool A2::clipWindow(vec2& A, vec2& B) {
 void A2::drawObjectFrame() {
 	std::vector<vec4> objectFrame2d = {vec4(0,0,0,1), vec4(1,0,0,1), vec4(0,1,0,1), vec4(0,0,1,1)};
 	for (int i = 0; i<objectFrame2d.size(); i++) {
-		auto p = objectFrame[i];
-		vec4 pos2d = project*windowBefore*view*model*p;
+		auto p = view*model*objectFrame[i];
+		vec4 pos2d = project*windowBefore*p;
 		pos2d/=pos2d[3];
 		pos2d[2] = p[2];
 		objectFrame2d[i] = windowMatrix*pos2d;
 		// std::cout<<"x:"<< pos2d[0]<<" y:"<<pos2d[1]<<" z:"<<pos2d[2]<<std::endl;
 	}
 	setLineColour(vec3(0.5f, 0.5f, 1.0f));
-	drawLine(vec2(objectFrame2d[0][0], objectFrame2d[0][1]), vec2(objectFrame2d[1][0], objectFrame2d[1][1]));
+	drawLine(vec3(objectFrame2d[0]), vec3(objectFrame2d[1]));
 	setLineColour(vec3(0.5f, 1.0f, 1.5f));
-	drawLine(vec2(objectFrame2d[0][0], objectFrame2d[0][1]), vec2(objectFrame2d[2][0], objectFrame2d[2][1]));
+	drawLine(vec3(objectFrame2d[0]), vec3(objectFrame2d[2]));
 	setLineColour(vec3(1.0f, 0.5f, 1.5f));
-	drawLine(vec2(objectFrame2d[0][0], objectFrame2d[0][1]), vec2(objectFrame2d[3][0], objectFrame2d[3][1]));
+	drawLine(vec3(objectFrame2d[0]), vec3(objectFrame2d[3]));
 }
 
 void A2::drawWorldFrame() {
 	std::vector<vec4> worldFrame2d = {vec4(0,0,0,1), vec4(1,0,0,1), vec4(0,1,0,1), vec4(0,0,1,1)};
 	for (int i = 0; i<worldFrame2d.size(); i++) {
-		auto p = worldFrame[i];
-		vec4 pos2d = project*windowBefore*view*p;
+		auto p = view*worldFrame[i];
+		vec4 pos2d = project*windowBefore*p;
 		pos2d/=pos2d[3];
 		pos2d[2] = p[2];
 		worldFrame2d[i] = windowMatrix*pos2d;
 		// std::cout<<"x:"<< pos2d[0]<<" y:"<<pos2d[1]<<" z:"<<pos2d[2]<<std::endl;
 	}
 	setLineColour(vec3(0.0f, 0.0f, 1.0f));
-	drawLine(vec2(worldFrame2d[0][0], worldFrame2d[0][1]), vec2(worldFrame2d[1][0], worldFrame2d[1][1]));
+	drawLine(vec3(worldFrame2d[0]), vec3(worldFrame2d[1]));
 	setLineColour(vec3(0.0f, 1.0f, 1.0f));
-	drawLine(vec2(worldFrame2d[0][0], worldFrame2d[0][1]), vec2(worldFrame2d[2][0], worldFrame2d[2][1]));
+	drawLine(vec3(worldFrame2d[0]), vec3(worldFrame2d[2]));
 	setLineColour(vec3(1.0f, 0.0f, 1.0f));
-	drawLine(vec2(worldFrame2d[0][0], worldFrame2d[0][1]), vec2(worldFrame2d[3][0], worldFrame2d[3][1]));
+	drawLine(vec3(worldFrame2d[0]), vec3(worldFrame2d[3]));
 }
 
-void A2::drawFrame(std::vector<vec4> worldFrame) {
-	std::vector<vec4> worldFrame2d = worldFrame;
-	for (int i = 0; i<worldFrame2d.size(); i++) {
-		auto p = worldFrame[i];
-		vec4 pos2d = project*windowBefore*view*p;
-		pos2d/=pos2d[3];
-		pos2d[2] = p[2];
-		worldFrame2d[i] = windowMatrix*pos2d;
-		// std::cout<<"x:"<< pos2d[0]<<" y:"<<pos2d[1]<<" z:"<<pos2d[2]<<std::endl;
-	}
-	setLineColour(vec3(0.0f, 0.0f, 1.0f));
-	drawLine(vec2(worldFrame2d[0][0], worldFrame2d[0][1]), vec2(worldFrame2d[1][0], worldFrame2d[1][1]));
-	setLineColour(vec3(0.0f, 1.0f, 1.0f));
-	drawLine(vec2(worldFrame2d[0][0], worldFrame2d[0][1]), vec2(worldFrame2d[2][0], worldFrame2d[2][1]));
-	setLineColour(vec3(1.0f, 0.0f, 1.0f));
-	drawLine(vec2(worldFrame2d[0][0], worldFrame2d[0][1]), vec2(worldFrame2d[3][0], worldFrame2d[3][1]));
-}
 
 void A2::drawCube() {
 	// cube.simpleProj(view, model);
 
 	for (int i = 0; i<8; i++) {
-		auto p = cube.vertices[i];
-		vec4 pos2d = project*windowBefore*view*model*p;
+		auto p = view*model*cube.vertices[i];
+		vec4 pos2d = project*windowBefore*p;
 		pos2d/=pos2d[3];
 		pos2d[2] = p[2];
 		cube.vertices2d[i] = windowMatrix*pos2d;
@@ -385,21 +409,21 @@ void A2::drawCube() {
 
 	setLineColour(vec3(1.0f, 1.0f, 1.0f));
 
-	drawLine(vec2(verts[0][0], verts[0][1]), vec2(verts[1][0], verts[1][1]));
-	drawLine(vec2(verts[1][0], verts[1][1]), vec2(verts[2][0], verts[2][1]));
+	drawLine(vec3(verts[0][0], verts[0][1], verts[0][2]), vec3(verts[1][0], verts[1][1], verts[1][2]));
+	drawLine(vec3(verts[1][0], verts[1][1], verts[1][2]), vec3(verts[2][0], verts[2][1], verts[2][2]));
 	//std::cout<<"("<<verts[1][0]<<", "<<verts[1][1]<<") " <<"("<<verts[2][0]<<", "<<verts[2][1]<<") "<<endl;
-	drawLine(vec2(verts[2][0], verts[2][1]), vec2(verts[3][0], verts[3][1]));
-	drawLine(vec2(verts[3][0], verts[3][1]), vec2(verts[0][0], verts[0][1]));
+	drawLine(vec3(verts[2][0], verts[2][1], verts[2][2]), vec3(verts[3][0], verts[3][1], verts[3][2]));
+	drawLine(vec3(verts[3][0], verts[3][1], verts[3][2]), vec3(verts[0][0], verts[0][1], verts[0][2]));
 
-	drawLine(vec2(verts[0][0], verts[0][1]), vec2(verts[4][0], verts[4][1]));
-	drawLine(vec2(verts[1][0], verts[1][1]), vec2(verts[5][0], verts[5][1]));
-	drawLine(vec2(verts[2][0], verts[2][1]), vec2(verts[6][0], verts[6][1]));
-	drawLine(vec2(verts[3][0], verts[3][1]), vec2(verts[7][0], verts[7][1]));
+	drawLine(vec3(verts[0][0], verts[0][1], verts[0][2]), vec3(verts[4][0], verts[4][1], verts[4][2]));
+	drawLine(vec3(verts[1][0], verts[1][1], verts[1][2]), vec3(verts[5][0], verts[5][1], verts[5][2]));
+	drawLine(vec3(verts[2][0], verts[2][1], verts[2][2]), vec3(verts[6][0], verts[6][1], verts[6][2]));
+	drawLine(vec3(verts[3][0], verts[3][1], verts[3][2]), vec3(verts[7][0], verts[7][1], verts[7][2]));
 
-	drawLine(vec2(verts[4][0], verts[4][1]), vec2(verts[5][0], verts[5][1]));
-	drawLine(vec2(verts[5][0], verts[5][1]), vec2(verts[6][0], verts[6][1]));
-	drawLine(vec2(verts[6][0], verts[6][1]), vec2(verts[7][0], verts[7][1]));
-	drawLine(vec2(verts[7][0], verts[7][1]), vec2(verts[4][0], verts[4][1]));
+	drawLine(vec3(verts[4][0], verts[4][1], verts[4][2]), vec3(verts[5][0], verts[5][1], verts[5][2]));
+	drawLine(vec3(verts[5][0], verts[5][1], verts[5][2]), vec3(verts[6][0], verts[6][1], verts[6][2]));
+	drawLine(vec3(verts[6][0], verts[6][1], verts[6][2]), vec3(verts[7][0], verts[7][1], verts[7][2]));
+	drawLine(vec3(verts[7][0], verts[7][1], verts[7][2]), vec3(verts[4][0], verts[4][1], verts[4][2]));
 }
 
 //----------------------------------------------------------------------------------------

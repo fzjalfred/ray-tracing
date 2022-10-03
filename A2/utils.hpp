@@ -87,9 +87,15 @@ bool clip(vec2& A, vec2& B, vec2 P, vec2 n) {
     return true;
 }
 
-bool clip(vec4& A, vec4& B, vec4 P, vec4 n) {
+bool clip(vec3& A, vec3& B, vec3 P, vec3 n) {
     float wecA = dot((A-P), n);
     float wecB = dot((B-P), n);
+    // if (n[2] == 1) {
+    //     cout<<"A: "<<A[0]<<" "<<A[1]<<" "<<A[2]<<endl;
+    //     cout<<"P: "<<P[0]<<" "<<P[1]<<" "<<P[2]<<endl;
+    //     cout<<"wecA: "<<wecA<<endl;
+    //     cout<<"wecB: "<<wecB<<endl;
+    // }
     if ( wecA < 0 && wecB < 0 ) return false;
     if ( wecA >= 0 && wecB >= 0 ) return true;
     float t = wecA / (wecA - wecB);
