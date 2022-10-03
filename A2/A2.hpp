@@ -88,11 +88,13 @@ protected:
 
 	glm::mat4 model;
 	glm::mat4 view;
-	glm::mat4 project;
+	glm::mat4 project = mat4(1.0f);
+	glm::mat4 windowMatrix; 
 	mat4 mylookAt(vec3  const & eye, vec3  const & center, vec3  const & up);
 	bool leftMousePressed;
 	bool middleMousePressed;
 	bool rightMousePressed;
+
 	double preYPos;
 	double preXPos;
 
@@ -107,6 +109,7 @@ protected:
 
 	//Clipping window
 	bool clipWindow(vec2& A, vec2& B);
+	bool viewResizing = false;
 
 
 	VertexData m_vertexData;

@@ -51,8 +51,15 @@ vec2 rightP = windowEnd;
 vec2 rightN = -leftN;
 
 
-void updatePandNormal() {
-
+void updateClippingConfig() {
+	upP = windowStart;
+	upN = vec2(windowStart[0], windowEnd[1]) - windowStart;
+	leftP = windowStart;
+	leftN = vec2(windowEnd[0], windowStart[1]) - windowStart;
+	downP = windowEnd;
+	downN = -upN;
+	rightP = windowEnd;
+	rightN = -leftN;
 }
 
 
@@ -103,12 +110,18 @@ void A2::init()
 
 	model = mat4(1.0f);
 
+	this->windowMatrix = mat4(1.0f);
+	windowMatrix[0][0] = 0.20f;
+	windowMatrix[1][1] = 0.20f;
+	windowMatrix[2][2] = 0.20f;
+
 	view = mylookAt( 
 		glm::vec3( 0.0f, 0.0f, 1.0f ),
 		glm::vec3( 0.0f, 0.0f, 0.0f ),
 		glm::vec3( 0.0f, 1.0f, 0.0f ) );
 
 	project = myPerspectiveDownZ(float( m_framebufferWidth ) / float( m_framebufferHeight ), glm::radians(FOV), near, far);
+	// project = mat4(1.0f);
 	// project = glm::perspective( 
 	// 	glm::radians( 30.0f ),
 	// 	float( m_framebufferWidth ) / float( m_framebufferHeight ),
@@ -134,6 +147,9 @@ void A2::reset() {
 	modelYaxis = vec4(0,1,0,0);
 	modelZaxis = vec4(0,0,1,0);
 	modelOrigin = vec4(0,0,0,1);
+
+	windowStart = vec2(-0.95, 0.95);
+	windowEnd = vec2(0.95, -0.95);
 }
 
 mat4 A2::mylookAt(vec3  const & eye, vec3  const & center, vec3  const & up) {
@@ -300,11 +316,11 @@ void A2::drawObjectFrame() {
 	std::vector<vec4> objectFrame2d = {vec4(0,0,0,1), vec4(1,0,0,1), vec4(0,1,0,1), vec4(0,0,1,1)};
 	for (int i = 0; i<8; i++) {
 		auto p = objectFrame[i];
-		vec4 pos2d = view*model*p;
+		vec4 pos2d = project*windowMatrix*view*model*p;
+		pos2d/=pos2d[3];
 		objectFrame2d[i] = pos2d;
 		// std::cout<<"x:"<< pos2d[0]<<" y:"<<pos2d[1]<<" z:"<<pos2d[2]<<std::endl;
 	}
-	std::for_each(objectFrame2d.begin(), objectFrame2d.end(), [](vec4 &c){ c /= cameraScale; });
 	setLineColour(vec3(0.5f, 0.5f, 1.0f));
 	drawLine(vec2(objectFrame2d[0][0], objectFrame2d[0][1]), vec2(objectFrame2d[1][0], objectFrame2d[1][1]));
 	setLineColour(vec3(0.5f, 1.0f, 1.5f));
@@ -317,11 +333,11 @@ void A2::drawWorldFrame() {
 	std::vector<vec4> worldFrame2d = {vec4(0,0,0,1), vec4(1,0,0,1), vec4(0,1,0,1), vec4(0,0,1,1)};
 	for (int i = 0; i<8; i++) {
 		auto p = worldFrame[i];
-		vec4 pos2d = view*p;
+		vec4 pos2d = project*windowMatrix*view*p;
+		pos2d/=pos2d[3];
 		worldFrame2d[i] = pos2d;
 		// std::cout<<"x:"<< pos2d[0]<<" y:"<<pos2d[1]<<" z:"<<pos2d[2]<<std::endl;
 	}
-	std::for_each(worldFrame2d.begin(), worldFrame2d.end(), [](vec4 &c){ c /= cameraScale; });
 	setLineColour(vec3(0.0f, 0.0f, 1.0f));
 	drawLine(vec2(worldFrame2d[0][0], worldFrame2d[0][1]), vec2(worldFrame2d[1][0], worldFrame2d[1][1]));
 	setLineColour(vec3(0.0f, 1.0f, 1.0f));
@@ -334,11 +350,10 @@ void A2::drawFrame(std::vector<vec4> worldFrame) {
 	std::vector<vec4> worldFrame2d = worldFrame;
 	for (int i = 0; i<8; i++) {
 		auto p = worldFrame[i];
-		vec4 pos2d = view*p;
+		vec4 pos2d = project*windowMatrix*view*p;
 		worldFrame2d[i] = pos2d;
 		// std::cout<<"x:"<< pos2d[0]<<" y:"<<pos2d[1]<<" z:"<<pos2d[2]<<std::endl;
 	}
-	std::for_each(worldFrame2d.begin(), worldFrame2d.end(), [](vec4 &c){ c /= cameraScale; });
 	setLineColour(vec3(0.0f, 0.0f, 1.0f));
 	drawLine(vec2(worldFrame2d[0][0], worldFrame2d[0][1]), vec2(worldFrame2d[1][0], worldFrame2d[1][1]));
 	setLineColour(vec3(0.0f, 1.0f, 1.0f));
@@ -352,12 +367,14 @@ void A2::drawCube() {
 
 	for (int i = 0; i<8; i++) {
 		auto p = cube.vertices[i];
-		vec4 pos2d = project*view*model*p;
+		vec4 pos2d = project*windowMatrix*view*model*p;
+		pos2d/=pos2d[3];
 		cube.vertices2d[i] = pos2d;
 		// std::cout<<"x:"<< pos2d[0]<<" y:"<<pos2d[1]<<" z:"<<pos2d[2]<<std::endl;
 	}
 	std::vector<vec4> verts = cube.vertices2d;
-	std::for_each(verts.begin(), verts.end(), [](vec4 &c){ c/=c[3]; c /= cameraScale;  });
+	// std::for_each(verts.begin(), verts.end(), [=](vec4 &c){c /= cameraScale;  });
+
 	setLineColour(vec3(1.0f, 1.0f, 1.0f));
 
 	drawLine(vec2(verts[0][0], verts[0][1]), vec2(verts[1][0], verts[1][1]));
@@ -390,10 +407,15 @@ void A2::appLogic()
 
 	// Draw outer square:
 	setLineColour(vec3(1.0f, 0.7f, 0.8f));
-	drawLine(vec2(-0.95f, -0.95f), vec2(0.95f, -0.95f));
-	drawLine(vec2(0.95f, -0.95f), vec2(0.95f, 0.95f));
-	drawLine(vec2(0.95f, 0.95f), vec2(-0.95f, 0.95f));
-	drawLine(vec2(-0.95f, 0.95f), vec2(-0.95f, -0.95f));
+	drawLine(vec2(windowStart[0], windowEnd[1]), windowEnd);
+	drawLine(windowEnd, vec2(windowEnd[0], windowStart[1]));
+	drawLine(vec2(windowEnd[0], windowStart[1]), windowStart);
+	drawLine(windowStart, vec2(windowStart[0], windowEnd[1]));
+	//drawLine(vec2(-0.95f, -0.95f), vec2(0.95f, -0.95f));
+	//drawLine(vec2(0.95f, -0.95f), vec2(0.95f, 0.95f));
+	//drawLine(vec2(0.95f, 0.95f), vec2(-0.95f, 0.95f));
+	//drawLine(vec2(-0.95f, 0.95f), vec2(-0.95f, -0.95f));
+	updateClippingConfig();
 
 
 	// // Draw inner square:
@@ -730,11 +752,17 @@ bool A2::mouseMoveEvent (
 				}
 				break;
 			case Viewport:
-				{
+				if (viewResizing) {
 					mat4 scale = mat4(1.0f);
 					double xTrans = xPos - preXPos;
 					if (leftMousePressed) {
-						
+						windowEnd[0] = xPos/m_windowWidth*2 + -1;
+						windowEnd[1] = 1 - yPos/m_windowHeight*2;
+						windowMatrix[0][0] = (windowEnd[0] - windowStart[0])/1.9f/4.0f;
+						windowMatrix[1][1] = (windowEnd[1] - windowStart[1])/1.9f/4.0f;
+						//x translation
+						windowMatrix[3][0] = (windowEnd[0] + windowStart[0])/2.0f;
+						windowMatrix[3][1] = (windowEnd[1] + windowStart[1])/2.0f;
 					}
 					if (middleMousePressed) {
 						
@@ -770,9 +798,15 @@ bool A2::mouseButtonInputEvent (
 		// mouse button, initiate a rotation.
 		if (button == GLFW_MOUSE_BUTTON_1 && actions == GLFW_PRESS) {
 			leftMousePressed = true;
+			if (interaction == Viewport) {
+				viewResizing = true;
+				windowStart[0] = preXPos/m_windowWidth*2 + -1;
+				windowStart[1] = 1 - preYPos/m_windowHeight*2;
+			}
 		}
 		if (button == GLFW_MOUSE_BUTTON_1 && actions == GLFW_RELEASE) {
 			leftMousePressed = false;
+			viewResizing = false;
 		}
 		if (button == GLFW_MOUSE_BUTTON_2 && actions == GLFW_PRESS) {
 			rightMousePressed = true;
@@ -785,6 +819,10 @@ bool A2::mouseButtonInputEvent (
 		}
 		if (button == GLFW_MOUSE_BUTTON_3 && actions == GLFW_RELEASE) {
 			middleMousePressed = false;
+		}
+		if (interaction == Viewport && button == GLFW_MOUSE_BUTTON_1 && actions == GLFW_PRESS) {
+			viewResizing = true;
+			
 		}
 	}
 
