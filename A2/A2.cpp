@@ -24,7 +24,6 @@ float translationRatio = 76.0f;
 double FOV = 30;
 float near = 1.0f;
 float far = -2.0f;
-float depthZPlane = -1;
 
 
 vec4 viewXaxis = vec4(-1,0,0,0);
@@ -528,6 +527,8 @@ void A2::guiLogic()
 		}
 
 		ImGui::Text( "Framerate: %.1f FPS", ImGui::GetIO().Framerate );
+		ImGui::Text( "NearPlane: %.1f ", near );
+		ImGui::Text( "FarPlane: %.1f ", far );
 
 	ImGui::End();
 }
@@ -707,16 +708,26 @@ bool A2::mouseMoveEvent (
 						}
 					}
 					if (middleMousePressed) {
-						near += xTrans/translationRatio;
+						if (near + xTrans/translationRatio >= far) {
+							near += xTrans/translationRatio;
+						}
+						if (near > 10.0f) {
+							near = 10.0f;
+						}
 					}
 					if (rightMousePressed) {
-						far += xTrans/translationRatio;
+						if (far + xTrans/translationRatio <= near) {
+							far += xTrans/translationRatio;
+						}
+						if (far < -20.0f) {
+							far = -20.0f;
+						}
+						
 					}
-					if (viewZaxis[2] < 0) {
-						project = myPerspectiveDownZ(float( m_framebufferWidth ) / float( m_framebufferHeight ), glm::radians(FOV), near, far);
-					} else {
-						project = myPerspectiveUpZ(float( m_framebufferWidth ) / float( m_framebufferHeight ), glm::radians(FOV), near, far);
-					}
+					// cout << "near: "<<near<<endl;
+					// cout << "far: "<<far<<endl;
+					project = myPerspectiveDownZ(float( m_framebufferWidth ) / float( m_framebufferHeight ), glm::radians(FOV), near, far);
+					
 				}
 				break;
 			case RotateModel:
