@@ -75,6 +75,29 @@ void SceneNode::remove_child(SceneNode* child) {
 	children.remove(child);
 }
 
+// void SceneNode::traverse(ShaderProgram& m_shader) const {
+// 	for (const SceneNode * node : this->children) {
+// 		std::cout<<*node<<std::endl;
+// 		node->traverse(m_shader);
+
+// 		if (node->m_nodeType != NodeType::GeometryNode)
+// 			continue;
+
+// 		const GeometryNode * geometryNode = static_cast<const GeometryNode *>(node);
+
+// 		updateShaderUniforms(m_shader, *geometryNode, m_view);
+
+
+// 		// Get the BatchInfo corresponding to the GeometryNode's unique MeshId.
+// 		BatchInfo batchInfo = m_batchInfoMap[geometryNode->meshId];
+
+// 		//-- Now render the mesh:
+// 		m_shader.enable();
+// 		glDrawArrays(GL_TRIANGLES, batchInfo.startIndex, batchInfo.numIndices);
+// 		m_shader.disable();
+// 	}
+// }
+
 //---------------------------------------------------------------------------------------
 void SceneNode::rotate(char axis, float angle) {
 	vec3 rot_axis;

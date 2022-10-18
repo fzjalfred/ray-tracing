@@ -35,6 +35,7 @@ public:
     
     void remove_child(SceneNode* child);
 
+    // void traverse(ShaderProgram& m_shader, const glm::mat4& m_view) const;
 	//-- Transformations:
     void rotate(char axis, float angle);
     void scale(const glm::vec3& amount);

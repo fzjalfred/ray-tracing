@@ -407,7 +407,34 @@ void A3::renderSceneGraph(const SceneNode & root) {
 	// could put a set of mutually recursive functions in this class, which
 	// walk down the tree from nodes of different types.
 
-	for (const SceneNode * node : root.children) {
+	// for (const SceneNode * node : root.children) {
+
+	// 	if (node->m_nodeType != NodeType::GeometryNode)
+	// 		continue;
+
+	// 	const GeometryNode * geometryNode = static_cast<const GeometryNode *>(node);
+
+	// 	updateShaderUniforms(m_shader, *geometryNode, m_view);
+
+
+	// 	// Get the BatchInfo corresponding to the GeometryNode's unique MeshId.
+	// 	BatchInfo batchInfo = m_batchInfoMap[geometryNode->meshId];
+
+	// 	//-- Now render the mesh:
+	// 	m_shader.enable();
+	// 	glDrawArrays(GL_TRIANGLES, batchInfo.startIndex, batchInfo.numIndices);
+	// 	m_shader.disable();
+	// }
+	renderTreeNode(&root);
+
+	glBindVertexArray(0);
+	CHECK_GL_ERRORS;
+}
+
+void A3::renderTreeNode(const SceneNode * root) {
+	for (const SceneNode * node : root->children) {
+		std::cout<<*node<<std::endl;
+		renderTreeNode(node);
 
 		if (node->m_nodeType != NodeType::GeometryNode)
 			continue;
@@ -425,9 +452,6 @@ void A3::renderSceneGraph(const SceneNode & root) {
 		glDrawArrays(GL_TRIANGLES, batchInfo.startIndex, batchInfo.numIndices);
 		m_shader.disable();
 	}
-
-	glBindVertexArray(0);
-	CHECK_GL_ERRORS;
 }
 
 //----------------------------------------------------------------------------------------
