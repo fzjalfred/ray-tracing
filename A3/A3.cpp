@@ -346,14 +346,15 @@ void A3::guiLogic()
 static void updateShaderUniforms(
 		const ShaderProgram & shader,
 		const GeometryNode & node,
-		const glm::mat4 & viewMatrix
+		const glm::mat4 & viewMatrix,
+		const glm::mat4 & modelMatrix
 ) {
 
 	shader.enable();
 	{
 		//-- Set ModelView matrix:
 		GLint location = shader.getUniformLocation("ModelView");
-		mat4 modelView = viewMatrix * node.trans;
+		mat4 modelView = viewMatrix * modelMatrix * node.trans;
 		glUniformMatrix4fv(location, 1, GL_FALSE, value_ptr(modelView));
 		CHECK_GL_ERRORS;
 
@@ -431,18 +432,11 @@ void A3::renderSceneGraph(const SceneNode & root) {
 	CHECK_GL_ERRORS;
 }
 
-void A3::renderTreeNode(const SceneNode * root) {
-	for (const SceneNode * node : root->children) {
-		std::cout<<*node<<std::endl;
-		renderTreeNode(node);
+void A3::renderTreeNode(const SceneNode * root, mat4 m_model) {
+	if (root->m_nodeType == NodeType::GeometryNode) {
+		const GeometryNode * geometryNode = static_cast<const GeometryNode *>(root);
 
-		if (node->m_nodeType != NodeType::GeometryNode)
-			continue;
-
-		const GeometryNode * geometryNode = static_cast<const GeometryNode *>(node);
-
-		updateShaderUniforms(m_shader, *geometryNode, m_view);
-
+		updateShaderUniforms(m_shader, *geometryNode, m_view, m_model);
 
 		// Get the BatchInfo corresponding to the GeometryNode's unique MeshId.
 		BatchInfo batchInfo = m_batchInfoMap[geometryNode->meshId];
@@ -451,6 +445,10 @@ void A3::renderTreeNode(const SceneNode * root) {
 		m_shader.enable();
 		glDrawArrays(GL_TRIANGLES, batchInfo.startIndex, batchInfo.numIndices);
 		m_shader.disable();
+	}
+	for (const SceneNode * node : root->children) {
+		std::cout<<*node<<std::endl;
+		renderTreeNode(node, m_model*root->get_transform());
 	}
 }
 
