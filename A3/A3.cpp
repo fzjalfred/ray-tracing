@@ -259,8 +259,8 @@ void A3::initViewMatrix() {
 //----------------------------------------------------------------------------------------
 void A3::initLightSources() {
 	// World-space position
-	m_light.position = vec3(10.0f, 10.0f, 10.0f);
-	m_light.rgbIntensity = vec3(0.0f); // light
+	m_light.position = vec3(-10.0f, 15.0f, 10.0f);
+	m_light.rgbIntensity = vec3(0.8f); // light
 }
 
 //----------------------------------------------------------------------------------------
@@ -329,7 +329,59 @@ void A3::guiLogic()
 
 
 		// Add more gui elements here here ...
+		if (ImGui::BeginMainMenuBar()) {
+			if (ImGui::BeginMenu("Application")) {
+				if (ImGui::MenuItem("Reset Position (I)")) {
+					// reset Position
+					//resetPosition();
+				}
+				if (ImGui::MenuItem("Reset Orientation (O)")) {
+					// reset Orientation
+					//resetRotation();
+				}
+				if (ImGui::MenuItem("Reset Joint (S)")) {
+					// reset Joints
+					//resetJoints(m_rootNode.get());
+				}
+				if (ImGui::MenuItem("Reset All (A)")) {
+					// reset all
+					//resetAll();
+				}
+				if( ImGui::MenuItem( "Quit (Q)" ) ) {
+					glfwSetWindowShouldClose(m_window, GL_TRUE);
+				}
+				 ImGui::EndMenu();
+			}
 
+			if (ImGui::BeginMenu("Edit")) {
+				if (ImGui::MenuItem("Undo (U)")) {
+					// undo
+					// undoOperation();
+				}
+
+				if (ImGui::MenuItem("Redo (R)")) {
+					// redo
+					// redoOperation();
+				}
+				ImGui::EndMenu();
+			}
+
+			if (ImGui::BeginMenu("Options")) {
+				ImGui::Checkbox("Circle (C)", &trackBallCircle);
+				ImGui::Checkbox("Z-buffer (Z)", &zBuffer);
+				ImGui::Checkbox("Backface culling (B)", &backfaceCulling);
+				ImGui::Checkbox("Frontface culling (F)", &frontfaceCulling);
+				ImGui::EndMenu();
+			}
+			ImGui::EndMainMenuBar();
+		}
+
+		if( ImGui::RadioButton( "Position/Orientation (P)", &mode, 0) ) {
+
+		}
+		if( ImGui::RadioButton( "Joints (J)", &mode, 1) ) {
+
+		}
 
 		// Create Button, and check if it was clicked:
 		if( ImGui::Button( "Quit Application" ) ) {
@@ -380,13 +432,27 @@ static void updateShaderUniforms(
  * Called once per frame, after guiLogic().
  */
 void A3::draw() {
+	if (zBuffer) {
+		glEnable( GL_DEPTH_TEST );
+	}
+	if (frontfaceCulling && backfaceCulling) {
+		glEnable(GL_CULL_FACE);
+		glCullFace(GL_FRONT_AND_BACK);
+	} else if (frontfaceCulling) {
+		glEnable(GL_CULL_FACE);
+		glCullFace(GL_FRONT);
+	} else if (backfaceCulling) {
+		glEnable(GL_CULL_FACE);
+		glCullFace(GL_BACK);
+	}
 
-	glEnable( GL_DEPTH_TEST );
 	renderSceneGraph(*m_rootNode);
 
-
-	glDisable( GL_DEPTH_TEST );
-	renderArcCircle();
+	if (trackBallCircle) {
+		glDisable( GL_DEPTH_TEST );
+		renderArcCircle();
+	}
+	
 }
 
 //----------------------------------------------------------------------------------------
@@ -570,6 +636,23 @@ bool A3::keyInputEvent (
 	if( action == GLFW_PRESS ) {
 		if( key == GLFW_KEY_M ) {
 			show_gui = !show_gui;
+			eventHandled = true;
+		}
+		// options
+		if( key == GLFW_KEY_C ) {
+			trackBallCircle = !trackBallCircle;
+			eventHandled = true;
+		}
+		if( key == GLFW_KEY_Z ) {
+			zBuffer = !zBuffer;
+			eventHandled = true;
+		}
+		if( key == GLFW_KEY_B ) {
+			backfaceCulling = !backfaceCulling;
+			eventHandled = true;
+		}
+		if( key == GLFW_KEY_F ) {
+			frontfaceCulling = !frontfaceCulling;
 			eventHandled = true;
 		}
 	}

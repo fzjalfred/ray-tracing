@@ -80,4 +80,14 @@ protected:
 	std::string m_luaSceneFile;
 
 	std::shared_ptr<SceneNode> m_rootNode;
+
+
+	//mode
+	int mode = 0;
+
+	// flags
+	bool trackBallCircle = false;
+	bool zBuffer = true;
+	bool backfaceCulling = false;
+	bool frontfaceCulling = false;
 };
