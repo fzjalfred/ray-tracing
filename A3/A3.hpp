@@ -53,6 +53,9 @@ protected:
 	void renderArcCircle();
 	void renderTreeNode(const SceneNode * node, glm::mat4 m_model = glm::mat4(1.0f));
 
+	void performPosition(double xPos,
+		double yPos);
+
 	glm::mat4 m_perpsective;
 	glm::mat4 m_view;
 
@@ -82,6 +85,9 @@ protected:
 	std::shared_ptr<SceneNode> m_rootNode;
 
 
+	// Translate and rotate
+	glm::mat4 m_model;
+
 	//mode
 	int mode = 0;
 
@@ -90,4 +96,9 @@ protected:
 	bool zBuffer = true;
 	bool backfaceCulling = false;
 	bool frontfaceCulling = false;
+
+	// key and mouse
+	bool leftMousePressed = false;
+	bool rightMousePressed = false;
+	bool middleMousePressed = false;
 };

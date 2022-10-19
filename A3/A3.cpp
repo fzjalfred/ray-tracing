@@ -21,6 +21,9 @@ static bool show_gui = true;
 
 const size_t CIRCLE_PTS = 48;
 
+double prevX;
+double prevY;
+
 //----------------------------------------------------------------------------------------
 // Constructor
 A3::A3(const std::string & luaSceneFile)
@@ -492,17 +495,17 @@ void A3::renderSceneGraph(const SceneNode & root) {
 	// 	glDrawArrays(GL_TRIANGLES, batchInfo.startIndex, batchInfo.numIndices);
 	// 	m_shader.disable();
 	// }
-	renderTreeNode(&root);
+	renderTreeNode(&root, m_model);
 
 	glBindVertexArray(0);
 	CHECK_GL_ERRORS;
 }
 
-void A3::renderTreeNode(const SceneNode * root, mat4 m_model) {
+void A3::renderTreeNode(const SceneNode * root, mat4 model) {
 	if (root->m_nodeType == NodeType::GeometryNode) {
 		const GeometryNode * geometryNode = static_cast<const GeometryNode *>(root);
 
-		updateShaderUniforms(m_shader, *geometryNode, m_view, m_model);
+		updateShaderUniforms(m_shader, *geometryNode, m_view, model);
 
 		// Get the BatchInfo corresponding to the GeometryNode's unique MeshId.
 		BatchInfo batchInfo = m_batchInfoMap[geometryNode->meshId];
@@ -513,8 +516,8 @@ void A3::renderTreeNode(const SceneNode * root, mat4 m_model) {
 		m_shader.disable();
 	}
 	for (const SceneNode * node : root->children) {
-		std::cout<<*node<<std::endl;
-		renderTreeNode(node, m_model*root->get_transform());
+		// std::cout<<*node<<std::endl;
+		renderTreeNode(node, model*root->get_transform());
 	}
 }
 
@@ -563,6 +566,32 @@ bool A3::cursorEnterWindowEvent (
 	return eventHandled;
 }
 
+void A3::performPosition(double xPos, double yPos) {
+	double xNPos = xPos/m_framebufferWidth;
+	double yNPos = yPos/m_framebufferHeight;
+	double prevXN = prevX /m_framebufferWidth;
+	double prevYN = prevY /m_framebufferHeight;
+	float centerX = 0.5f;
+	float centerY = 0.5f;
+	float trackballRadius = 0.25f;
+	vec3 center2mouse = vec3(xNPos - centerX, -yNPos + centerY, 0);
+
+	if (leftMousePressed) {
+
+	}
+
+	if (rightMousePressed) {
+		if ( ((xNPos-centerX)*(xNPos-centerX) + (yNPos-centerY)*(yNPos-centerY)) <= trackballRadius*trackballRadius) {
+			std::cout<<"inside"<<std::endl;
+
+		} else {
+			std::cout<<"outside"<<std::endl;
+			m_model *= glm::rotate(mat4(), (float)(-yPos + prevY)*0.01f, vec3(0.0f,0.0f,1.0f));
+		}
+	}
+	
+}
+
 //----------------------------------------------------------------------------------------
 /*
  * Event handler.  Handles mouse cursor movement events.
@@ -574,6 +603,27 @@ bool A3::mouseMoveEvent (
 	bool eventHandled(false);
 
 	// Fill in with event handling code...
+	if (!ImGui::IsMouseHoveringAnyWindow()) {
+		// Fill in with event handling code...
+		switch (mode) {
+			case 0: // Position and Rotation
+				performPosition(xPos, yPos);
+				eventHandled = true;
+				break;
+			case 1:
+				
+				eventHandled = true;
+				break;
+			default:
+				break; 
+		}
+
+
+		prevX = xPos;
+		prevY = yPos;
+	}
+	// std::cout<<"x: "<<xPos<<std::endl;
+    // std::cout<<"y: "<<yPos<<std::endl;
 
 	return eventHandled;
 }
@@ -590,7 +640,24 @@ bool A3::mouseButtonInputEvent (
 	bool eventHandled(false);
 
 	// Fill in with event handling code...
-
+	if (button == GLFW_MOUSE_BUTTON_1 && actions == GLFW_PRESS) {
+			leftMousePressed = true;
+		}
+		if (button == GLFW_MOUSE_BUTTON_1 && actions == GLFW_RELEASE) {
+			leftMousePressed = false;
+		}
+		if (button == GLFW_MOUSE_BUTTON_2 && actions == GLFW_PRESS) {
+			rightMousePressed = true;
+		}
+		if (button == GLFW_MOUSE_BUTTON_2 && actions == GLFW_RELEASE) {
+			rightMousePressed = false;
+		}
+		if (button == GLFW_MOUSE_BUTTON_3 && actions == GLFW_PRESS) {
+			middleMousePressed = true;
+		}
+		if (button == GLFW_MOUSE_BUTTON_3 && actions == GLFW_RELEASE) {
+			middleMousePressed = false;
+		}
 	return eventHandled;
 }
 
