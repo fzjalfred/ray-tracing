@@ -17,5 +17,8 @@ public:
 	};
 
 
+	void rotate(char axis, float angle);
+	float cur_angleX = 0.0f;
+	float cur_angleY = 0.0f;
 	JointRange m_joint_x, m_joint_y;
 };

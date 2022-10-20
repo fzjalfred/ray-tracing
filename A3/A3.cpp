@@ -48,6 +48,25 @@ A3::~A3()
 
 }
 
+void A3::resetAll() {
+	resetPos();
+	resetJoints();
+	resetOrientation();
+}
+
+void A3::resetPos() {
+	m_translation = mat4(1.0f);
+}
+
+void A3::resetOrientation() {
+	m_rotation = mat4(1.0f);
+	m_rotation_view_z_axis = mat4(1.0f);
+}
+
+void A3::resetJoints() {
+
+}
+
 //----------------------------------------------------------------------------------------
 /*
  * Called once, at program start.
@@ -337,20 +356,16 @@ void A3::guiLogic()
 		if (ImGui::BeginMainMenuBar()) {
 			if (ImGui::BeginMenu("Application")) {
 				if (ImGui::MenuItem("Reset Position (I)")) {
-					// reset Position
-					//resetPosition();
+					resetPos();
 				}
 				if (ImGui::MenuItem("Reset Orientation (O)")) {
-					// reset Orientation
-					//resetRotation();
+					resetOrientation();
 				}
 				if (ImGui::MenuItem("Reset Joint (S)")) {
-					// reset Joints
-					//resetJoints(m_rootNode.get());
+					resetJoints();
 				}
 				if (ImGui::MenuItem("Reset All (A)")) {
-					// reset all
-					//resetAll();
+					resetAll();
 				}
 				if( ImGui::MenuItem( "Quit (Q)" ) ) {
 					glfwSetWindowShouldClose(m_window, GL_TRUE);
@@ -731,6 +746,27 @@ bool A3::keyInputEvent (
 			show_gui = !show_gui;
 			eventHandled = true;
 		}
+		// applications
+		if( key == GLFW_KEY_Q ) {
+			glfwSetWindowShouldClose(m_window, GL_TRUE);
+			eventHandled = true;
+		}
+		if( key == GLFW_KEY_I ) {
+			resetPos();
+			eventHandled = true;
+		}
+		if( key == GLFW_KEY_O ) {
+			resetOrientation();
+			eventHandled = true;
+		}
+		if( key == GLFW_KEY_S ) {
+			resetJoints();
+			eventHandled = true;
+		}
+		if( key == GLFW_KEY_A ) {
+			resetAll();
+			eventHandled = true;
+		}
 		// options
 		if( key == GLFW_KEY_C ) {
 			trackBallCircle = !trackBallCircle;
@@ -746,6 +782,15 @@ bool A3::keyInputEvent (
 		}
 		if( key == GLFW_KEY_F ) {
 			frontfaceCulling = !frontfaceCulling;
+			eventHandled = true;
+		}
+		// mode
+		if ( key == GLFW_KEY_P ) {
+			mode = 0;
+			eventHandled = true;
+		}
+		if ( key == GLFW_KEY_J ) {
+			mode = 1;
 			eventHandled = true;
 		}
 	}

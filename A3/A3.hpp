@@ -56,6 +56,13 @@ protected:
 	void performPosition(double xPos,
 		double yPos);
 
+
+	// reset
+	void resetAll();
+	void resetPos();
+	void resetOrientation();
+	void resetJoints();
+
 	glm::mat4 m_perpsective;
 	glm::mat4 m_view;
 
