@@ -23,6 +23,8 @@ const size_t CIRCLE_PTS = 48;
 
 float translationRatio = 76.0f;
 
+int xforms;
+
 double prevX;
 double prevY;
 
@@ -67,6 +69,24 @@ void A3::resetJoints() {
 
 }
 
+void A3::undo() {
+
+}
+
+void A3::redo() {
+
+}
+
+void traverse(const SceneNode& root, int& count, std::vector<bool>& selected) {
+		count += 1;
+		selected.push_back(false);
+		for (auto i: root.children) {
+			if (i->m_nodeType == NodeType::GeometryNode) {
+				traverse(*i, count, selected);
+			}
+		}
+}
+
 //----------------------------------------------------------------------------------------
 /*
  * Called once, at program start.
@@ -94,6 +114,12 @@ void A3::init()
 			getAssetFilePath("suzanne.obj")
 	});
 
+	int count = 0;
+	traverse(*m_rootNode, count, selected);
+	for (int idx = 0; idx < m_rootNode->m_nodeId; idx++) {
+		selected.push_back(false);
+	}
+	std::cout<<"Nodes in total: "<<count<<std::endl;
 
 	// Acquire the BatchInfoMap from the MeshConsolidator.
 	meshConsolidator->getBatchInfoMap(m_batchInfoMap);
@@ -108,6 +134,7 @@ void A3::init()
 	initViewMatrix();
 
 	initLightSources();
+
 
 
 	// Exiting the current scope calls delete automatically on meshConsolidator freeing
@@ -296,23 +323,28 @@ void A3::uploadCommonSceneUniforms() {
 		glUniformMatrix4fv(location, 1, GL_FALSE, value_ptr(m_perpsective));
 		CHECK_GL_ERRORS;
 
+		location = m_shader.getUniformLocation("picking");
+		glUniform1i( location, do_picking ? 1 : 0 );
 
-		//-- Set LightSource uniform for the scene:
-		{
-			location = m_shader.getUniformLocation("light.position");
-			glUniform3fv(location, 1, value_ptr(m_light.position));
-			location = m_shader.getUniformLocation("light.rgbIntensity");
-			glUniform3fv(location, 1, value_ptr(m_light.rgbIntensity));
-			CHECK_GL_ERRORS;
-		}
+		if (!do_picking) {
+			//-- Set LightSource uniform for the scene:
+			{
+				location = m_shader.getUniformLocation("light.position");
+				glUniform3fv(location, 1, value_ptr(m_light.position));
+				location = m_shader.getUniformLocation("light.rgbIntensity");
+				glUniform3fv(location, 1, value_ptr(m_light.rgbIntensity));
+				CHECK_GL_ERRORS;
+			}
 
-		//-- Set background light ambient intensity
-		{
-			location = m_shader.getUniformLocation("ambientIntensity");
-			vec3 ambientIntensity(0.25f);
-			glUniform3fv(location, 1, value_ptr(ambientIntensity));
-			CHECK_GL_ERRORS;
+			//-- Set background light ambient intensity
+			{
+				location = m_shader.getUniformLocation("ambientIntensity");
+				vec3 ambientIntensity(0.25f);
+				glUniform3fv(location, 1, value_ptr(ambientIntensity));
+				CHECK_GL_ERRORS;
+			}
 		}
+		
 	}
 	m_shader.disable();
 }
@@ -419,7 +451,9 @@ static void updateShaderUniforms(
 		const ShaderProgram & shader,
 		const GeometryNode & node,
 		const glm::mat4 & viewMatrix,
-		const glm::mat4 & modelMatrix
+		const glm::mat4 & modelMatrix,
+		const std::vector<bool>& selected,
+		bool do_picking = false
 ) {
 
 	shader.enable();
@@ -440,7 +474,19 @@ static void updateShaderUniforms(
 		//-- Set Material values:
 		location = shader.getUniformLocation("material.kd");
 		vec3 kd = node.material.kd;
-		glUniform3fv(location, 1, value_ptr(kd));
+		// do_picking = random()%2;
+		if (do_picking) {
+			float r = float(node.m_nodeId&0xff) / 255.0f;
+			float g = float((node.m_nodeId>>8)&0xff) / 255.0f;
+			float b = float((node.m_nodeId>>16)&0xff) / 255.0f;
+			glUniform3f( location, r, g, b );
+		} else {
+			if (selected[node.m_nodeId]) {
+				kd = glm::vec3( 1.0, 1.0, 0.0 );
+			}
+			glUniform3fv(location, 1, value_ptr(kd));
+		}
+		
 		CHECK_GL_ERRORS;
 	}
 	shader.disable();
@@ -522,8 +568,7 @@ void A3::renderSceneGraph(const SceneNode & root) {
 void A3::renderTreeNode(const SceneNode * root, mat4 model) {
 	if (root->m_nodeType == NodeType::GeometryNode) {
 		const GeometryNode * geometryNode = static_cast<const GeometryNode *>(root);
-
-		updateShaderUniforms(m_shader, *geometryNode, m_view, model);
+		updateShaderUniforms(m_shader, *geometryNode, m_view, model, selected, do_picking);
 
 		// Get the BatchInfo corresponding to the GeometryNode's unique MeshId.
 		BatchInfo batchInfo = m_batchInfoMap[geometryNode->meshId];
@@ -597,9 +642,9 @@ void A3::performPosition(double xPos, double yPos) {
 	if (std::isnan(center2mouse.z)) {
 		center2mouse.z = 0;
 	}
-	std::cout<<"x: "<<center2mouse.x<<std::endl;
-	std::cout<<"y: "<<center2mouse.y<<std::endl;
-	std::cout<<"z: "<<center2mouse.z<<std::endl;
+	// std::cout<<"x: "<<center2mouse.x<<std::endl;
+	// std::cout<<"y: "<<center2mouse.y<<std::endl;
+	// std::cout<<"z: "<<center2mouse.z<<std::endl;
 
 	if (leftMousePressed) {
 		mat4 translate = mat4(1.0f);
@@ -683,6 +728,51 @@ bool A3::mouseButtonInputEvent (
 	// Fill in with event handling code...
 	if (button == GLFW_MOUSE_BUTTON_1 && actions == GLFW_PRESS) {
 			leftMousePressed = true;
+			if (mode == 1) {
+				double xpos, ypos;
+				glfwGetCursorPos( m_window, &xpos, &ypos );
+
+				do_picking = true;
+
+				uploadCommonSceneUniforms();
+				glClearColor(1.0, 1.0, 1.0, 1.0 );
+				glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
+				glClearColor(0.35, 0.35, 0.35, 1.0);
+
+				draw();
+
+				// I don't know if these are really necessary anymore.
+				// glFlush();
+				// glFinish();
+
+				CHECK_GL_ERRORS;
+
+				// Ugly -- FB coordinates might be different than Window coordinates
+				// (e.g., on a retina display).  Must compensate.
+				xpos *= double(m_framebufferWidth) / double(m_windowWidth);
+				// WTF, don't know why I have to measure y relative to the bottom of
+				// the window in this case.
+				ypos = m_windowHeight - ypos;
+				ypos *= double(m_framebufferHeight) / double(m_windowHeight);
+
+				GLubyte buffer[ 4 ] = { 0, 0, 0, 0 };
+				// A bit ugly -- don't want to swap the just-drawn false colours
+				// to the screen, so read from the back buffer.
+				glReadBuffer( GL_BACK );
+				// Actually read the pixel at the mouse location.
+				glReadPixels( int(xpos), int(ypos), 1, 1, GL_RGBA, GL_UNSIGNED_BYTE, buffer );
+				CHECK_GL_ERRORS;
+
+				// Reassemble the object ID.
+				unsigned int what = buffer[0] + (buffer[1] << 8) + (buffer[2] << 16);
+
+				std::cout<<what<<std::endl;
+				selected[what] = !selected[what];
+
+				do_picking = false;
+
+				CHECK_GL_ERRORS;
+			}
 		}
 		if (button == GLFW_MOUSE_BUTTON_1 && actions == GLFW_RELEASE) {
 			leftMousePressed = false;
@@ -791,6 +881,15 @@ bool A3::keyInputEvent (
 		}
 		if ( key == GLFW_KEY_J ) {
 			mode = 1;
+			eventHandled = true;
+		}
+		// undo redo
+		if (key == GLFW_KEY_R) {
+			redo();
+			eventHandled = true;
+		}
+		if (key == GLFW_KEY_U) {
+			undo();
 			eventHandled = true;
 		}
 	}

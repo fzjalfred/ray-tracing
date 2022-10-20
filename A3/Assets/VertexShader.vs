@@ -12,6 +12,8 @@ uniform LightSource light;
 
 uniform mat4 ModelView;
 uniform mat4 Perspective;
+uniform bool picking;
+
 
 // Remember, this is transpose(inverse(ModelView)).  Normals should be
 // transformed using this matrix instead of the ModelView matrix.
@@ -42,7 +44,11 @@ vec3 diffuseLighting(vec3 vertPosition, vec3 vertNormal) {
 void main() {
 	vec4 pos4 = vec4(position, 1.0);
 
-	vcolour = diffuseLighting((ModelView * pos4).xyz, normalize(NormalMatrix * normal));
+    if (picking) {
+        vcolour = vec3(material.kd);
+    } else {
+        vcolour = diffuseLighting((ModelView * pos4).xyz, normalize(NormalMatrix * normal));
+    }
 	
 	gl_Position = Perspective * ModelView * pos4;
 }

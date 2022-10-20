@@ -63,6 +63,10 @@ protected:
 	void resetOrientation();
 	void resetJoints();
 
+	// undo redo
+	void undo();
+	void redo();
+
 	glm::mat4 m_perpsective;
 	glm::mat4 m_view;
 
@@ -106,6 +110,8 @@ protected:
 	bool zBuffer = true;
 	bool backfaceCulling = false;
 	bool frontfaceCulling = false;
+	bool do_picking = false;
+	std::vector<bool> selected;
 
 	// key and mouse
 	bool leftMousePressed = false;
