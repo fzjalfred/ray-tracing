@@ -86,7 +86,10 @@ protected:
 
 
 	// Translate and rotate
-	glm::mat4 m_model;
+	glm::mat4 m_translation;
+	glm::mat4 m_rotation;
+	glm::mat4 m_rotation_view_z_axis;
+	glm::vec3 prevTrackballPoint;
 
 	//mode
 	int mode = 0;

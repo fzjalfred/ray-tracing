@@ -21,6 +21,8 @@ static bool show_gui = true;
 
 const size_t CIRCLE_PTS = 48;
 
+float translationRatio = 76.0f;
+
 double prevX;
 double prevY;
 
@@ -495,7 +497,8 @@ void A3::renderSceneGraph(const SceneNode & root) {
 	// 	glDrawArrays(GL_TRIANGLES, batchInfo.startIndex, batchInfo.numIndices);
 	// 	m_shader.disable();
 	// }
-	renderTreeNode(&root, m_model);
+	mat4 puppetPos = root.get_transform();
+	renderTreeNode(&root, m_translation*m_rotation_view_z_axis*puppetPos*m_rotation*inverse(puppetPos));
 
 	glBindVertexArray(0);
 	CHECK_GL_ERRORS;
@@ -567,28 +570,51 @@ bool A3::cursorEnterWindowEvent (
 }
 
 void A3::performPosition(double xPos, double yPos) {
-	double xNPos = xPos/m_framebufferWidth;
-	double yNPos = yPos/m_framebufferHeight;
-	double prevXN = prevX /m_framebufferWidth;
-	double prevYN = prevY /m_framebufferHeight;
-	float centerX = 0.5f;
-	float centerY = 0.5f;
-	float trackballRadius = 0.25f;
-	vec3 center2mouse = vec3(xNPos - centerX, -yNPos + centerY, 0);
+	// double xNPos = xPos/m_framebufferWidth;
+	// double yNPos = yPos/m_framebufferHeight;
+	// double prevXN = prevX /m_framebufferWidth;
+	// double prevYN = prevY /m_framebufferHeight;
+	float centerX = m_framebufferWidth/2.0f;
+	float centerY = m_framebufferHeight/2.0f;
+	float trackballRadius = std::min(m_framebufferWidth / 4.0f, m_framebufferHeight / 4.0f);
+	vec3 center2mouse = vec3(xPos - centerX, -yPos + centerY, 0);
+	center2mouse.z = sqrt(trackballRadius*trackballRadius - ((xPos-centerX)*(xPos-centerX) + (yPos-centerY)*(yPos-centerY)));
+	if (std::isnan(center2mouse.z)) {
+		center2mouse.z = 0;
+	}
+	std::cout<<"x: "<<center2mouse.x<<std::endl;
+	std::cout<<"y: "<<center2mouse.y<<std::endl;
+	std::cout<<"z: "<<center2mouse.z<<std::endl;
 
 	if (leftMousePressed) {
+		mat4 translate = mat4(1.0f);
+		translate[3][0] = (center2mouse.x - prevTrackballPoint.x)/translationRatio;
+		translate[3][1] = (center2mouse.y - prevTrackballPoint.y)/translationRatio;
+		m_translation *= translate;
+	}
 
+	if (middleMousePressed) {
+		mat4 translate = mat4(1.0f);
+		translate[3][2] = -(center2mouse.y - prevTrackballPoint.y)/translationRatio;
+		m_translation *= translate;
 	}
 
 	if (rightMousePressed) {
-		if ( ((xNPos-centerX)*(xNPos-centerX) + (yNPos-centerY)*(yNPos-centerY)) <= trackballRadius*trackballRadius) {
-			std::cout<<"inside"<<std::endl;
-
+		vec3 rotation_axis = cross(center2mouse, prevTrackballPoint);
+		if ( ((xPos-centerX)*(xPos-centerX) + (yPos-centerY)*(yPos-centerY)) <= trackballRadius*trackballRadius && rotation_axis != vec3(0.0f)) {
+			// std::cout<<"inside"<<std::endl;
+			float angle = acos(dot(center2mouse, prevTrackballPoint));
+			// std::cout<<"x: "<<rotation_axis.x<<std::endl;
+			// std::cout<<"y: "<<rotation_axis.y<<std::endl;
+			// std::cout<<"z: "<<rotation_axis.z<<std::endl;
+			m_rotation *= glm::rotate(mat4(), 0.01f, rotation_axis);
 		} else {
-			std::cout<<"outside"<<std::endl;
-			m_model *= glm::rotate(mat4(), (float)(-yPos + prevY)*0.01f, vec3(0.0f,0.0f,1.0f));
+			// std::cout<<"outside"<<std::endl;
+			m_rotation_view_z_axis *= glm::rotate(mat4(), (float)(-yPos + prevY)*0.01f, vec3(0.0f,0.0f,1.0f));
 		}
 	}
+
+	prevTrackballPoint = center2mouse;
 	
 }
 
