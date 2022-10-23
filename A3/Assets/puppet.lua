@@ -20,7 +20,7 @@ yellow = gr.material({1.0, 1.0, 0.0}, {0.1, 0.1, 0.1}, 10)
 torso = gr.mesh('sphere', 'torso')
 torso:scale(0.8, 0.9, 0.5)
 -- torso:rotate('y', 45.0)
-torso:translate(0.0, -0.5, -5.0)
+
 torso:set_material(black)
 
 rootNode:add_child(torso)
@@ -388,5 +388,7 @@ rightHand:translate(0.0, -0.2, 0.0)
 rightHand:set_material(brown)
 
 rightHandJoint:add_child(rightHand)
+
+rootNode:translate(0.0, -0.5, -5.0)
 
 return rootNode;

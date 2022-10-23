@@ -81,9 +81,7 @@ void traverse(const SceneNode& root, int& count, std::vector<bool>& selected) {
 		count += 1;
 		selected.push_back(false);
 		for (auto i: root.children) {
-			if (i->m_nodeType == NodeType::GeometryNode) {
-				traverse(*i, count, selected);
-			}
+			traverse(*i, count, selected);
 		}
 }
 
@@ -663,11 +661,10 @@ void A3::performPosition(double xPos, double yPos) {
 		vec3 rotation_axis = cross(center2mouse, prevTrackballPoint);
 		if ( ((xPos-centerX)*(xPos-centerX) + (yPos-centerY)*(yPos-centerY)) <= trackballRadius*trackballRadius && rotation_axis != vec3(0.0f)) {
 			// std::cout<<"inside"<<std::endl;
-			float angle = acos(dot(center2mouse, prevTrackballPoint));
 			// std::cout<<"x: "<<rotation_axis.x<<std::endl;
 			// std::cout<<"y: "<<rotation_axis.y<<std::endl;
 			// std::cout<<"z: "<<rotation_axis.z<<std::endl;
-			m_rotation *= glm::rotate(mat4(), 0.01f, rotation_axis);
+			m_rotation = glm::rotate(mat4(), -0.01f, rotation_axis)*m_rotation;
 		} else {
 			// std::cout<<"outside"<<std::endl;
 			m_rotation_view_z_axis *= glm::rotate(mat4(), (float)(-yPos + prevY)*0.01f, vec3(0.0f,0.0f,1.0f));
