@@ -62,7 +62,6 @@ void A3::resetPos() {
 
 void A3::resetOrientation() {
 	m_rotation = mat4(1.0f);
-	m_rotation_view_z_axis = mat4(1.0f);
 }
 
 void A3::resetJoints() {
@@ -77,11 +76,13 @@ void A3::redo() {
 
 }
 
-void traverse(const SceneNode& root, int& count, std::vector<bool>& selected) {
+void A3::traverse(SceneNode& root, int& count, std::vector<bool>& selected) {
 		count += 1;
 		selected.push_back(false);
+		nodesTable.emplace(root.m_nodeId, &root);
 		for (auto i: root.children) {
 			traverse(*i, count, selected);
+			i->parent = &root;
 		}
 }
 
@@ -114,9 +115,6 @@ void A3::init()
 
 	int count = 0;
 	traverse(*m_rootNode, count, selected);
-	for (int idx = 0; idx < m_rootNode->m_nodeId; idx++) {
-		selected.push_back(false);
-	}
 	std::cout<<"Nodes in total: "<<count<<std::endl;
 
 	// Acquire the BatchInfoMap from the MeshConsolidator.
@@ -557,7 +555,7 @@ void A3::renderSceneGraph(const SceneNode & root) {
 	// 	m_shader.disable();
 	// }
 	mat4 puppetPos = root.get_transform();
-	renderTreeNode(&root, m_translation*m_rotation_view_z_axis*puppetPos*m_rotation*inverse(puppetPos));
+	renderTreeNode(&root, m_translation*puppetPos*m_rotation*root.jointRotate*inverse(puppetPos));
 
 	glBindVertexArray(0);
 	CHECK_GL_ERRORS;
@@ -578,7 +576,7 @@ void A3::renderTreeNode(const SceneNode * root, mat4 model) {
 	}
 	for (const SceneNode * node : root->children) {
 		// std::cout<<*node<<std::endl;
-		renderTreeNode(node, model*root->get_transform());
+		renderTreeNode(node, model*root->jointRotate*root->get_transform());
 	}
 }
 
@@ -667,13 +665,26 @@ void A3::performPosition(double xPos, double yPos) {
 			m_rotation = glm::rotate(mat4(), -0.01f, rotation_axis)*m_rotation;
 		} else {
 			// std::cout<<"outside"<<std::endl;
-			m_rotation_view_z_axis *= glm::rotate(mat4(), (float)(-yPos + prevY)*0.01f, vec3(0.0f,0.0f,1.0f));
+			m_rotation = glm::rotate(mat4(), (float)(-yPos + prevY)*0.01f, vec3(0.0f,0.0f,1.0f)) *m_rotation;
 		}
 	}
 
 	prevTrackballPoint = center2mouse;
 	
 }
+
+void A3::performRotate(double yPos) {
+	if (middleMousePressed) {
+		double factor = yPos - prevY;
+		for (int i = 0; i<selected.size(); i++) {
+			if (selected[i] == true && nodesTable[i]->m_nodeType == NodeType::JointNode) {
+				((JointNode*)nodesTable[i])->rotate(factor/100);
+			}
+		}
+	}
+	
+}
+
 
 //----------------------------------------------------------------------------------------
 /*
@@ -694,7 +705,7 @@ bool A3::mouseMoveEvent (
 				eventHandled = true;
 				break;
 			case 1:
-				
+				performRotate(yPos);
 				eventHandled = true;
 				break;
 			default:
@@ -762,9 +773,12 @@ bool A3::mouseButtonInputEvent (
 
 				// Reassemble the object ID.
 				unsigned int what = buffer[0] + (buffer[1] << 8) + (buffer[2] << 16);
-
-				std::cout<<what<<std::endl;
-				selected[what] = !selected[what];
+				
+				if (0<=what && what<selected.size() && nodesTable[what]->parent->m_nodeType == NodeType::JointNode) {
+					selected[what] = !selected[what];
+					selected[nodesTable[what]->parent->m_nodeId] = !selected[nodesTable[what]->parent->m_nodeId];
+				}
+				
 
 				do_picking = false;
 

@@ -9,6 +9,8 @@
 
 #include "SceneNode.hpp"
 
+#include <map>
+
 #include <glm/glm.hpp>
 #include <memory>
 
@@ -55,7 +57,7 @@ protected:
 
 	void performPosition(double xPos,
 		double yPos);
-
+	void performRotate(double yPos);
 
 	// reset
 	void resetAll();
@@ -99,7 +101,6 @@ protected:
 	// Translate and rotate
 	glm::mat4 m_translation;
 	glm::mat4 m_rotation;
-	glm::mat4 m_rotation_view_z_axis;
 	glm::vec3 prevTrackballPoint;
 
 	//mode
@@ -112,6 +113,8 @@ protected:
 	bool frontfaceCulling = false;
 	bool do_picking = false;
 	std::vector<bool> selected;
+	std::map<uint, SceneNode*> nodesTable;
+	void traverse(SceneNode& root, int& count, std::vector<bool>& selected);
 
 	// key and mouse
 	bool leftMousePressed = false;

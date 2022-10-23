@@ -13,13 +13,18 @@ public:
 	void set_joint_y(double min, double init, double max);
 
 	struct JointRange {
-		double min, init, max;
+		double min, init, max, range;
 	};
 
 
 	void rotateX(float angle);
 	void rotateY(float angle);
-	float cur_angleX = 0.0f;
-	float cur_angleY = 0.0f;
+	void rotate(double normal);
+	double curXIndex = 0.0;
+	double curYIndex = 0.0;
+	float curXangle = 0.0f;
+	float curYangle = 0.0f;
+	glm::mat4 rotationX;
+	glm::mat4 rotationY;
 	JointRange m_joint_x, m_joint_y;
 };

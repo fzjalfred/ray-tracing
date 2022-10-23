@@ -49,8 +49,10 @@ public:
     // Transformations
     glm::mat4 trans;
     glm::mat4 invtrans;
+    glm::mat4 jointRotate;
     
     std::list<SceneNode*> children;
+    const SceneNode* parent = nullptr;
 
 	NodeType m_nodeType;
 	std::string m_name;
