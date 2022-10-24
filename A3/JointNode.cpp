@@ -40,6 +40,12 @@ void JointNode::set_joint_y(double min, double init, double max) {
 	curYIndex = (init-min)/m_joint_y.range;
 }
 
+void JointNode::reset() {
+	curXIndex = (m_joint_x.init-m_joint_x.min)/m_joint_x.range;
+	curYIndex = (m_joint_y.init-m_joint_y.min)/m_joint_y.range;
+	jointRotate = glm::mat4();
+}
+
 
 void JointNode::rotateX(float angle) {
 	// cout<<"current x angle: "<<curXangle<<endl;
@@ -79,9 +85,6 @@ void JointNode::rotate(double normal) {
 		if (curYIndex < 0) {
 			curYIndex = 0;
 		}
-		cout<<m_joint_y.min<<endl;
-		cout<<m_joint_y.max<<endl;
-		cout<<curYIndex<<endl;
 		rotateY(m_joint_y.min+m_joint_y.range*curYIndex);
 	}
 	

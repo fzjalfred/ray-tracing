@@ -10,7 +10,6 @@ using namespace std;
 #include "JointNode.hpp"
 
 #include <imgui/imgui.h>
-
 #include <glm/gtc/type_ptr.hpp>
 #include <glm/gtx/io.hpp>
 #include <glm/gtc/matrix_transform.hpp>
@@ -65,15 +64,33 @@ void A3::resetOrientation() {
 }
 
 void A3::resetJoints() {
-
+	for (auto i: nodesTable) {
+		if (i.second->m_nodeType == NodeType::JointNode) {
+			i.second->jointRotate = mat4();
+			((JointNode*)i.second)->reset();
+		}
+	}
+	undos = std::stack<JointRotateCommand>();
+	redos = std::stack<JointRotateCommand>();
+	isRedoUndoed = false;
+	isJointChange = false;
 }
 
 void A3::undo() {
-
+	if (undos.empty()) return;
+	JointRotateCommand act = undos.top();
+	undos.pop();
+	redos.push(act);
+	act.undo();
 }
 
 void A3::redo() {
-
+	if (redos.empty()) return;
+	JointRotateCommand act = redos.top();
+	redos.pop();
+	undos.push(act);
+	
+	act.execute();
 }
 
 void A3::traverse(SceneNode& root, int& count, std::vector<bool>& selected) {
@@ -678,9 +695,16 @@ void A3::performRotate(double yPos) {
 		double factor = yPos - prevY;
 		for (int i = 0; i<selected.size(); i++) {
 			if (selected[i] == true && nodesTable[i]->m_nodeType == NodeType::JointNode) {
-				((JointNode*)nodesTable[i])->rotate(factor/100);
+				cur_cmd = JointRotateCommand((JointNode*)nodesTable[i], factor/100);
+				cur_cmd.execute();
+				isJointChange = true;
 			}
 		}
+	}
+	if (isJointChange && isRedoUndoed) {
+		// undos = std::stack<JointRotateCommand>();
+		// redos = std::stack<JointRotateCommand>();
+		// isRedoUndoed = false;
 	}
 	
 }
@@ -792,12 +816,18 @@ bool A3::mouseButtonInputEvent (
 			rightMousePressed = true;
 		}
 		if (button == GLFW_MOUSE_BUTTON_2 && actions == GLFW_RELEASE) {
+			if (mode == 1 && isJointChange) {
+				undos.push(cur_cmd);
+			}
 			rightMousePressed = false;
 		}
 		if (button == GLFW_MOUSE_BUTTON_3 && actions == GLFW_PRESS) {
 			middleMousePressed = true;
 		}
 		if (button == GLFW_MOUSE_BUTTON_3 && actions == GLFW_RELEASE) {
+			if (mode == 1 && isJointChange) {
+				undos.push(cur_cmd);
+			}
 			middleMousePressed = false;
 		}
 	return eventHandled;
@@ -896,15 +926,33 @@ bool A3::keyInputEvent (
 		}
 		// undo redo
 		if (key == GLFW_KEY_R) {
-			redo();
+			isRedoing = true;
 			eventHandled = true;
 		}
 		if (key == GLFW_KEY_U) {
-			undo();
+			isUndoing = true;
+			eventHandled = true;
+		}
+	}
+	if ( action == GLFW_RELEASE ) {
+		// undo redo
+		if (key == GLFW_KEY_R) {
+			isRedoing = false;
+			eventHandled = true;
+		}
+		if (key == GLFW_KEY_U) {
+			isUndoing = false;
 			eventHandled = true;
 		}
 	}
 	// Fill in with event handling code...
-
+	if (isRedoing) {
+		redo();
+		isRedoUndoed = true;
+	}
+	if (isUndoing) {
+		undo();
+		isRedoUndoed = true;
+	}
 	return eventHandled;
 }

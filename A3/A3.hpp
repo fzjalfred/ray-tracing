@@ -6,6 +6,7 @@
 #include "cs488-framework/OpenGLImport.hpp"
 #include "cs488-framework/ShaderProgram.hpp"
 #include "cs488-framework/MeshConsolidator.hpp"
+#include "JointRotateCommand.hpp"
 
 #include "SceneNode.hpp"
 
@@ -13,6 +14,7 @@
 
 #include <glm/glm.hpp>
 #include <memory>
+#include <stack>
 
 struct LightSource {
 	glm::vec3 position;
@@ -112,12 +114,21 @@ protected:
 	bool backfaceCulling = false;
 	bool frontfaceCulling = false;
 	bool do_picking = false;
+	bool isRedoing = false;
+	bool isUndoing = false;
 	std::vector<bool> selected;
 	std::map<uint, SceneNode*> nodesTable;
 	void traverse(SceneNode& root, int& count, std::vector<bool>& selected);
+	JointRotateCommand cur_cmd;
+	bool isJointChange = false;
+	bool isRedoUndoed = false;
 
 	// key and mouse
 	bool leftMousePressed = false;
 	bool rightMousePressed = false;
 	bool middleMousePressed = false;
+
+	// undo redo
+	std::stack<JointRotateCommand> undos = std::stack<JointRotateCommand>();
+	std::stack<JointRotateCommand> redos = std::stack<JointRotateCommand>();
 };
