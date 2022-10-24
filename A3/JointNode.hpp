@@ -24,8 +24,6 @@ public:
 	void rotate(double normal);
 	double curXIndex = 0.0;
 	double curYIndex = 0.0;
-	float curXangle = 0.0f;
-	float curYangle = 0.0f;
 	glm::mat4 rotationX;
 	glm::mat4 rotationY;
 	JointRange m_joint_x, m_joint_y;

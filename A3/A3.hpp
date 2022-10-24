@@ -119,7 +119,7 @@ protected:
 	std::vector<bool> selected;
 	std::map<uint, SceneNode*> nodesTable;
 	void traverse(SceneNode& root, int& count, std::vector<bool>& selected);
-	JointRotateCommand cur_cmd;
+	std::vector<JointRecord> cur_cmds;
 	bool isJointChange = false;
 	bool isRedoUndoed = false;
 
@@ -129,6 +129,8 @@ protected:
 	bool middleMousePressed = false;
 
 	// undo redo
-	std::stack<JointRotateCommand> undos = std::stack<JointRotateCommand>();
-	std::stack<JointRotateCommand> redos = std::stack<JointRotateCommand>();
+	std::stack<std::vector<JointRecord>> undos = std::stack<std::vector<JointRecord>>();
+	std::stack<std::vector<JointRecord>> redos = std::stack<std::vector<JointRecord>>();
+	void recordCmdCreate();
+	void recordAllJoints();
 };

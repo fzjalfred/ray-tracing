@@ -24,7 +24,7 @@ void JointNode::set_joint_x(double min, double init, double max) {
 	m_joint_x.init = init;
 	m_joint_x.max = max;
 	m_joint_x.range = max - min;
-	curXangle = 0;
+	//curXangle = 0;
 	rotateX(m_joint_x.init);
 	curXIndex = (init-min)/m_joint_x.range;
 }
@@ -35,7 +35,7 @@ void JointNode::set_joint_y(double min, double init, double max) {
 	m_joint_y.init = init;
 	m_joint_y.max = max;
 	m_joint_y.range = max - min;
-	curYangle = 0;
+	//curYangle = 0;
 	rotateY(m_joint_y.init);
 	curYIndex = (init-min)/m_joint_y.range;
 }
@@ -52,14 +52,14 @@ void JointNode::rotateX(float angle) {
 	// cout<<"rotate x angle: "<<angle<<endl;
 	rotationX = glm::rotate(degreesToRadians(angle), glm::vec3(1,0,0));
 	jointRotate = rotationX*rotationY;
-	curXangle = angle;
+	//curXangle = angle;
 }
 
 void JointNode::rotateY(float angle) {
 	// cout<<"current y angle: "<<curYangle<<endl;
 	rotationY = glm::rotate(degreesToRadians(angle), glm::vec3(0,1,0));
 	jointRotate = rotationX*rotationY;
-	curYangle = angle;
+	// curYangle = angle;
 }
 
 void JointNode::rotate(double normal) {

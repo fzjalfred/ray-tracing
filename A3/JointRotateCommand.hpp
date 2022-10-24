@@ -2,11 +2,15 @@
 #include <iostream>
 #include <glm/glm.hpp>
 
-class JointRotateCommand {
+class JointRecord {
     
     JointNode* jn;
-    float angle_factor; // [0,1]
     
+    // execute
+    glm::mat4 jointRotateRecord;
+    double XIndexRecord;
+    double YIndexRecord;
+
     // recovery
     glm::mat4 jointRotate;
     double curXIndex;
@@ -14,20 +18,40 @@ class JointRotateCommand {
 
     public:
 
-    JointRotateCommand() {}
+    JointRecord() {}
     
-    JointRotateCommand(JointNode* jn,
-    float angle_factor): jn(jn), angle_factor(angle_factor) {
+    JointRecord(JointNode* jn): jn(jn) {
         jointRotate = jn->jointRotate;
         curXIndex = jn->curXIndex;
         curYIndex = jn->curYIndex;
     }
 
+    void record() {
+        this->jointRotateRecord = jn->jointRotate;
+        this->XIndexRecord = jn->curXIndex;
+        this->YIndexRecord = jn->curYIndex;
+    }
+
     void execute() {
-        jn->rotate(angle_factor);
+        jn->jointRotate = jointRotateRecord;
+        jn->curXIndex = XIndexRecord;
+        jn->curYIndex = YIndexRecord;
     }
 
     void undo() {
-        jn->rotate(-angle_factor);
+        jn->jointRotate = jointRotate;
+        jn->curXIndex = curXIndex;
+        jn->curYIndex = curYIndex;
     }
+    
+    void print() {
+        if (curXIndex != XIndexRecord && curYIndex !=YIndexRecord)
+        std::cout<<"Cmd "<<jn->m_name<<": from ("<<curXIndex<<", "<<curYIndex<<") to "<<"("<<XIndexRecord<<", "<<YIndexRecord<<") "<<std::endl;
+    }
+
+    void printJoint() {
+        if (curXIndex != XIndexRecord && curYIndex !=YIndexRecord)
+        std::cout<<jn->m_name<<": ("<<jn->curXIndex<<", "<<jn->curYIndex<<")"<<std::endl;
+    }
+
 };

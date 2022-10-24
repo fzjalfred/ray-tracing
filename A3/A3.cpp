@@ -70,27 +70,37 @@ void A3::resetJoints() {
 			((JointNode*)i.second)->reset();
 		}
 	}
-	undos = std::stack<JointRotateCommand>();
-	redos = std::stack<JointRotateCommand>();
+	undos = std::stack<std::vector<JointRecord>>();
+	redos = std::stack<std::vector<JointRecord>>();
 	isRedoUndoed = false;
 	isJointChange = false;
 }
 
 void A3::undo() {
 	if (undos.empty()) return;
-	JointRotateCommand act = undos.top();
+	std::vector<JointRecord> acts = undos.top();
 	undos.pop();
-	redos.push(act);
-	act.undo();
+	redos.push(acts);
+
+	for (auto act: acts) {
+		// act.printJoint();
+		// act.print();
+		act.undo();
+		// act.printJoint();
+	}
+	
 }
 
 void A3::redo() {
 	if (redos.empty()) return;
-	JointRotateCommand act = redos.top();
+	std::vector<JointRecord> acts = redos.top();
 	redos.pop();
-	undos.push(act);
+	undos.push(acts);
 	
-	act.execute();
+	for (auto act: acts) {
+		act.execute();
+	}
+	
 }
 
 void A3::traverse(SceneNode& root, int& count, std::vector<bool>& selected) {
@@ -695,16 +705,18 @@ void A3::performRotate(double yPos) {
 		double factor = yPos - prevY;
 		for (int i = 0; i<selected.size(); i++) {
 			if (selected[i] == true && nodesTable[i]->m_nodeType == NodeType::JointNode) {
-				cur_cmd = JointRotateCommand((JointNode*)nodesTable[i], factor/100);
-				cur_cmd.execute();
+				JointNode* jn = (JointNode*)nodesTable[i]; 
+				float angle_factor = factor/100;
+				jn->rotate(angle_factor);
 				isJointChange = true;
 			}
 		}
-	}
-	if (isJointChange && isRedoUndoed) {
-		// undos = std::stack<JointRotateCommand>();
-		// redos = std::stack<JointRotateCommand>();
-		// isRedoUndoed = false;
+		if (isJointChange && isRedoUndoed) {
+			undos = std::stack<std::vector<JointRecord>>();
+			redos = std::stack<std::vector<JointRecord>>();
+			isRedoUndoed = false;
+			cout<<"clean stack"<<endl;
+		}
 	}
 	
 }
@@ -813,24 +825,41 @@ bool A3::mouseButtonInputEvent (
 			leftMousePressed = false;
 		}
 		if (button == GLFW_MOUSE_BUTTON_2 && actions == GLFW_PRESS) {
+			recordCmdCreate();
 			rightMousePressed = true;
 		}
 		if (button == GLFW_MOUSE_BUTTON_2 && actions == GLFW_RELEASE) {
-			if (mode == 1 && isJointChange) {
-				undos.push(cur_cmd);
-			}
+			recordAllJoints();
 			rightMousePressed = false;
 		}
 		if (button == GLFW_MOUSE_BUTTON_3 && actions == GLFW_PRESS) {
+			recordCmdCreate();
 			middleMousePressed = true;
 		}
 		if (button == GLFW_MOUSE_BUTTON_3 && actions == GLFW_RELEASE) {
-			if (mode == 1 && isJointChange) {
-				undos.push(cur_cmd);
-			}
+			recordAllJoints();
 			middleMousePressed = false;
 		}
 	return eventHandled;
+}
+
+void A3::recordCmdCreate() {
+	cur_cmds = std::vector<JointRecord>();
+	for (auto i: nodesTable) {
+		if (i.second->m_nodeType == NodeType::JointNode) {
+			cur_cmds.push_back(JointRecord((JointNode*)i.second));
+		}
+	}
+}
+
+void A3::recordAllJoints() {
+	if (mode == 1 && isJointChange) {
+		for (auto& act: cur_cmds) {
+			act.record();
+		}
+		undos.push(cur_cmds);
+	}
+	
 }
 
 //----------------------------------------------------------------------------------------
@@ -926,33 +955,24 @@ bool A3::keyInputEvent (
 		}
 		// undo redo
 		if (key == GLFW_KEY_R) {
-			isRedoing = true;
+			redo();
+			isRedoUndoed = true;
 			eventHandled = true;
 		}
 		if (key == GLFW_KEY_U) {
-			isUndoing = true;
-			eventHandled = true;
-		}
-	}
-	if ( action == GLFW_RELEASE ) {
-		// undo redo
-		if (key == GLFW_KEY_R) {
-			isRedoing = false;
-			eventHandled = true;
-		}
-		if (key == GLFW_KEY_U) {
-			isUndoing = false;
+			undo();
+			isRedoUndoed = true;
 			eventHandled = true;
 		}
 	}
 	// Fill in with event handling code...
-	if (isRedoing) {
-		redo();
-		isRedoUndoed = true;
-	}
-	if (isUndoing) {
-		undo();
-		isRedoUndoed = true;
-	}
+	// if (isRedoing) {
+	// 	redo();
+	// 	isRedoUndoed = true;
+	// }
+	// if (isUndoing) {
+	// 	undo();
+	// 	isRedoUndoed = true;
+	// }
 	return eventHandled;
 }
