@@ -83,10 +83,10 @@ void A3::undo() {
 	redos.push(acts);
 
 	for (auto act: acts) {
-		// act.printJoint();
-		// act.print();
+		act.printJoint();
+		act.print();
 		act.undo();
-		// act.printJoint();
+		act.printJoint();
 	}
 	
 }
@@ -107,6 +107,9 @@ void A3::traverse(SceneNode& root, int& count, std::vector<bool>& selected) {
 		count += 1;
 		selected.push_back(false);
 		nodesTable.emplace(root.m_nodeId, &root);
+		if (root.m_name == "neckJoint") {
+			headNode = (JointNode*)&root;
+		}
 		for (auto i: root.children) {
 			traverse(*i, count, selected);
 			i->parent = &root;
@@ -700,7 +703,7 @@ void A3::performPosition(double xPos, double yPos) {
 	
 }
 
-void A3::performRotate(double yPos) {
+void A3::performRotate(double xPos, double yPos) {
 	if (middleMousePressed) {
 		double factor = yPos - prevY;
 		for (int i = 0; i<selected.size(); i++) {
@@ -715,7 +718,20 @@ void A3::performRotate(double yPos) {
 			undos = std::stack<std::vector<JointRecord>>();
 			redos = std::stack<std::vector<JointRecord>>();
 			isRedoUndoed = false;
-			cout<<"clean stack"<<endl;
+		}
+	}
+	if (rightMousePressed) {
+		double factor = (xPos - prevX)/10;
+		float headAngle = headNode->headAngle;
+		//std::cout<<headAngle<<std::endl;
+		if(selected[headNode->m_nodeId] && (headAngle + factor)<60 && (headAngle + factor)>-60) {
+			headNode->rotate('y', headAngle+factor);
+			isJointChange = true;
+		}
+		if (isJointChange && isRedoUndoed) {
+			undos = std::stack<std::vector<JointRecord>>();
+			redos = std::stack<std::vector<JointRecord>>();
+			isRedoUndoed = false;
 		}
 	}
 	
@@ -741,7 +757,7 @@ bool A3::mouseMoveEvent (
 				eventHandled = true;
 				break;
 			case 1:
-				performRotate(yPos);
+				performRotate(xPos, yPos);
 				eventHandled = true;
 				break;
 			default:

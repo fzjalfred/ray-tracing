@@ -22,9 +22,12 @@ public:
 	void rotateX(float angle);
 	void rotateY(float angle);
 	void rotate(double normal);
+	void rotate(char axis, float angle);
 	double curXIndex = 0.0;
 	double curYIndex = 0.0;
 	glm::mat4 rotationX;
 	glm::mat4 rotationY;
+	glm::mat4 selfRotate;
 	JointRange m_joint_x, m_joint_y;
+	float headAngle = 0.0f;
 };

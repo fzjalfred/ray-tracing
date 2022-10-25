@@ -59,7 +59,7 @@ protected:
 
 	void performPosition(double xPos,
 		double yPos);
-	void performRotate(double yPos);
+	void performRotate(double xPos, double yPos);
 
 	// reset
 	void resetAll();
@@ -122,6 +122,7 @@ protected:
 	std::vector<JointRecord> cur_cmds;
 	bool isJointChange = false;
 	bool isRedoUndoed = false;
+	JointNode* headNode = nullptr;
 
 	// key and mouse
 	bool leftMousePressed = false;
