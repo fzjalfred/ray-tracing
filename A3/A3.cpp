@@ -140,7 +140,21 @@ void A3::init()
 	unique_ptr<MeshConsolidator> meshConsolidator (new MeshConsolidator{
 			getAssetFilePath("cube.obj"),
 			getAssetFilePath("sphere.obj"),
-			getAssetFilePath("suzanne.obj")
+			getAssetFilePath("suzanne.obj"),
+			getAssetFilePath("head.obj"),
+			getAssetFilePath("torso.obj"),
+			getAssetFilePath("face.obj"),
+			getAssetFilePath("eyes.obj"),
+			getAssetFilePath("nose.obj"),
+//arm
+			getAssetFilePath("hand.obj"),
+			getAssetFilePath("ArmUp.obj"),
+			getAssetFilePath("ArmLower.obj"),
+//leg
+			getAssetFilePath("LegUp.obj"),
+			getAssetFilePath("LegLower.obj"),
+			getAssetFilePath("foot.obj")
+
 	});
 
 	int count = 0;
