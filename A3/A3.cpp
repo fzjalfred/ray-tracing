@@ -70,6 +70,7 @@ void A3::resetJoints() {
 			((JointNode*)i.second)->reset();
 		}
 	}
+	headNode->reset();
 	undos = std::stack<std::vector<JointRecord>>();
 	redos = std::stack<std::vector<JointRecord>>();
 	isRedoUndoed = false;

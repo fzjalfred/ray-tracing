@@ -27,20 +27,22 @@ rootNode:add_child(torso)
 neckNode = gr.node('neckNode')
 torso:add_child(neckNode)
 ---------------------------------NeckJoint-----------------------------
-neckJoint = gr.joint('neckJoint', {-20, 0, 70}, {-110, 0, 110});
+neckJoint = gr.joint('neckJoint', {-10, 0, 10}, {-80, 0, 80});
 neckJoint:translate(0.0, 1.5, 0.0)
 neckNode:add_child(neckJoint)
 
 ---------------------------------Head-----------------------------
 head = gr.mesh('head', 'head')
-head:translate(0.0, -1.5, 0.0)
 head:set_material(red)
-
-neckJoint:add_child(head)
 
 face = gr.mesh('face', 'face')
 face:set_material(pearlWhite)
-head:add_child(face)
+face:translate(0.0, -1.5, 0.0)
+
+neckJoint:add_child(face)
+face:add_child(head)
+
+
 
 eyes = gr.mesh('eyes', 'eyes')
 eyes:set_material(black)
@@ -158,10 +160,11 @@ rightLegJoint:add_child(rightLegUp)
 
 ---------------------------------rightLegUpperNode-----------------------------
 rightLegKneeNode = gr.node('rightLegKneeNode')
+rightLegKneeNode:rotate('y', 180)
 rightLegKneeNode:translate(0.03,-0.3,0)
 rightLegUp:add_child(rightLegKneeNode)
 
-rightLegKneeJoint = gr.joint('rightLegKneeJoint', {-45, 0, 45}, {0, 0, 0})
+rightLegKneeJoint = gr.joint('rightLegKneeJoint', {0, 0, 45}, {0, 0, 0})
 rightLegKneeNode:add_child(rightLegKneeJoint)
 
 rightLegLower = gr.mesh('LegLower', 'rightLegLower')
@@ -170,7 +173,6 @@ rightLegKneeJoint:add_child(rightLegLower)
 
 -- ---------------------------------rightLegLowerNode---------------------------
 rightLegLowerNode =gr.node('rightLegLowerNode')
-rightLegLowerNode:rotate('y', 180)
 rightLegLowerNode:translate(0.02, -1, -0.1)
 rightLegLower:add_child(rightLegLowerNode)
 
@@ -198,7 +200,7 @@ leftLegKneeNode = gr.node('leftLegKneeNode')
 leftLegKneeNode:translate(0.03,-0.3,0)
 leftLegUp:add_child(leftLegKneeNode)
 
-leftLegKneeJoint = gr.joint('leftLegKneeJoint', {-45, 0, 45}, {0, 0, 0})
+leftLegKneeJoint = gr.joint('leftLegKneeJoint', {0, 0, 45}, {0, 0, 0})
 leftLegKneeNode:add_child(leftLegKneeJoint)
 
 leftLegLower = gr.mesh('LegLower', 'leftLegLower')

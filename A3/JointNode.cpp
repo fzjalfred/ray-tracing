@@ -44,6 +44,9 @@ void JointNode::reset() {
 	curXIndex = (m_joint_x.init-m_joint_x.min)/m_joint_x.range;
 	curYIndex = (m_joint_y.init-m_joint_y.min)/m_joint_y.range;
 	jointRotate = glm::mat4();
+	rotationX = glm::mat4();
+	rotationY = glm::mat4();
+	selfRotate = glm::mat4();
 	headAngle = 0.0f;
 }
 
