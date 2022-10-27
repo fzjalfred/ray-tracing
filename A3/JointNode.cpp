@@ -44,9 +44,10 @@ void JointNode::reset() {
 	curXIndex = (m_joint_x.init-m_joint_x.min)/m_joint_x.range;
 	curYIndex = (m_joint_y.init-m_joint_y.min)/m_joint_y.range;
 	jointRotate = glm::mat4();
-	rotationX = glm::mat4();
-	rotationY = glm::mat4();
-	selfRotate = glm::mat4();
+	rotate(0.0);
+	// rotationX = glm::mat4();
+	// rotationY = glm::mat4();
+	// selfRotate = glm::mat4();
 	headAngle = 0.0f;
 }
 
@@ -55,14 +56,14 @@ void JointNode::rotateX(float angle) {
 	// cout<<"current x angle: "<<curXangle<<endl;
 	// cout<<"rotate x angle: "<<angle<<endl;
 	rotationX = glm::rotate(degreesToRadians(angle), glm::vec3(1,0,0));
-	jointRotate = rotationX*rotationY*selfRotate;
+	jointRotate = rotationX*rotationY;
 	//curXangle = angle;
 }
 
 void JointNode::rotateY(float angle) {
 	// cout<<"current y angle: "<<curYangle<<endl;
 	rotationY = glm::rotate(degreesToRadians(angle), glm::vec3(0,1,0));
-	jointRotate = rotationX*rotationY*selfRotate;
+	jointRotate = rotationX*rotationY;
 	// curYangle = angle;
 }
 

@@ -72,7 +72,7 @@ head:add_child(nose)
 rightUpperArmNode = gr.node('rightUpperArmNode')
 rightUpperArmNode:translate(0.76, 1.1, 0.0)
 torso:add_child(rightUpperArmNode)
-rightUpperArmJoint = gr.joint('rightUpperArmJoint', {-90, 90, 90}, {0, 0, 0});
+rightUpperArmJoint = gr.joint('rightUpperArmJoint', {-90, -90, 90}, {0, 0, 0});
 rightUpperArmNode:add_child(rightUpperArmJoint)
 
 rightUpperArm = gr.mesh('ArmUp', 'rightUpperArm')
@@ -111,7 +111,7 @@ leftUpperArmNode:translate(-1.5, 0.04, 0.0)
 leftUpperArmNode:translate(0.76, 1.1, 0.0)
 
 torso:add_child(leftUpperArmNode)
-leftUpperArmJoint = gr.joint('leftUpperArmJoint', {-90, 90, 90}, {0, 0, 0});
+leftUpperArmJoint = gr.joint('leftUpperArmJoint', {-90, -90, 90}, {0, 0, 0});
 leftUpperArmNode:add_child(leftUpperArmJoint)
 
 leftUpperArm = gr.mesh('ArmUp', 'leftUpperArm')
@@ -164,7 +164,7 @@ rightLegNode = gr.node('rightLegNode')
 rightLegNode:rotate('y', 180)
 rightLegNode:translate(0.4, 0, 0)
 waistJoint:add_child(rightLegNode)
-rightLegJoint = gr.joint('rightLegJoint', {-50, 50, 50}, {0, 0, 0})
+rightLegJoint = gr.joint('rightLegJoint', {-50, -50, 50}, {0, 0, 0})
 rightLegNode:add_child(rightLegJoint)
 
 rightLegUp = gr.mesh('LegUp', 'rightLegUp')
@@ -201,7 +201,7 @@ rightLegLowerJoint:add_child(rightFoot)
 leftLegNode = gr.node('leftLegNode')
 leftLegNode:translate(-0.4, 0, 0)
 waistJoint:add_child(leftLegNode)
-leftLegJoint = gr.joint('leftLegJoint', {-50, 50, 50}, {0, 0, 0})
+leftLegJoint = gr.joint('leftLegJoint', {-50, -50, 50}, {0, 0, 0})
 leftLegNode:add_child(leftLegJoint)
 
 leftLegUp = gr.mesh('LegUp', 'leftLegUp')

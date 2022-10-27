@@ -84,10 +84,10 @@ void A3::undo() {
 	redos.push(acts);
 
 	for (auto act: acts) {
-		act.printJoint();
-		act.print();
+		// act.printJoint();
+		// act.print();
 		act.undo();
-		act.printJoint();
+		// act.printJoint();
 	}
 	
 }
