@@ -15,7 +15,7 @@ darkbrown = gr.material({0.21, 0.14, 0.02}, {0.1, 0.1, 0.1}, 10)
 slightDarkbrown = gr.material({0.70, 0.47, 0.23}, {0.1, 0.1, 0.1}, 10)
 black = gr.material({0.0,0.0, 0.0}, {0.1, 0.1, 0.1}, 10)
 white = gr.material({1.0,1.0, 1.0}, {0.5, 0.5, 0.5}, 10)
-yellow = gr.material({1.0, 1.0, 0.0}, {0.1, 0.1, 0.1}, 10)
+golden = gr.material({1.0, 0.8, 0.0}, {0.1, 0.1, 0.1}, 10)
 ---------------------------------------torso--------------------------------------
 torso = gr.mesh('torso', 'torso')
 
@@ -23,15 +23,23 @@ torso:set_material(red)
 
 rootNode:add_child(torso)
 
+torso_decorate = gr.mesh('torso_decorate', 'torso_decorate')
+torso_decorate:set_material(golden)
+torso:add_child(torso_decorate)
+
+torso_black_body = gr.mesh('torso_black_body', 'torso_black_body')
+torso_black_body:set_material(black)
+torso:add_child(torso_black_body)
+
 ---------------------------------NeckNode-----------------------------
 neckNode = gr.node('neckNode')
 torso:add_child(neckNode)
 ---------------------------------NeckJoint-----------------------------
-neckJoint = gr.joint('neckJoint', {-10, 0, 10}, {-80, 0, 80});
+neckJoint = gr.joint('neckJoint', {-5, 0, 5}, {-80, 0, 80});
 neckJoint:translate(0.0, 1.5, 0.0)
 neckNode:add_child(neckJoint)
 
----------------------------------Head-----------------------------
+------------------------------------Head-----------------------------
 head = gr.mesh('head', 'head')
 head:set_material(red)
 
@@ -42,7 +50,13 @@ face:translate(0.0, -1.5, 0.0)
 neckJoint:add_child(face)
 face:add_child(head)
 
+head_decorate = gr.mesh('head_decorate', 'head_decorate')
+head_decorate:set_material(golden)
+head:add_child(head_decorate)
 
+head_black_body = gr.mesh('head_black_body', 'head_black_body')
+head_black_body:set_material(black)
+head:add_child(head_black_body)
 
 eyes = gr.mesh('eyes', 'eyes')
 eyes:set_material(black)
@@ -58,7 +72,7 @@ head:add_child(nose)
 rightUpperArmNode = gr.node('rightUpperArmNode')
 rightUpperArmNode:translate(0.76, 1.1, 0.0)
 torso:add_child(rightUpperArmNode)
-rightUpperArmJoint = gr.joint('rightUpperArmJoint', {-90, 0, 90}, {0, 0, 0});
+rightUpperArmJoint = gr.joint('rightUpperArmJoint', {-90, 90, 90}, {0, 0, 0});
 rightUpperArmNode:add_child(rightUpperArmJoint)
 
 rightUpperArm = gr.mesh('ArmUp', 'rightUpperArm')
@@ -97,7 +111,7 @@ leftUpperArmNode:translate(-1.5, 0.04, 0.0)
 leftUpperArmNode:translate(0.76, 1.1, 0.0)
 
 torso:add_child(leftUpperArmNode)
-leftUpperArmJoint = gr.joint('leftUpperArmJoint', {-90, 0, 90}, {0, 0, 0});
+leftUpperArmJoint = gr.joint('leftUpperArmJoint', {-90, 90, 90}, {0, 0, 0});
 leftUpperArmNode:add_child(leftUpperArmJoint)
 
 leftUpperArm = gr.mesh('ArmUp', 'leftUpperArm')
@@ -150,7 +164,7 @@ rightLegNode = gr.node('rightLegNode')
 rightLegNode:rotate('y', 180)
 rightLegNode:translate(0.4, 0, 0)
 waistJoint:add_child(rightLegNode)
-rightLegJoint = gr.joint('rightLegJoint', {-45, 0, 45}, {0, 0, 0})
+rightLegJoint = gr.joint('rightLegJoint', {-50, 50, 50}, {0, 0, 0})
 rightLegNode:add_child(rightLegJoint)
 
 rightLegUp = gr.mesh('LegUp', 'rightLegUp')
@@ -187,7 +201,7 @@ rightLegLowerJoint:add_child(rightFoot)
 leftLegNode = gr.node('leftLegNode')
 leftLegNode:translate(-0.4, 0, 0)
 waistJoint:add_child(leftLegNode)
-leftLegJoint = gr.joint('leftLegJoint', {-45, 0, 45}, {0, 0, 0})
+leftLegJoint = gr.joint('leftLegJoint', {-50, 50, 50}, {0, 0, 0})
 leftLegNode:add_child(leftLegJoint)
 
 leftLegUp = gr.mesh('LegUp', 'leftLegUp')
@@ -220,6 +234,8 @@ leftFoot:set_material(red)
 leftLegLowerJoint:add_child(leftFoot)
 
 
+rootNode:rotate('y', -15)
 rootNode:translate(0.0, -0.5, -5.0)
+
 
 return rootNode;

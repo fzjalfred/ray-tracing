@@ -143,7 +143,11 @@ void A3::init()
 			getAssetFilePath("sphere.obj"),
 			getAssetFilePath("suzanne.obj"),
 			getAssetFilePath("head.obj"),
+			getAssetFilePath("head_decorate.obj"),
+			getAssetFilePath("head_black_body.obj"),
+			getAssetFilePath("torso_black_body.obj"),
 			getAssetFilePath("torso.obj"),
+			getAssetFilePath("torso_decorate.obj"),
 			getAssetFilePath("face.obj"),
 			getAssetFilePath("eyes.obj"),
 			getAssetFilePath("nose.obj"),
@@ -736,11 +740,12 @@ void A3::performRotate(double xPos, double yPos) {
 		}
 	}
 	if (rightMousePressed) {
-		double factor = (xPos - prevX)/10;
-		float headAngle = headNode->headAngle;
-		//std::cout<<headAngle<<std::endl;
-		if(selected[headNode->m_nodeId] && (headAngle + factor)<60 && (headAngle + factor)>-60) {
-			headNode->rotate('y', headAngle+factor);
+		double factor = (xPos - prevX)/100;
+		// float headAngle = headNode->headAngle;
+		// //std::cout<<headAngle<<std::endl;
+		// && (headAngle + factor)<60 && (headAngle + factor)>-60
+		if(selected[headNode->m_nodeId] ) {
+			headNode->rotate('y', factor);
 			isJointChange = true;
 		}
 		if (isJointChange && isRedoUndoed) {

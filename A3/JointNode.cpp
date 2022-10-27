@@ -95,26 +95,50 @@ void JointNode::rotate(double normal) {
 	
 }
 
-void JointNode::rotate(char axis, float angle) {
-	glm::vec3 rot_axis;
+void JointNode::rotate(char axis, float normal) {
+	// glm::vec3 rot_axis;
 
-	switch (axis) {
-		case 'x':
-			rot_axis = glm::vec3(1,0,0);
-			break;
-		case 'y':
-			rot_axis = glm::vec3(0,1,0);
-	        break;
-		case 'z':
-			rot_axis = glm::vec3(0,0,1);
-	        break;
-		default:
-			break;
+	// switch (axis) {
+	// 	case 'x':
+	// 		rot_axis = glm::vec3(1,0,0);
+	// 		break;
+	// 	case 'y':
+	// 		rot_axis = glm::vec3(0,1,0);
+	//         break;
+	// 	case 'z':
+	// 		rot_axis = glm::vec3(0,0,1);
+	//         break;
+	// 	default:
+	// 		break;
+	// }
+	// if (angle<60 && angle>-60) {
+	// 	headAngle = angle;
+	// 	glm::mat4 rot_matrix = glm::rotate(degreesToRadians(angle), rot_axis);
+	// 	selfRotate = rot_matrix;
+	// 	jointRotate = rotationX*rotationY*selfRotate;
+	// }
+
+	if (!std::isnan(curXIndex) && axis == 'x') {
+		curXIndex += normal;
+		if (curXIndex > 1) {
+			curXIndex = 1;
+		}
+		if (curXIndex < 0) {
+			curXIndex = 0;
+		}
+		rotateX(m_joint_x.min+m_joint_x.range*curXIndex);
 	}
-	if (angle<60 && angle>-60) {
-		headAngle = angle;
-		glm::mat4 rot_matrix = glm::rotate(degreesToRadians(angle), rot_axis);
-		selfRotate = rot_matrix;
-		jointRotate = rotationX*rotationY*selfRotate;
+	
+	
+	if (!std::isnan(curYIndex)  && axis == 'y') {
+		curYIndex += normal;
+		if (curYIndex > 1) {
+			curYIndex = 1;
+		}
+		if (curYIndex < 0) {
+			curYIndex = 0;
+		}
+		rotateY(m_joint_y.min+m_joint_y.range*curYIndex);
 	}
+
 }
