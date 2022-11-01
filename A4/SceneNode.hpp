@@ -46,7 +46,7 @@ public:
 	friend std::ostream & operator << (std::ostream & os, const SceneNode & node);
 
     // ray tracing
-    bool hit(Ray &ray, HitRecord &record);
+    virtual bool hit(Ray &ray, const float& t_min, const float& t_max, HitRecord &record);
 
     // Transformations
     glm::mat4 trans;

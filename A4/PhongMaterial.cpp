@@ -11,3 +11,12 @@ PhongMaterial::PhongMaterial(
 
 PhongMaterial::~PhongMaterial()
 {}
+
+
+glm::vec3 PhongMaterial::diffuse() {
+	return m_kd;
+}
+
+glm::vec3 PhongMaterial::specular() {
+	return m_ks;
+}

@@ -27,3 +27,8 @@ void GeometryNode::setMaterial( Material *mat )
 
 	m_material = mat;
 }
+
+bool GeometryNode::hit(Ray &ray, const float& t_min, const float& t_max, HitRecord &record) {
+	record.m_material = m_material;
+	return m_primitive->hit(ray, t_min, t_max, record);
+}

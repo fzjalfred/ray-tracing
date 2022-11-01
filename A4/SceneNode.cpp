@@ -139,6 +139,17 @@ std::ostream & operator << (std::ostream & os, const SceneNode & node) {
 }
 
 
-bool SceneNode::hit(Ray &ray, HitRecord &record) {
+bool SceneNode::hit(Ray &ray, const float& t_min, const float& t_max, HitRecord &record) {
 
+	HitRecord childrenRecord;
+	bool hitAny = false;
+	double closest = t_max;
+	for (auto& i: children) {
+		if (i->hit(ray, t_min, closest, childrenRecord)) {
+			hitAny = true;
+			closest = childrenRecord.m_t;
+			record = childrenRecord;
+		}
+	}
+	return hitAny;
 }

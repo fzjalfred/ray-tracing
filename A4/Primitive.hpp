@@ -3,10 +3,13 @@
 #pragma once
 
 #include <glm/glm.hpp>
+#include "Ray.hpp"
+#include "HitRecord.hpp"
 
 class Primitive {
 public:
   virtual ~Primitive();
+  virtual bool hit(Ray &ray, const float& t_min, const float& t_max, HitRecord &record) const = 0;
 };
 
 class Sphere : public Primitive {
@@ -26,6 +29,7 @@ public:
   {
   }
   virtual ~NonhierSphere();
+  bool hit(Ray &ray, const float& t_min, const float& t_max, HitRecord &record) const;
 
 private:
   glm::vec3 m_pos;

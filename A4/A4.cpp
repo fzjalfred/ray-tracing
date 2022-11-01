@@ -7,8 +7,9 @@
 
 vec3 tracing(Ray& ray, SceneNode* root) {
 	HitRecord res;
-	if (root->hit(ray, res)) {
-
+	vec3 color;
+	if (root->hit(ray, 0.0001f, 999.9f, res)) {
+		//color = res.m_material->diffuse();
 	}
 }
 
