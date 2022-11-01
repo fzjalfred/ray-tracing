@@ -3,6 +3,8 @@
 #pragma once
 
 #include "Material.hpp"
+#include "Ray.hpp"
+#include "HitRecord.hpp"
 
 #include <glm/glm.hpp>
 
@@ -42,6 +44,9 @@ public:
 
 
 	friend std::ostream & operator << (std::ostream & os, const SceneNode & node);
+
+    // ray tracing
+    bool hit(Ray &ray, HitRecord &record);
 
     // Transformations
     glm::mat4 trans;

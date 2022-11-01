@@ -1,8 +1,17 @@
 // Termm--Fall 2022
 
 #include <glm/ext.hpp>
-
+#include "Ray.hpp"
+#include "HitRecord.hpp"
 #include "A4.hpp"
+
+vec3 tracing(Ray& ray, SceneNode* root) {
+	HitRecord res;
+	if (root->hit(ray, res)) {
+
+	}
+}
+
 
 void A4_Render(
 		// What to render  
@@ -21,7 +30,6 @@ void A4_Render(
 		const glm::vec3 & ambient,
 		const std::list<Light *> & lights
 ) {
-
   // Fill in raytracing code here...  
 
   std::cout << "F22: Calling A4_Render(\n" <<
@@ -42,15 +50,27 @@ void A4_Render(
 
 	size_t h = image.height();
 	size_t w = image.width();
+	// camera cone info
+	vec3 z_axis = -normalize(view);
+	vec3 x_axis = normalize(cross(-z_axis,up));
+	vec3 y_axis = normalize(up);
+
+	float d = h/2/glm::tan(glm::radians(fovy/2));
+	vec3 m_lowerLeftCorner = d*(-z_axis) - w/2*x_axis - h/2*y_axis;
+
 
 	for (uint y = 0; y < h; ++y) {
 		for (uint x = 0; x < w; ++x) {
+			vec3 direction = m_lowerLeftCorner + x*x_axis + y*y_axis;
+			Ray ray = Ray(eye, direction);
+			glm::vec3 color;
+			color += tracing(ray, root);
 			// Red: 
-			image(x, y, 0) = (double)1.0;
+			image(x, y, 0) = (double)color.r;
 			// Green: 
-			image(x, y, 1) = (double)1.0;
+			image(x, y, 1) = (double)color.g;
 			// Blue: 
-			image(x, y, 2) = (double)1.0;
+			image(x, y, 2) = (double)color.b;
 		}
 	}
 

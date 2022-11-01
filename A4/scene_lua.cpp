@@ -61,7 +61,7 @@ typedef std::map<std::string,Mesh*> MeshMap;
 static MeshMap mesh_map;
 
 // Uncomment the following line to enable debugging messages
-// #define GRLUA_ENABLE_DEBUG
+#define GRLUA_ENABLE_DEBUG
 
 #ifdef GRLUA_ENABLE_DEBUG
 #  define GRLUA_DEBUG(x) do { std::cerr << x << std::endl; } while (0)

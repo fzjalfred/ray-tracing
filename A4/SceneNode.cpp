@@ -2,6 +2,7 @@
 
 #include "SceneNode.hpp"
 
+
 #include "cs488-framework/MathUtils.hpp"
 
 #include <iostream>
@@ -135,4 +136,9 @@ std::ostream & operator << (std::ostream & os, const SceneNode & node) {
 
 	os << "]\n";
 	return os;
+}
+
+
+bool SceneNode::hit(Ray &ray, HitRecord &record) {
+
 }
