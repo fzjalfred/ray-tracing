@@ -15,11 +15,13 @@ public:
 class Sphere : public Primitive {
 public:
   virtual ~Sphere();
+  bool hit(Ray &ray, const float& t_min, const float& t_max, HitRecord &record) const;
 };
 
 class Cube : public Primitive {
 public:
   virtual ~Cube();
+  bool hit(Ray &ray, const float& t_min, const float& t_max, HitRecord &record) const;
 };
 
 class NonhierSphere : public Primitive {
@@ -44,6 +46,7 @@ public:
   }
   
   virtual ~NonhierBox();
+  bool hit(Ray &ray, const float& t_min, const float& t_max, HitRecord &record) const;
 
 private:
   glm::vec3 m_pos;

@@ -4,13 +4,59 @@
 #include "Ray.hpp"
 #include "HitRecord.hpp"
 #include "A4.hpp"
+#include <iostream>
+#include <algorithm>
+#include "Material.hpp"
 
-vec3 tracing(Ray& ray, SceneNode* root) {
+using namespace std;
+
+vec3 phongModel(vec3 fragPosition, vec3 fragNormal, const Ray& ray, Material& material, const vec3& ambient) {
+
+    // Direction from fragment to light source.
+    vec3 l = -ray.getDirection();
+
+    // Direction from fragment to viewer (origin - fragPosition).
+    vec3 v = normalize(ray.getOrigin()-fragPosition);
+
+	// cout<<"l: "<<l.x<<" "<<l.y<<" "<<l.z<<endl;
+	// cout<<"v: "<<v.x<<" "<<v.y<<" "<<v.z<<endl;
+	// cout<<dot(fragNormal, l)<<endl;
+
+    float n_dot_l = std::max(dot(fragNormal, l), 0.0f);
+
+	vec3 diffuse;
+	diffuse = material.diffuse() * n_dot_l;
+
+    vec3 specular = vec3(0.0);
+
+    if (n_dot_l > 0.0) {
+		// Halfway vector.
+		vec3 h = normalize(v + l);
+        float n_dot_h = std::max(dot(fragNormal, h), 0.0f);
+
+        specular = material.specular() * pow(n_dot_h, material.shininess());
+    }
+	cout<<"diffuse: "<<diffuse.x<<" "<<diffuse.y<<" "<<diffuse.z<<endl;
+	cout<<"specular: "<<specular.x<<" "<<specular.y<<" "<<specular.z<<endl;
+    return ambient * diffuse + specular;
+}
+
+vec3 tracing(Ray& ray, SceneNode* root, 
+		// Lighting parameters  
+		const glm::vec3 & ambient,
+		const std::list<Light *> & lights) {
 	HitRecord res;
 	vec3 color;
-	if (root->hit(ray, 0.0001f, 999.9f, res)) {
-		//color = res.m_material->diffuse();
+	if (root->hit(ray, 0.0001f, 9999.9f, res)) {
+		// cout<<res;
+		color = phongModel(res.m_position, res.m_normal, ray, *(res.m_material), ambient);
+		cout<<"hit."<<endl;
+	} else {
+		vec3 normal_ray = glm::normalize(ray.getDirection());
+        color += (1.0 - normal_ray.x) * vec3(0.4, 0.3, 0.1) + normal_ray.x * vec3(0.05, 0.0, 0.1)
+		 +  (1.0 - normal_ray.y)* vec3(0.4, 0.3, 0.1) + normal_ray.y * vec3(0.05, 0.0, 0.1);
 	}
+	return color;
 }
 
 
@@ -65,7 +111,7 @@ void A4_Render(
 			vec3 direction = m_lowerLeftCorner + x*x_axis + y*y_axis;
 			Ray ray = Ray(eye, direction);
 			glm::vec3 color;
-			color += tracing(ray, root);
+			color += tracing(ray, root, ambient, lights);
 			// Red: 
 			image(x, y, 0) = (double)color.r;
 			// Green: 

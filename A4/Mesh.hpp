@@ -32,6 +32,7 @@ struct Triangle
 class Mesh : public Primitive {
 public:
   Mesh( const std::string& fname );
+  bool hit(Ray &ray, const float& t_min, const float& t_max, HitRecord &record) const {return false;}
   
 private:
 	std::vector<glm::vec3> m_vertices;

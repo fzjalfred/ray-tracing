@@ -20,3 +20,7 @@ glm::vec3 PhongMaterial::diffuse() {
 glm::vec3 PhongMaterial::specular() {
 	return m_ks;
 }
+
+double PhongMaterial::shininess() {
+	return m_shininess;
+}

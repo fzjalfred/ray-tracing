@@ -9,6 +9,7 @@ public:
   virtual ~Material();
   virtual glm::vec3 diffuse() = 0;
   virtual glm::vec3 specular() = 0;
+  virtual double shininess() = 0;
 
 protected:
   Material();

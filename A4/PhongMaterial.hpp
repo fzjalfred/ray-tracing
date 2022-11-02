@@ -12,6 +12,7 @@ public:
   virtual ~PhongMaterial();
   glm::vec3 diffuse() override;
   glm::vec3 specular() override;
+  double shininess() override;
 
 private:
   glm::vec3 m_kd;

@@ -3,7 +3,7 @@
 #include "Primitive.hpp"
 
 #include <glm/glm.hpp>
-
+#include <iostream>
 using namespace glm;
 
 Primitive::~Primitive()
@@ -14,8 +14,16 @@ Sphere::~Sphere()
 {
 }
 
+bool Sphere::hit(Ray &ray, const float& t_min, const float& t_max, HitRecord &record) const {
+
+}
+
 Cube::~Cube()
 {
+}
+
+bool Cube::hit(Ray &ray, const float& t_min, const float& t_max, HitRecord &record) const {
+
 }
 
 NonhierSphere::~NonhierSphere()
@@ -33,9 +41,34 @@ bool NonhierSphere::hit(Ray &ray, const float& t_min, const float& t_max, HitRec
     if (discriminant > 0) {
         float t_solution = (-b - sqrt(discriminant))/2*a;
         
+        if (t_solution > t_min && t_solution < t_max) {
+            record.m_t = t_solution;
+            record.m_position = ray.getOrigin() + ray.getDirection()*t_solution;
+            record.m_normal = (record.m_position - m_pos)/(float)m_radius;
+            return true;
+        } else {
+            std::cout<<"t_max: "<<t_max<<std::endl;
+            std::cout<<"t_solution1: "<<t_solution<<std::endl;
+        }
+        t_solution = (-b + sqrt(discriminant))/2*a;
+        if (t_solution > t_min && t_solution < t_max) {
+            record.m_t = t_solution;
+            record.m_position = ray.getOrigin() + ray.getDirection()*t_solution;
+            record.m_normal = (record.m_position - m_pos)/(float)m_radius;
+            return true;
+        } else {
+            std::cout<<"t_max: "<<t_max<<std::endl;
+            std::cout<<"t_solution2: "<<t_solution<<std::endl;
+        }
+        
     }
+    return false;
 }
 
 NonhierBox::~NonhierBox()
 {
+}
+
+bool NonhierBox::hit(Ray &ray, const float& t_min, const float& t_max, HitRecord &record) const {
+
 }
