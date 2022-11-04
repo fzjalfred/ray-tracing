@@ -8,6 +8,122 @@
 // #include "cs488-framework/ObjFileDecoder.hpp"
 #include "Mesh.hpp"
 
+
+// This one cost too much time.
+/*
+bool Mesh::triangleHit(const Ray &ray, const float &t_min, const float &t_max,
+    HitRecord &ret, const vec3 &p0, const vec3 &p1,
+    const vec3 &p2) const
+{
+	// std::cout<<"triangle hit starts."<<std::endl;
+	// std::cout<<glm::to_string(p0)<<std::endl;
+	// std::cout<<glm::to_string(p1)<<std::endl;
+	// std::cout<<glm::to_string(p2)<<std::endl;
+	vec3 normal = normalize(cross((p1-p0), (p2-p0)));
+	float n_dot_dir = dot(normal, ray.getDirection());
+    // no intersection.
+    if (n_dot_dir == 0.0f) {
+		// std::cout<<"triangle hit done."<<std::endl;
+        return false;
+	}
+    float d = dot(-normal, p0);
+	// std::cout<<"d: "<<d<<std::endl;
+    float t = -(dot(normal, ray.getOrigin()) + d) / n_dot_dir;
+	// std::cout<<"t: "<<t<<std::endl;
+    if (t < t_min || t > t_max) {
+		// std::cout<<"t_min: "<<t_min<<std::endl;
+		// std::cout<<"t_max: "<<t_max<<std::endl;
+        // std::cout<<"t_solution: "<<t<<std::endl;
+		// std::cout<<"triangle hit done."<<std::endl;
+        return false;
+	}
+	
+	vec3 pos = ray.pointAt(t);
+    ret.m_t = t;
+    ret.m_position = pos;
+	if ( dot( ray.getDirection(), normal ) > 0 ) normal = -normal;
+	ret.m_normal = normal;
+    // judge inside or not.
+    vec3 edge0 = p1 - p0;
+	vec3 edge1 = p2 - p1;
+	vec3 edge2 = p0 - p2;
+
+	vec3 c0 = pos - p0;
+	vec3 c1 = pos - p1;
+	vec3 c2 = pos - p2;
+
+	if (dot(normal, cross(edge0, c0)) < 0) {
+		// std::cout<<"triangle hit done."<<std::endl;
+		return false;
+	}
+	if (dot(normal, cross(edge1, c1)) < 0) {
+		// std::cout<<"triangle hit done."<<std::endl;
+		return false;
+	}
+	if (dot(normal, cross(edge2, c2)) < 0) {
+		// std::cout<<"triangle hit done."<<std::endl;
+		return false;
+	}
+	// std::cout<<"triangle hit done."<<std::endl;
+
+    return true;
+}
+*/
+
+bool triangleIntersection(const Ray &ray, const vec3& vertex0, const vec3& vertex1, const vec3& vertex2, float &res) {
+	const float EPSILON = 0.0000001;
+	glm::vec3 edge1, edge2, h, s, q;
+	float a, f, u, v;
+	edge1 = vertex1 - vertex0;
+	edge2 = vertex2 - vertex0; 
+
+	h = glm::cross(ray.getDirection(), edge2);
+	a = glm::dot(edge1, h);
+	if (a > -EPSILON && a < EPSILON)
+		return false;
+	f = 1 / a;
+	s = ray.getOrigin() - vertex0;
+	u = f * (glm::dot(s, h));
+	if (u < 0.0 || u > 1.0)
+		return false;
+	q = glm::cross(s, edge1);
+	v = f * glm::dot(ray.getDirection(), q);
+	if (v < 0.0 || u + v > 1.0)
+		return false;
+	// At this stage we can compute t to find out where the intersection point is on the line.
+
+	float t = f * glm::dot(edge2, q);
+	if (t > EPSILON) // ray intersection
+	{
+		res = t;
+		return true;
+	}
+	else // This means that there is a line intersection but not a ray intersection.
+    return false;
+}
+
+bool Mesh::triangleHit(const Ray &ray, const float &t_min, const float &t_max,
+    HitRecord &ret, const vec3 &p0, const vec3 &p1,
+    const vec3 &p2) const
+{	
+	vec3 normal = normalize(cross((p1-p0), (p2-p0)));
+	float t;
+	if (triangleIntersection(ray, p0, p1, p2,t)) {
+		if (t < t_min || t > t_max) {
+			return false;
+		} else {
+			ret.m_t = t;
+			if ( dot( ray.getDirection(), normal ) > 0 ) 
+				normal = -normal;
+			ret.m_normal = normal;
+			ret.m_position = ray.pointAt(t);
+			return true;
+		}
+	}
+	return false;
+}
+
+
 Mesh::Mesh( const std::string& fname )
 	: m_vertices()
 	, m_faces()
@@ -31,20 +147,29 @@ Mesh::Mesh( const std::string& fname )
 std::ostream& operator<<(std::ostream& out, const Mesh& mesh)
 {
   out << "mesh {";
-  /*
   
-  for( size_t idx = 0; idx < mesh.m_verts.size(); ++idx ) {
-  	const MeshVertex& v = mesh.m_verts[idx];
-  	out << glm::to_string( v.m_position );
-	if( mesh.m_have_norm ) {
-  	  out << " / " << glm::to_string( v.m_normal );
-	}
-	if( mesh.m_have_uv ) {
-  	  out << " / " << glm::to_string( v.m_uv );
-	}
-  }
+  
+//   for( size_t idx = 0; idx < mesh.m_vertices.size(); ++idx ) {
+//   	const vec3& v = mesh.m_vertices[idx];
+//   	out << glm::to_string( v );
+//   }
 
-*/
+
   out << "}";
   return out;
+}
+
+
+bool Mesh::hit(Ray &ray, const float& t_min, const float& t_max, HitRecord &record) const {
+	bool hitAny = false;
+	float closest = t_max;
+	HitRecord tmpHit;
+	for (auto triangle : m_faces) {
+		if (triangleHit(ray, t_min, closest, tmpHit, m_vertices[triangle.v1], m_vertices[triangle.v2], m_vertices[triangle.v3])) {
+			closest = tmpHit.m_t;
+			hitAny = true;
+			record = tmpHit;
+		}
+	}
+	return hitAny;
 }

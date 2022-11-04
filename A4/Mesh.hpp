@@ -32,11 +32,15 @@ struct Triangle
 class Mesh : public Primitive {
 public:
   Mesh( const std::string& fname );
-  bool hit(Ray &ray, const float& t_min, const float& t_max, HitRecord &record) const {return false;}
+  bool hit(Ray &ray, const float& t_min, const float& t_max, HitRecord &record) const;
   
 private:
 	std::vector<glm::vec3> m_vertices;
 	std::vector<Triangle> m_faces;
 
     friend std::ostream& operator<<(std::ostream& out, const Mesh& mesh);
+
+	bool triangleHit(const Ray &ray, const float &t_min, const float &t_max,
+    HitRecord &ret, const vec3 &p0, const vec3 &p1,
+    const vec3 &p2) const;
 };

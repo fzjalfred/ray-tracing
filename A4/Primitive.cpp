@@ -15,7 +15,7 @@ Sphere::~Sphere()
 }
 
 bool Sphere::hit(Ray &ray, const float& t_min, const float& t_max, HitRecord &record) const {
-
+    return false;
 }
 
 Cube::~Cube()
@@ -23,7 +23,7 @@ Cube::~Cube()
 }
 
 bool Cube::hit(Ray &ray, const float& t_min, const float& t_max, HitRecord &record) const {
-
+    return false;
 }
 
 NonhierSphere::~NonhierSphere()
@@ -70,5 +70,5 @@ NonhierBox::~NonhierBox()
 }
 
 bool NonhierBox::hit(Ray &ray, const float& t_min, const float& t_max, HitRecord &record) const {
-
+    return false;
 }

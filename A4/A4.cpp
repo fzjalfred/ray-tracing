@@ -36,8 +36,8 @@ vec3 phongModel(vec3 fragPosition, vec3 fragNormal, const Ray& ray, Material& ma
 
         specular = material.specular() * pow(n_dot_h, material.shininess());
     }
-	cout<<"diffuse: "<<diffuse.x<<" "<<diffuse.y<<" "<<diffuse.z<<endl;
-	cout<<"specular: "<<specular.x<<" "<<specular.y<<" "<<specular.z<<endl;
+	// cout<<"diffuse: "<<diffuse.x<<" "<<diffuse.y<<" "<<diffuse.z<<endl;
+	// cout<<"specular: "<<specular.x<<" "<<specular.y<<" "<<specular.z<<endl;
     return ambient * diffuse + specular;
 }
 
@@ -50,7 +50,11 @@ vec3 tracing(Ray& ray, SceneNode* root,
 	if (root->hit(ray, 0.0001f, 9999.9f, res)) {
 		// cout<<res;
 		color = phongModel(res.m_position, res.m_normal, ray, *(res.m_material), ambient);
-		cout<<"hit."<<endl;
+		if (color.r<0.1&&color.g<0.1&&color.b<0.1) {
+			// cout<<glm::to_string(color)<<endl;
+			// cout<<glm::to_string(res.m_position)<<"pos"<<endl;
+			// cout<<glm::to_string(res.m_normal)<<"normal"<<endl;
+		}
 	} else {
 		vec3 normal_ray = glm::normalize(ray.getDirection());
         color += (1.0 - normal_ray.x) * vec3(0.4, 0.3, 0.1) + normal_ray.x * vec3(0.05, 0.0, 0.1)
@@ -108,7 +112,7 @@ void A4_Render(
 
 	for (uint y = 0; y < h; ++y) {
 		for (uint x = 0; x < w; ++x) {
-			vec3 direction = m_lowerLeftCorner + x*x_axis + y*y_axis;
+			vec3 direction = m_lowerLeftCorner + x*x_axis + (h-y-1)*y_axis;
 			Ray ray = Ray(eye, direction);
 			glm::vec3 color;
 			color += tracing(ray, root, ambient, lights);
