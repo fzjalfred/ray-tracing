@@ -39,11 +39,10 @@ private:
 };
 
 class NonhierBox : public Primitive {
+  private:
+  Primitive* cube_ptr;
 public:
-  NonhierBox(const glm::vec3& pos, double size)
-    : m_pos(pos), m_size(size)
-  {
-  }
+  NonhierBox(const glm::vec3& pos, double size);
   
   virtual ~NonhierBox();
   bool hit(Ray &ray, const float& t_min, const float& t_max, HitRecord &record) const;

@@ -25,6 +25,9 @@ scene:add_child(s3)
 s3:set_material(mat2)
 
 b1 = gr.nh_box('b1', {-200, -125, 0}, 100)
+-- b1 = gr.mesh('b1', 'cube.obj')
+-- b1:scale(100,100,100)
+-- b1:translate(-200, -125, 0)
 scene:add_child(b1)
 b1:set_material(mat4)
 

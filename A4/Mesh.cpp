@@ -124,6 +124,9 @@ bool Mesh::triangleHit(const Ray &ray, const float &t_min, const float &t_max,
 	return false;
 }
 
+Mesh::Mesh(std::vector<glm::vec3>& m_vertices,
+	std::vector<Triangle>& m_faces): m_vertices(m_vertices),
+	m_faces(m_faces) {}
 
 
 Mesh::Mesh( const std::string& fname )

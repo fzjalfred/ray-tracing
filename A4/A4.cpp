@@ -8,15 +8,20 @@
 #include <algorithm>
 #include "Material.hpp"
 
+
+vec3 drakBlue = vec3(0.075, 0.1, 0.4);
+vec3 lightBlue = vec3(0.33, 0.42, 0.67);
+
 using namespace std;
 
-vec3 phongModel(vec3 fragPosition, vec3 fragNormal, const Ray& ray, Material& material, const vec3& ambient) {
+vec3 phongModel(vec3 fragPosition, vec3 fragNormal, const Light& ray, const vec3& eye, Material& material, const vec3& ambient) {
 
     // Direction from fragment to light source.
-    vec3 l = -ray.getDirection();
+	vec3 l = normalize(fragPosition - ray.position);
 
     // Direction from fragment to viewer (origin - fragPosition).
-    vec3 v = normalize(ray.getOrigin()-fragPosition);
+    // vec3 v = normalize(ray.getOrigin()-fragPosition);
+	vec3 v = normalize(eye - fragPosition);
 
 	// cout<<"l: "<<l.x<<" "<<l.y<<" "<<l.z<<endl;
 	// cout<<"v: "<<v.x<<" "<<v.y<<" "<<v.z<<endl;
@@ -38,28 +43,37 @@ vec3 phongModel(vec3 fragPosition, vec3 fragNormal, const Ray& ray, Material& ma
     }
 	// cout<<"diffuse: "<<diffuse.x<<" "<<diffuse.y<<" "<<diffuse.z<<endl;
 	// cout<<"specular: "<<specular.x<<" "<<specular.y<<" "<<specular.z<<endl;
-    return ambient * diffuse + specular;
+    return ambient*diffuse + ray.colour * (diffuse + specular);
 }
 
 vec3 tracing(Ray& ray, SceneNode* root, 
+		const vec3& eye,
 		// Lighting parameters  
 		const glm::vec3 & ambient,
 		const std::list<Light *> & lights) {
 	HitRecord res;
+	bool isBackground = true;
 	vec3 color;
-	if (root->hit(ray, 0.0001f, 9999.9f, res)) {
-		// cout<<res;
-		color = phongModel(res.m_position, res.m_normal, ray, *(res.m_material), ambient);
-		if (color.r<0.1&&color.g<0.1&&color.b<0.1) {
-			// cout<<glm::to_string(color)<<endl;
-			// cout<<glm::to_string(res.m_position)<<"pos"<<endl;
-			// cout<<glm::to_string(res.m_normal)<<"normal"<<endl;
+	for (auto light: lights) {
+		if (root->hit(ray, 0.0001f, 9999.9f, res)) {
+			isBackground = false;
+			// cout<<res;
+			color += phongModel(res.m_position, -res.m_normal, *light, eye, *(res.m_material), ambient);
+			// if (color.r<0.1&&color.g<0.1&&color.b<0.1) {
+			// 	cout<<glm::to_string(color)<<endl;
+			// 	cout<<glm::to_string(res.m_position)<<"pos"<<endl;
+			// 	cout<<glm::to_string(res.m_normal)<<"normal"<<endl;
+			// }
 		}
-	} else {
-		vec3 normal_ray = glm::normalize(ray.getDirection());
-        color += (1.0 - normal_ray.x) * vec3(0.4, 0.3, 0.1) + normal_ray.x * vec3(0.05, 0.0, 0.1)
-		 +  (1.0 - normal_ray.y)* vec3(0.4, 0.3, 0.1) + normal_ray.y * vec3(0.05, 0.0, 0.1);
 	}
+	
+	// night blue light (0.33, 0.42, 0.67), dark (0.075, 0.1, 0.4)
+	if (isBackground) {
+		vec3 normal_ray = glm::normalize(ray.getDirection());
+		color = (1.0 - normal_ray.x) * lightBlue/4 + normal_ray.x * drakBlue/3
+		+  (1.0 - normal_ray.y)* lightBlue/4 + normal_ray.y * drakBlue/3;
+	}
+
 	return color;
 }
 
@@ -115,7 +129,7 @@ void A4_Render(
 			vec3 direction = m_lowerLeftCorner + x*x_axis + (h-y-1)*y_axis;
 			Ray ray = Ray(eye, direction);
 			glm::vec3 color;
-			color += tracing(ray, root, ambient, lights);
+			color += tracing(ray, root, eye, ambient, lights);
 			// Red: 
 			image(x, y, 0) = (double)color.r;
 			// Green: 
