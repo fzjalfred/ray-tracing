@@ -47,8 +47,8 @@ bool NonhierSphere::hit(Ray &ray, const float& t_min, const float& t_max, HitRec
             record.m_normal = (record.m_position - m_pos)/(float)m_radius;
             return true;
         } else {
-            std::cout<<"t_max: "<<t_max<<std::endl;
-            std::cout<<"t_solution1: "<<t_solution<<std::endl;
+            // std::cout<<"t_max: "<<t_max<<std::endl;
+            // std::cout<<"t_solution1: "<<t_solution<<std::endl;
         }
         t_solution = (-b + sqrt(discriminant))/2*a;
         if (t_solution > t_min && t_solution < t_max) {
@@ -57,8 +57,8 @@ bool NonhierSphere::hit(Ray &ray, const float& t_min, const float& t_max, HitRec
             record.m_normal = (record.m_position - m_pos)/(float)m_radius;
             return true;
         } else {
-            std::cout<<"t_max: "<<t_max<<std::endl;
-            std::cout<<"t_solution2: "<<t_solution<<std::endl;
+            // std::cout<<"t_max: "<<t_max<<std::endl;
+            // std::cout<<"t_solution2: "<<t_solution<<std::endl;
         }
         
     }

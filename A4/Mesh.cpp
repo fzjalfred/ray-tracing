@@ -41,7 +41,7 @@ bool Mesh::triangleHit(const Ray &ray, const float &t_min, const float &t_max,
 	vec3 pos = ray.pointAt(t);
     ret.m_t = t;
     ret.m_position = pos;
-	if ( dot( ray.getDirection(), normal ) > 0 ) normal = -normal;
+	// if ( dot( ray.getDirection(), normal ) > 0 ) normal = -normal;
 	ret.m_normal = normal;
     // judge inside or not.
     vec3 edge0 = p1 - p0;
@@ -69,6 +69,7 @@ bool Mesh::triangleHit(const Ray &ray, const float &t_min, const float &t_max,
     return true;
 }
 */
+
 
 bool triangleIntersection(const Ray &ray, const vec3& vertex0, const vec3& vertex1, const vec3& vertex2, float &res) {
 	const float EPSILON = 0.0000001;
@@ -122,6 +123,7 @@ bool Mesh::triangleHit(const Ray &ray, const float &t_min, const float &t_max,
 	}
 	return false;
 }
+
 
 
 Mesh::Mesh( const std::string& fname )
