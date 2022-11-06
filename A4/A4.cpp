@@ -43,7 +43,7 @@ vec3 phongModel(vec3 fragPosition, vec3 fragNormal, const Light& ray, const vec3
     }
 	// cout<<"diffuse: "<<diffuse.x<<" "<<diffuse.y<<" "<<diffuse.z<<endl;
 	// cout<<"specular: "<<specular.x<<" "<<specular.y<<" "<<specular.z<<endl;
-    return ambient*diffuse + ray.colour * (diffuse + specular);
+    return ray.colour * (diffuse + specular);
 }
 
 vec3 tracing(Ray& ray, SceneNode* root, 
@@ -72,6 +72,8 @@ vec3 tracing(Ray& ray, SceneNode* root,
 		vec3 normal_ray = glm::normalize(ray.getDirection());
 		color = (1.0 - normal_ray.x) * lightBlue/4 + normal_ray.x * drakBlue/3
 		+  (1.0 - normal_ray.y)* lightBlue/4 + normal_ray.y * drakBlue/3;
+	} else {
+		color += res.m_material->diffuse()*ambient;
 	}
 
 	return color;
