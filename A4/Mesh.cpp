@@ -118,9 +118,9 @@ bool Mesh::triangleHit(const Ray &ray, const float &t_min, const float &t_max,
 			if ( dot( ray.getDirection(), normal ) > 0 ) 
 				normal = -normal;
 			ret.m_normal = normal;
-			ret.m_normal = normalize(vec3(transToWorld*vec4(ret.m_normal,0.0)));
+			//ret.m_normal = normalize(vec3(transToWorld*vec4(ret.m_normal,0.0)));
 			ret.m_position = ray.pointAt(t);
-			ret.m_position = vec3(transToWorld*vec4(ret.m_position,1.0));
+			//ret.m_position = vec3(transToWorld*vec4(ret.m_position,1.0));
 			return true;
 		}
 	}

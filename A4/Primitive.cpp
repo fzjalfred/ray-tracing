@@ -43,28 +43,25 @@ bool NonhierSphere::hit(Ray &ray, const float& t_min, const float& t_max, HitRec
     double discriminant = b*b - 4*a*c;
     if (discriminant > 0) {
         float t_solution = (-b - sqrt(discriminant))/2*a;
+        float t_unit_solution = t_solution*glm::length(transToWorld*vec4(v, 0.0f));
         
-        float t_unit = t_solution*glm::length(transToWorld*vec4(v, 0.0f));
-        
-        if (t_unit > t_min && t_unit < t_max) {
-            record.m_t = t_unit;
+        if (t_unit_solution > t_min && t_unit_solution < t_max) {
+            record.m_t = t_unit_solution;
             record.m_position = ray.getOrigin() + ray.getDirection()*t_solution;
             record.m_normal = (record.m_position - m_pos)/(float)m_radius;
-            record.m_position = vec3(transToWorld*vec4(record.m_position,1.0));
-            record.m_normal = normalize(vec3(transToWorld*vec4(record.m_normal, 0.0)));
             return true;
         } else {
             // std::cout<<"t_max: "<<t_max<<std::endl;
             // std::cout<<"t_solution1: "<<t_solution<<std::endl;
         }
         t_solution = (-b + sqrt(discriminant))/2*a;
-        t_unit = t_solution*glm::length(transToWorld*vec4(v, 0.0f));
-        if (t_unit > t_min && t_unit < t_max) {
-            record.m_t = t_unit;
+        t_unit_solution = t_solution*glm::length(transToWorld*vec4(v, 0.0f));
+        if (t_unit_solution > t_min && t_unit_solution < t_max) {
+            record.m_t = t_unit_solution;
             record.m_position = ray.getOrigin() + ray.getDirection()*t_solution;
             record.m_normal = (record.m_position - m_pos)/(float)m_radius;
-            record.m_position = vec3(transToWorld*vec4(record.m_position,1.0));
-            record.m_normal = normalize(vec3(transToWorld*vec4(record.m_normal, 0.0)));
+            // record.m_position = vec3(transToWorld*vec4(record.m_position,1.0));
+            // record.m_normal = normalize(mat3(transToWorld)*record.m_normal);
             return true;
         } else {
             // std::cout<<"t_max: "<<t_max<<std::endl;

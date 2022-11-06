@@ -162,12 +162,11 @@ bool SceneNode::hit(Ray &ray, const float& t_min, const float& t_max, HitRecord 
 			// record.m_normal = childrenRecord.m_normal;
 			// record.m_position = childrenRecord.m_position;
 			// cout<<glm::to_string(trans)<<endl;
-			// record.m_position = vec3(trans*vec4(childrenRecord.m_position,1.0));
-			// cout<<glm::to_string(record.m_position)<<endl;
-			// record.m_normal = normalize(vec3(trans*vec4(childrenRecord.m_normal, 0.0)));
+			record.m_position = vec3(trans*vec4(childrenRecord.m_position,1.0));
+			record.m_normal = normalize(transpose(mat3(invtrans))*childrenRecord.m_normal);
 			// cout<<glm::to_string(record.m_normal)<<endl;
 		}
 	}
-	// std::cout<<" end"<<std::endl;
+	
 	return hitAny;
 }
