@@ -35,10 +35,15 @@ public:
   Mesh(std::vector<glm::vec3>& m_vertices,
 	std::vector<Triangle>& m_faces);
   bool hit(Ray &ray, const float& t_min, const float& t_max, HitRecord &record, const mat4& transToWorld) const;
+
+  float boundingMinCoor = std::numeric_limits<float>::max();
+  float boundingMaxCoor = std::numeric_limits<float>::min();
   
 private:
 	std::vector<glm::vec3> m_vertices;
 	std::vector<Triangle> m_faces;
+
+	Primitive* boundingVolume = nullptr;
 
     friend std::ostream& operator<<(std::ostream& out, const Mesh& mesh);
 
