@@ -9,19 +9,19 @@
 class Primitive {
 public:
   virtual ~Primitive();
-  virtual bool hit(Ray &ray, const float& t_min, const float& t_max, HitRecord &record) const = 0;
+  virtual bool hit(Ray &ray, const float& t_min, const float& t_max, HitRecord &record, const mat4& transToWorld) const = 0;
 };
 
 class Sphere : public Primitive {
 public:
   virtual ~Sphere();
-  bool hit(Ray &ray, const float& t_min, const float& t_max, HitRecord &record) const;
+  bool hit(Ray &ray, const float& t_min, const float& t_max, HitRecord &record, const mat4& transToWorld) const;
 };
 
 class Cube : public Primitive {
 public:
   virtual ~Cube();
-  bool hit(Ray &ray, const float& t_min, const float& t_max, HitRecord &record) const;
+  bool hit(Ray &ray, const float& t_min, const float& t_max, HitRecord &record, const mat4& transToWorld) const;
 };
 
 class NonhierSphere : public Primitive {
@@ -31,7 +31,7 @@ public:
   {
   }
   virtual ~NonhierSphere();
-  bool hit(Ray &ray, const float& t_min, const float& t_max, HitRecord &record) const;
+  bool hit(Ray &ray, const float& t_min, const float& t_max, HitRecord &record, const mat4& transToWorld) const;
 
 private:
   glm::vec3 m_pos;
@@ -45,7 +45,7 @@ public:
   NonhierBox(const glm::vec3& pos, double size);
   
   virtual ~NonhierBox();
-  bool hit(Ray &ray, const float& t_min, const float& t_max, HitRecord &record) const;
+  bool hit(Ray &ray, const float& t_min, const float& t_max, HitRecord &record, const mat4& parentTrans) const;
 
 private:
   glm::vec3 m_pos;

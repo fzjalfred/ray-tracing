@@ -55,7 +55,7 @@ vec3 tracing(Ray& ray, SceneNode* root,
 	bool isBackground = true;
 	vec3 color;
 	for (auto light: lights) {
-		if (root->hit(ray, 0.0001f, 9999.9f, res)) {
+		if (root->hit(ray, 0.0001f, 9999.9f, res, mat4())) {
 			isBackground = false;
 			// cout<<res;
 			color += phongModel(res.m_position, -res.m_normal, *light, eye, *(res.m_material), ambient);

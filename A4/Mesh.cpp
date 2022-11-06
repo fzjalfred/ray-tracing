@@ -105,19 +105,22 @@ bool triangleIntersection(const Ray &ray, const vec3& vertex0, const vec3& verte
 
 bool Mesh::triangleHit(const Ray &ray, const float &t_min, const float &t_max,
     HitRecord &ret, const vec3 &p0, const vec3 &p1,
-    const vec3 &p2) const
+    const vec3 &p2, const mat4& transToWorld) const
 {	
 	vec3 normal = normalize(cross((p1-p0), (p2-p0)));
 	float t;
+	float t_unit = glm::length(transToWorld*vec4(ray.getDirection(), 0.0f));
 	if (triangleIntersection(ray, p0, p1, p2,t)) {
-		if (t < t_min || t > t_max) {
+		if (t*t_unit < t_min || t*t_unit > t_max) {
 			return false;
 		} else {
-			ret.m_t = t;
+			ret.m_t = t*t_unit;
 			if ( dot( ray.getDirection(), normal ) > 0 ) 
 				normal = -normal;
 			ret.m_normal = normal;
+			ret.m_normal = normalize(vec3(transToWorld*vec4(ret.m_normal,0.0)));
 			ret.m_position = ray.pointAt(t);
+			ret.m_position = vec3(transToWorld*vec4(ret.m_position,1.0));
 			return true;
 		}
 	}
@@ -165,12 +168,12 @@ std::ostream& operator<<(std::ostream& out, const Mesh& mesh)
 }
 
 
-bool Mesh::hit(Ray &ray, const float& t_min, const float& t_max, HitRecord &record) const {
+bool Mesh::hit(Ray &ray, const float& t_min, const float& t_max, HitRecord &record, const mat4& transToWorld) const {
 	bool hitAny = false;
 	float closest = t_max;
 	HitRecord tmpHit;
 	for (auto triangle : m_faces) {
-		if (triangleHit(ray, t_min, closest, tmpHit, m_vertices[triangle.v1], m_vertices[triangle.v2], m_vertices[triangle.v3])) {
+		if (triangleHit(ray, t_min, closest, tmpHit, m_vertices[triangle.v1], m_vertices[triangle.v2], m_vertices[triangle.v3], transToWorld)) {
 			closest = tmpHit.m_t;
 			hitAny = true;
 			record = tmpHit;

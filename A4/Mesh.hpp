@@ -34,7 +34,7 @@ public:
   Mesh( const std::string& fname );
   Mesh(std::vector<glm::vec3>& m_vertices,
 	std::vector<Triangle>& m_faces);
-  bool hit(Ray &ray, const float& t_min, const float& t_max, HitRecord &record) const;
+  bool hit(Ray &ray, const float& t_min, const float& t_max, HitRecord &record, const mat4& transToWorld) const;
   
 private:
 	std::vector<glm::vec3> m_vertices;
@@ -44,5 +44,5 @@ private:
 
 	bool triangleHit(const Ray &ray, const float &t_min, const float &t_max,
     HitRecord &ret, const vec3 &p0, const vec3 &p1,
-    const vec3 &p2) const;
+    const vec3 &p2, const mat4& transToWorld) const;
 };

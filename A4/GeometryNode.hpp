@@ -16,5 +16,5 @@ public:
 	Material *m_material;
 	Primitive *m_primitive;
 
-	virtual bool hit(Ray &ray, const float& t_min, const float& t_max, HitRecord &record);
+	virtual bool hit(Ray &ray, const float& t_min, const float& t_max, HitRecord &record, const mat4& parentTrans);
 };

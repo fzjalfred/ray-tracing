@@ -28,11 +28,11 @@ void GeometryNode::setMaterial( Material *mat )
 	m_material = mat;
 }
 
-bool GeometryNode::hit(Ray &ray, const float& t_min, const float& t_max, HitRecord &record) {
+bool GeometryNode::hit(Ray &ray, const float& t_min, const float& t_max, HitRecord &record, const mat4& parentTrans) {
 	Ray inverse_transform_ray = Ray(vec3(invtrans*vec4(ray.getOrigin(), 1.0)), vec3(invtrans*vec4(ray.getDirection(), 0.0)));
-	bool hitAny = m_primitive->hit(inverse_transform_ray, t_min, t_max, record);
-	record.m_position = vec3(trans*vec4(record.m_position,1.0));
-	record.m_normal = normalize(vec3(trans*vec4(record.m_normal, 0.0)));
+	bool hitAny = m_primitive->hit(inverse_transform_ray, t_min, t_max, record, parentTrans*trans);
+	// record.m_position = vec3(trans*vec4(record.m_position,1.0));
+	// record.m_normal = normalize(vec3(trans*vec4(record.m_normal, 0.0)));
 	record.m_material = m_material;
 	return hitAny;
 }

@@ -4,6 +4,8 @@
 
 #include "Mesh.hpp"
 #include <glm/glm.hpp>
+#include <glm/gtx/transform.hpp>
+#include <glm/ext.hpp>
 #include <iostream>
 using namespace glm;
 
@@ -15,23 +17,23 @@ Sphere::~Sphere()
 {
 }
 
-bool Sphere::hit(Ray &ray, const float& t_min, const float& t_max, HitRecord &record) const {
-    return NonhierSphere(vec3(0,0,0), 1.0).hit(ray, t_min, t_max, record);
+bool Sphere::hit(Ray &ray, const float& t_min, const float& t_max, HitRecord &record, const mat4& transToWorld) const {
+    return NonhierSphere(vec3(0,0,0), 1.0).hit(ray, t_min, t_max, record, transToWorld);
 }
 
 Cube::~Cube()
 {
 }
 
-bool Cube::hit(Ray &ray, const float& t_min, const float& t_max, HitRecord &record) const {
-    return NonhierBox(vec3(0,0,0), 1.0).hit(ray, t_min, t_max, record);
+bool Cube::hit(Ray &ray, const float& t_min, const float& t_max, HitRecord &record, const mat4& transToWorld) const {
+    return NonhierBox(vec3(0,0,0), 1.0).hit(ray, t_min, t_max, record, transToWorld);
 }
 
 NonhierSphere::~NonhierSphere()
 {
 }
 
-bool NonhierSphere::hit(Ray &ray, const float& t_min, const float& t_max, HitRecord &record) const {
+bool NonhierSphere::hit(Ray &ray, const float& t_min, const float& t_max, HitRecord &record, const mat4& transToWorld) const {
     vec3 s_c = ray.getOrigin() - m_pos;
     vec3 v = ray.getDirection();
     float a = dot(v,v);
@@ -42,20 +44,27 @@ bool NonhierSphere::hit(Ray &ray, const float& t_min, const float& t_max, HitRec
     if (discriminant > 0) {
         float t_solution = (-b - sqrt(discriminant))/2*a;
         
-        if (t_solution > t_min && t_solution < t_max) {
-            record.m_t = t_solution;
+        float t_unit = t_solution*glm::length(transToWorld*vec4(v, 0.0f));
+        
+        if (t_unit > t_min && t_unit < t_max) {
+            record.m_t = t_unit;
             record.m_position = ray.getOrigin() + ray.getDirection()*t_solution;
             record.m_normal = (record.m_position - m_pos)/(float)m_radius;
+            record.m_position = vec3(transToWorld*vec4(record.m_position,1.0));
+            record.m_normal = normalize(vec3(transToWorld*vec4(record.m_normal, 0.0)));
             return true;
         } else {
             // std::cout<<"t_max: "<<t_max<<std::endl;
             // std::cout<<"t_solution1: "<<t_solution<<std::endl;
         }
         t_solution = (-b + sqrt(discriminant))/2*a;
-        if (t_solution > t_min && t_solution < t_max) {
-            record.m_t = t_solution;
+        t_unit = t_solution*glm::length(transToWorld*vec4(v, 0.0f));
+        if (t_unit > t_min && t_unit < t_max) {
+            record.m_t = t_unit;
             record.m_position = ray.getOrigin() + ray.getDirection()*t_solution;
             record.m_normal = (record.m_position - m_pos)/(float)m_radius;
+            record.m_position = vec3(transToWorld*vec4(record.m_position,1.0));
+            record.m_normal = normalize(vec3(transToWorld*vec4(record.m_normal, 0.0)));
             return true;
         } else {
             // std::cout<<"t_max: "<<t_max<<std::endl;
@@ -112,6 +121,6 @@ NonhierBox::~NonhierBox()
     delete cube_ptr;
 }
 
-bool NonhierBox::hit(Ray &ray, const float& t_min, const float& t_max, HitRecord &record) const {
-    return cube_ptr->hit(ray, t_min, t_max, record);
+bool NonhierBox::hit(Ray &ray, const float& t_min, const float& t_max, HitRecord &record, const mat4& transToWorld) const {
+    return cube_ptr->hit(ray, t_min, t_max, record, transToWorld);
 }

@@ -139,7 +139,7 @@ std::ostream & operator << (std::ostream & os, const SceneNode & node) {
 }
 
 
-bool SceneNode::hit(Ray &ray, const float& t_min, const float& t_max, HitRecord &record) {
+bool SceneNode::hit(Ray &ray, const float& t_min, const float& t_max, HitRecord &record, const mat4& parentTrans) {
 
 	Ray inverse_transform_ray = Ray(vec3(invtrans*vec4(ray.getOrigin(), 1.0)), vec3(invtrans*vec4(ray.getDirection(), 0.0)));
 
@@ -148,16 +148,23 @@ bool SceneNode::hit(Ray &ray, const float& t_min, const float& t_max, HitRecord 
 	double closest = t_max;
 	// std::cout<<"start";
 	for (auto& i: children) {
-		if (i->hit(inverse_transform_ray, t_min, closest, childrenRecord)) {
+		if (i->hit(inverse_transform_ray, t_min, closest, childrenRecord, parentTrans*trans)) {
 			hitAny = true;
 			closest = childrenRecord.m_t;
+			if (i->m_name == "arc" || i->m_name == "") {
+
+			}
+			// cout<<i->m_name<<endl;
+			// cout << closest <<endl;
 
 			record = childrenRecord;
-			record.m_t = childrenRecord.m_t;
+			// record.m_t = childrenRecord.m_t;
+			// record.m_normal = childrenRecord.m_normal;
+			// record.m_position = childrenRecord.m_position;
 			// cout<<glm::to_string(trans)<<endl;
-			record.m_position = vec3(trans*vec4(childrenRecord.m_position,1.0));
+			// record.m_position = vec3(trans*vec4(childrenRecord.m_position,1.0));
 			// cout<<glm::to_string(record.m_position)<<endl;
-			record.m_normal = normalize(vec3(trans*vec4(childrenRecord.m_normal, 0.0)));
+			// record.m_normal = normalize(vec3(trans*vec4(childrenRecord.m_normal, 0.0)));
 			// cout<<glm::to_string(record.m_normal)<<endl;
 		}
 	}
