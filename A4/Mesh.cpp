@@ -206,11 +206,23 @@ bool Mesh::hit(Ray &ray, const float& t_min, const float& t_max, HitRecord &reco
 	float closest = t_max;
 	HitRecord tmpHit;
 
-	// if (boundingVolume != nullptr && boundingVolume->hit(ray, t_min, t_max, tmpHit, transToWorld)) {
-	// 	closest = tmpHit.m_t;
-	// 	hitAny = true;
-	// 	record = tmpHit;
-	// }
+#ifdef RENDER_BOUNDING_VOLUMES
+
+	if (boundingVolume != nullptr && boundingVolume->hit(ray, t_min, t_max, tmpHit, transToWorld)) {
+		closest = tmpHit.m_t;
+		hitAny = true;
+		record = tmpHit;
+	}
+	if (boundingVolume == nullptr || insideBound(ray.getOrigin(), boundingMinCoor, boundingMaxCoor)) {
+		for (auto triangle : m_faces) {
+			if (triangleHit(ray, t_min, closest, tmpHit, m_vertices[triangle.v1], m_vertices[triangle.v2], m_vertices[triangle.v3], transToWorld)) {
+				closest = tmpHit.m_t;
+				hitAny = true;
+				record = tmpHit;
+			}
+		}
+	}
+#else
 
 	if (boundingVolume == nullptr 
 	|| boundingVolume->hit(ray, t_min, t_max, tmpHit, transToWorld) || 
@@ -224,7 +236,8 @@ bool Mesh::hit(Ray &ray, const float& t_min, const float& t_max, HitRecord &reco
 			}
 		}
 	}
-	
+
+#endif
 	
 	return hitAny;
 }
