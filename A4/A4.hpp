@@ -9,7 +9,7 @@
 #include "Image.hpp"
 
 
-// #define MirrorReflection
+#define MirrorReflection
 
 
 void A4_Render(

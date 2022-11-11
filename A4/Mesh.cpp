@@ -70,7 +70,7 @@ bool Mesh::triangleHit(const Ray &ray, const float &t_min, const float &t_max,
 }
 */
 
-
+// reference from github
 bool triangleIntersection(const Ray &ray, const vec3& vertex0, const vec3& vertex1, const vec3& vertex2, float &res) {
 	const float EPSILON = 0.0000001;
 	glm::vec3 edge1, edge2, h, s, q;
@@ -221,7 +221,10 @@ Mesh::Mesh( const std::string& fname )
 	if (m_vertices.size()>1) {
 		std::cout<<fname<<std::endl;
 	}
-	boundingVolume = new NonhierBox(vec3(boundingMinCoor,boundingMinCoor,boundingMinCoor), boundingMaxCoor-boundingMinCoor);
+	if (m_faces.size() > 12) {
+		boundingVolume = new NonhierBox(vec3(boundingMinCoor,boundingMinCoor,boundingMinCoor), boundingMaxCoor-boundingMinCoor);
+	}
+	
 }
 
 std::ostream& operator<<(std::ostream& out, const Mesh& mesh)
