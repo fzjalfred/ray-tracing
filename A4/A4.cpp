@@ -165,7 +165,10 @@ void A4_Render(
 			// Blue: 
 			image(x, y, 2) = (double)color.b;
 
-			uint current = y*h+x+1;
+			
+		}
+		if (y%5 == 0) {
+			uint current = y*h+1;
 			cout<<"rendering... ("<<current<<", "<<total<<") ";
 			printf("%0.2f%%",current/(float)total*100);
 			cout<<endl;
