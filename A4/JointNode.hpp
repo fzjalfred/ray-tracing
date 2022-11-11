@@ -16,6 +16,6 @@ public:
 		double min, init, max;
 	};
 
-
+	virtual bool hit(Ray &ray, const float& t_min, const float& t_max, HitRecord &record, const mat4& parentTrans);
 	JointRange m_joint_x, m_joint_y;
 };

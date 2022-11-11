@@ -152,13 +152,43 @@ Mesh::Mesh(std::vector<glm::vec3>& m_vertices,
 	}
 
 
+static inline void delimit_f_index(size_t& v, size_t& vt, size_t& vn, std::string s) {
+	std::string delimiter = "/";
+	size_t pos = 0;
+	std::string token;
+	if ((pos = s.find(delimiter)) != std::string::npos) {
+		token = s.substr(0, pos);
+		v = std::stoul(token);
+		s.erase(0, pos + delimiter.length());
+		if ((pos = s.find(delimiter)) != std::string::npos) {
+			token = s.substr(0, pos);
+			vt = std::stoul(token);
+			s.erase(0, pos + delimiter.length());
+			if ((pos = s.find(delimiter)) != std::string::npos) {
+				token = s.substr(0, pos);
+				vn = std::stoul(token);
+				s.erase(0, pos + delimiter.length());
+			}
+		}
+	} else {
+		v = std::stoul(s);
+	}
+}
+
+
 Mesh::Mesh( const std::string& fname )
 	: m_vertices()
 	, m_faces()
 {
 	std::string code;
+	// vertice buffer
 	double vx, vy, vz;
-	size_t s1, s2, s3;
+	// f buffer
+	size_t v1, v2, v3;
+	size_t vt1, vt2, vt3;
+	size_t vn1, vn2, vn3;
+	// f string buffer
+	std::string st1, st2, st3;
 
 	std::ifstream ifs( fname.c_str() );
 	while( ifs >> code ) {
@@ -174,9 +204,22 @@ Mesh::Mesh( const std::string& fname )
 			}
 			m_vertices.push_back( glm::vec3( vx, vy, vz ) );
 		} else if( code == "f" ) {
-			ifs >> s1 >> s2 >> s3;
-			m_faces.push_back( Triangle( s1 - 1, s2 - 1, s3 - 1 ) );
+			ifs >> st1 >> st2 >> st3;
+			
+			delimit_f_index(v1, vt1, vn1, st1);
+			delimit_f_index(v2, vt2, vn2, st2);
+			delimit_f_index(v3, vt3, vn3, st3);
+			
+			m_faces.push_back( Triangle( v1 - 1, v2 - 1, v3 - 1 ) );
+			
+		} else if ( code == "vt") {
+			ifs >> vx >> vy;
+		} else if ( code == "vn") {
+			ifs >> vx >> vy >> vz;
 		}
+	}
+	if (m_vertices.size()>1) {
+		std::cout<<fname<<std::endl;
 	}
 	boundingVolume = new NonhierBox(vec3(boundingMinCoor,boundingMinCoor,boundingMinCoor), boundingMaxCoor-boundingMinCoor);
 }

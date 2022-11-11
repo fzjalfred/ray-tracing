@@ -34,5 +34,21 @@ bool GeometryNode::hit(Ray &ray, const float& t_min, const float& t_max, HitReco
 	record.m_position = vec3(trans*vec4(record.m_position,1.0));
 	record.m_normal = normalize(transpose(mat3(invtrans))*record.m_normal);
 	record.m_material = m_material;
+
+	double closest = record.m_t;
+	HitRecord tmpRecord;
+	// std::cout<<"start";
+	for (auto& i: children) {
+		if (i->hit(inverse_transform_ray, t_min, closest, tmpRecord, parentTrans*trans)) {
+			hitAny = true;
+			closest = tmpRecord.m_t;
+			record = tmpRecord;
+			
+			// cout<<glm::to_string(trans)<<endl;
+			record.m_position = vec3(trans*vec4(tmpRecord.m_position,1.0));
+			record.m_normal = normalize(transpose(mat3(invtrans))*tmpRecord.m_normal);
+			// cout<<glm::to_string(record.m_normal)<<endl;
+		}
+	}
 	return hitAny;
 }

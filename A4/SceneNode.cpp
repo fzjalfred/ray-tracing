@@ -151,16 +151,8 @@ bool SceneNode::hit(Ray &ray, const float& t_min, const float& t_max, HitRecord 
 		if (i->hit(inverse_transform_ray, t_min, closest, childrenRecord, parentTrans*trans)) {
 			hitAny = true;
 			closest = childrenRecord.m_t;
-			if (i->m_name == "arc" || i->m_name == "") {
-
-			}
-			// cout<<i->m_name<<endl;
-			// cout << closest <<endl;
-
 			record = childrenRecord;
-			// record.m_t = childrenRecord.m_t;
-			// record.m_normal = childrenRecord.m_normal;
-			// record.m_position = childrenRecord.m_position;
+			
 			// cout<<glm::to_string(trans)<<endl;
 			record.m_position = vec3(trans*vec4(childrenRecord.m_position,1.0));
 			record.m_normal = normalize(transpose(mat3(invtrans))*childrenRecord.m_normal);

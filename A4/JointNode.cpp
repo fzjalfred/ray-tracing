@@ -26,3 +26,8 @@ void JointNode::set_joint_y(double min, double init, double max) {
 	m_joint_y.init = init;
 	m_joint_y.max = max;
 }
+
+
+bool JointNode::hit(Ray &ray, const float& t_min, const float& t_max, HitRecord &record, const mat4& parentTrans) {
+	return SceneNode::hit(ray, t_min, t_max, record, parentTrans);
+}

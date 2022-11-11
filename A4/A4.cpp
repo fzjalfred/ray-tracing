@@ -9,8 +9,12 @@
 #include "Material.hpp"
 
 
+
+
 vec3 drakBlue = vec3(0.075, 0.1, 0.4);
 vec3 lightBlue = vec3(0.33, 0.42, 0.67);
+
+float mirror_reflect_coefficient = 0.5;
 
 using namespace std;
 
@@ -50,7 +54,7 @@ vec3 tracing(Ray& ray, SceneNode* root,
 		const vec3& eye,
 		// Lighting parameters  
 		const glm::vec3 & ambient,
-		const std::list<Light *> & lights) {
+		const std::list<Light *> & lights, int reflect = 2) {
 	HitRecord res;
 	bool isBackground = true;
 	vec3 color;
@@ -73,6 +77,21 @@ vec3 tracing(Ray& ray, SceneNode* root,
 			// }
 		}
 	}
+
+	#ifdef MirrorReflection
+
+	if (reflect != 0) {
+		vec3 reflection_direction = ray.getDirection() - 2 * res.m_normal * dot(ray.getDirection(), res.m_normal);
+		Ray reflection_ray(res.m_position + 0.015*reflection_direction, reflection_direction); // with epsilon check.
+		
+
+		color = glm::mix(color, tracing(reflection_ray, root, eye, ambient, lights, reflect-1), mirror_reflect_coefficient);
+		
+		//cout<<glm::to_string(color)<<endl;
+
+	}
+
+	#endif
 	
 	// night blue light (0.33, 0.42, 0.67), dark (0.075, 0.1, 0.4)
 	if (isBackground) {
@@ -132,7 +151,7 @@ void A4_Render(
 	float d = h/2/glm::tan(glm::radians(fovy/2));
 	vec3 m_lowerLeftCorner = d*(-z_axis) - w/2*x_axis - h/2*y_axis;
 
-
+	uint total = h*w;
 	for (uint y = 0; y < h; ++y) {
 		for (uint x = 0; x < w; ++x) {
 			vec3 direction = m_lowerLeftCorner + x*x_axis + (h-y-1)*y_axis;
@@ -145,6 +164,11 @@ void A4_Render(
 			image(x, y, 1) = (double)color.g;
 			// Blue: 
 			image(x, y, 2) = (double)color.b;
+
+			uint current = y*h+x+1;
+			cout<<"rendering... ("<<current<<", "<<total<<") ";
+			printf("%0.2f%%",current/(float)total*100);
+			cout<<endl;
 		}
 	}
 

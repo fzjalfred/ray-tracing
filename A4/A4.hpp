@@ -8,6 +8,10 @@
 #include "Light.hpp"
 #include "Image.hpp"
 
+
+// #define MirrorReflection
+
+
 void A4_Render(
 		// What to render
 		SceneNode * root,
