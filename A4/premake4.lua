@@ -4,11 +4,13 @@ includeDirList = {
     "../shared",
     "../shared/include",
     "../shared/gl3w",
-    "../shared/imgui"
+    "../shared/imgui",
+    "./my_share/include"
 }
 
 libDirectories = { 
-    "../lib"
+    "../lib",
+    "./my_share/lib"
 }
 
 
@@ -18,7 +20,8 @@ if os.get() == "macosx" then
         "imgui",
         "glfw3",
         "lua",
-		"lodepng"
+		"lodepng",
+        "tbb"
     }
 end
 
@@ -29,7 +32,8 @@ if os.get() == "linux" then
         "lodepng",
         "stdc++",
         "dl",
-        "pthread"
+        "pthread",
+        "tbb"
     }
 end
 
@@ -37,7 +41,7 @@ if os.get() == "macosx" then
     linkOptionList = { "-framework IOKit", "-framework Cocoa", "-framework CoreVideo", "-framework OpenGL" }
 end
 
-buildOptions = {"-std=c++14 -O2"}
+buildOptions = {"-std=c++14 -O2 "}
 
 solution "CS488-Projects"
     configurations { "Debug", "Release" }

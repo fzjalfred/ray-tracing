@@ -7,6 +7,7 @@
 #include <iostream>
 #include <algorithm>
 #include "Material.hpp"
+#include "tbb/parallel_for.h"
 
 
 
@@ -25,7 +26,7 @@ vec3 phongModel(vec3 fragPosition, vec3 fragNormal, const Light& ray, const vec3
 
     // Direction from fragment to viewer (origin - fragPosition).
     // vec3 v = normalize(ray.getOrigin()-fragPosition);
-	vec3 v = normalize(eye - fragPosition);
+	vec3 v = normalize(- fragPosition);
 
 	// cout<<"l: "<<l.x<<" "<<l.y<<" "<<l.z<<endl;
 	// cout<<"v: "<<v.x<<" "<<v.y<<" "<<v.z<<endl;
@@ -42,11 +43,11 @@ vec3 phongModel(vec3 fragPosition, vec3 fragNormal, const Light& ray, const vec3
 		// Halfway vector.
 		vec3 h = normalize(v + l);
         float n_dot_h = std::max(dot(fragNormal, h), 0.0f);
-
+		cout<<"n_dot_h: "<<dot(fragNormal, l)<<endl;
         specular = material.specular() * pow(n_dot_h, material.shininess());
     }
 	// cout<<"diffuse: "<<diffuse.x<<" "<<diffuse.y<<" "<<diffuse.z<<endl;
-	// cout<<"specular: "<<specular.x<<" "<<specular.y<<" "<<specular.z<<endl;
+	cout<<"specular: "<<specular.x<<" "<<specular.y<<" "<<specular.z<<endl;
     return ray.colour * (diffuse + specular);
 }
 
@@ -174,5 +175,26 @@ void A4_Render(
 			cout<<endl;
 		}
 	}
+
+
+	auto values = std::vector<double>(10000);
+    
+    tbb::parallel_for( tbb::blocked_range<int>(0,values.size()),
+                       [&](tbb::blocked_range<int> r)
+    {
+        for (int i=r.begin(); i<r.end(); ++i)
+        {
+            values[i] = std::sin(i * 0.001);
+        }
+    });
+
+    double t = 0.0;
+
+    for (double value : values)
+    {
+        t += value;
+    }
+
+    std::cout << t << std::endl;
 
 }
