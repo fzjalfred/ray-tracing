@@ -7,8 +7,10 @@
 #include <iostream>
 #include <algorithm>
 #include "Material.hpp"
-
-
+#include <tbb/parallel_for.h>
+#include <tbb/global_control.h>
+#include <chrono>
+using namespace std::chrono;
 
 
 vec3 drakBlue = vec3(0.075, 0.1, 0.4);
@@ -155,27 +157,69 @@ void A4_Render(
 	vec3 m_lowerLeftCorner = d*(-z_axis) - w/2*x_axis - h/2*y_axis;
 
 	uint total = h*w;
+	auto tasks = std::vector<pair<uint,uint>>();
 	for (uint y = 0; y < h; ++y) {
 		for (uint x = 0; x < w; ++x) {
-			vec3 direction = m_lowerLeftCorner + x*x_axis + (h-y-1)*y_axis;
-			Ray ray = Ray(eye, direction);
-			glm::vec3 color;
-			color += tracing(ray, root, eye, ambient, lights);
-			// Red: 
-			image(x, y, 0) = (double)color.r;
-			// Green: 
-			image(x, y, 1) = (double)color.g;
-			// Blue: 
-			image(x, y, 2) = (double)color.b;
-
-			
+			tasks.emplace_back(x, y);
 		}
-		if (y%5 == 0) {
-			uint current = y*h+1;
-			cout<<"rendering... ("<<current<<", "<<total<<") ";
-			printf("%0.2f%%",current/(float)total*100);
+	}
+	auto start = high_resolution_clock::now();
+
+#ifndef TBB_MULTI_THREADING
+	for (uint t = 0; t<h*w; t++) {
+		uint x = tasks[t].first;
+		uint y = tasks[t].second;
+		vec3 direction = m_lowerLeftCorner + x*x_axis + (h-y-1)*y_axis;
+		Ray ray = Ray(eye, direction);
+		glm::vec3 color;
+		color += tracing(ray, root, eye, ambient, lights);
+		// Red: 
+		image(x, y, 0) = (double)color.r;
+		// Green: 
+		image(x, y, 1) = (double)color.g;
+		// Blue: 
+		image(x, y, 2) = (double)color.b;
+		if (t%10000 == 0) {
+			cout<<"rendering... ("<<t<<", "<<total<<") ";
+			printf("%0.2f%%",t/(float)total*100);
 			cout<<endl;
 		}
 	}
+#else
+	tbb::global_control c(tbb::global_control::max_allowed_parallelism, 4);
+	uint counter = 0;
+	tbb::parallel_for(tbb::blocked_range<int>(0, tasks.size()),
+		[&](tbb::blocked_range<int> r) {
+			for (int i = r.begin(); i < r.end(); ++i) {
+				uint x = tasks[i].first;
+				uint y = tasks[i].second;
+				vec3 direction = m_lowerLeftCorner + x*x_axis + (h-y-1)*y_axis;
+				Ray ray = Ray(eye, direction);
+				glm::vec3 color;
+				color += tracing(ray, root, eye, ambient, lights);
+				// Red: 
+				image(x, y, 0) = (double)color.r;
+				// Green: 
+				image(x, y, 1) = (double)color.g;
+				// Blue: 
+				image(x, y, 2) = (double)color.b;
+				counter++;
+				if (counter%10000 == 0) {
+					cout<<"rendering... ("<<counter<<", "<<total<<") ";
+					printf("%0.2f%%",counter/(float)total*100);
+					cout<<endl;
+				}
+			}
+		});
+
+	
+	std::cout << total << std::endl;
+
+#endif
+	
+    auto stop = high_resolution_clock::now();
+	auto duration = duration_cast<seconds>(stop - start);
+	std::cout<<"Time consumption: " << duration.count() <<" sec."<< std::endl;
+	
 
 }

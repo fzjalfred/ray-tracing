@@ -9,7 +9,8 @@
 #include "Image.hpp"
 
 
-// #define MirrorReflection
+#define MirrorReflection
+#define TBB_MULTI_THREADING
 
 
 void A4_Render(
