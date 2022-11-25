@@ -156,6 +156,7 @@ bool SceneNode::hit(Ray &ray, const float& t_min, const float& t_max, HitRecord 
 			// cout<<glm::to_string(trans)<<endl;
 			record.m_position = vec3(trans*vec4(childrenRecord.m_position,1.0));
 			record.m_normal = normalize(transpose(mat3(invtrans))*childrenRecord.m_normal);
+			record.m_material = childrenRecord.m_material;
 			// cout<<glm::to_string(record.m_normal)<<endl;
 		}
 	}

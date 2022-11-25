@@ -1,10 +1,11 @@
 #pragma once
 
-#include "Material.hpp"
 #include <glm/glm.hpp>
 #include <iostream>
 
 using namespace glm;
+
+class Material;
 
 struct HitRecord
 {

@@ -54,7 +54,10 @@
 #include "JointNode.hpp"
 #include "Primitive.hpp"
 #include "Material.hpp"
+#include "Glossy.hpp"
+#include "Lambertian.hpp"
 #include "PhongMaterial.hpp"
+
 #include "A5.hpp"
 
 typedef std::map<std::string,Mesh*> MeshMap;
@@ -369,8 +372,25 @@ int gr_material_cmd(lua_State* L)
   double shininess = luaL_checknumber(L, 3);
   
   data->material = new PhongMaterial(glm::vec3(kd[0], kd[1], kd[2]),
-                                     glm::vec3(ks[0], ks[1], ks[2]),
-                                     shininess);
+                                        glm::vec3(ks[0], ks[1], ks[2]),
+                                        shininess);
+  
+
+  const char* material_name = luaL_checkstring(L, 4);
+  
+
+  if ((std::string)material_name == "glossy") {
+    double fuzz = luaL_checknumber(L, 5);
+    data->material = new Glossy(glm::vec3(kd[0], kd[1], kd[2]),
+                                        glm::vec3(ks[0], ks[1], ks[2]),
+                                        shininess, fuzz);
+  } else if ((std::string)material_name == "lamb") {
+    data->material = new Lambertian(glm::vec3(kd[0], kd[1], kd[2]),
+                                        glm::vec3(ks[0], ks[1], ks[2]),
+                                        shininess);
+  }
+  
+  
 
   luaL_newmetatable(L, "gr.material");
   lua_setmetatable(L, -2);

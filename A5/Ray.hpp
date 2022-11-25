@@ -23,6 +23,13 @@ public:
     vec3 getOrigin() const { return m_origin; }
     vec3 getDirection() const { return m_direction; }
 
+    Ray operator= (const Ray& a) {
+        this->m_direction = a.getDirection();
+        this->m_origin = a.getOrigin();
+        return *this;
+    }
+
     // p(t) = origin + t*dir;
     vec3 pointAt(const float &t)const { return m_origin + m_direction * t; }
 };
+

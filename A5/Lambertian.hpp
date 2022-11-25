@@ -8,10 +8,10 @@
 #include "Ray.hpp"
 #include "HitRecord.hpp"
 
-class PhongMaterial : public Material {
+class Lambertian : public Material {
 public:
-  PhongMaterial(const glm::vec3& kd, const glm::vec3& ks, double shininess);
-  virtual ~PhongMaterial();
+  Lambertian(const glm::vec3& kd, const glm::vec3& ks, double shininess);
+  virtual ~Lambertian();
   glm::vec3 diffuse() override;
   glm::vec3 specular() override;
   double shininess() override;

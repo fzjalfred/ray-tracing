@@ -16,7 +16,9 @@ using namespace std::chrono;
 vec3 drakBlue = vec3(0.075, 0.1, 0.4);
 vec3 lightBlue = vec3(0.33, 0.42, 0.67);
 
-float mirror_reflect_coefficient = 0.5;
+float mirror_reflect_coefficient = 0.9;
+
+int super_samples = 100;
 
 using namespace std;
 
@@ -55,6 +57,8 @@ vec3 phongModel(vec3 fragPosition, vec3 fragNormal, const Light& ray, const vec3
     return ray.colour * (diffuse + specular);
 }
 
+int counterRef = 0;
+
 vec3 tracing(Ray& ray, SceneNode* root, 
 		const vec3& eye,
 		// Lighting parameters  
@@ -85,14 +89,25 @@ vec3 tracing(Ray& ray, SceneNode* root,
 
 	#ifdef MirrorReflection
 
-	if (reflect != 0) {
-		vec3 reflection_direction = ray.getDirection() - 2 * res.m_normal * dot(ray.getDirection(), res.m_normal);
-		Ray reflection_ray(res.m_position + 0.015*reflection_direction, reflection_direction); // with epsilon check.
+	// if (reflect != 0 && isBackground == false) {
+	// 	vec3 reflection_direction = ray.getDirection() - 2 * res.m_normal * dot(ray.getDirection(), res.m_normal);
+	// 	Ray reflection_ray(res.m_position + 0.015*reflection_direction, reflection_direction); // with epsilon check.
 		
 
-		color = glm::mix(color, tracing(reflection_ray, root, eye, ambient, lights, reflect-1), mirror_reflect_coefficient);
+	// 	color = glm::mix(color, tracing(reflection_ray, root, eye, ambient, lights, reflect-1), mirror_reflect_coefficient);
 		
-		//cout<<glm::to_string(color)<<endl;
+	// 	//cout<<glm::to_string(color)<<endl;
+
+	// }
+
+	if (reflect != 0 && isBackground == false) {
+		// vec3 reflection_direction = ray.getDirection() - 2 * res.m_normal * dot(ray.getDirection(), res.m_normal);
+		Ray scattered; // with epsilon check.
+		vec3 attenuation; 
+		if (res.m_material != nullptr) {
+			res.m_material->scatter(ray, res, attenuation, scattered);
+			color = glm::mix(color, tracing(scattered, root, eye, ambient, lights, reflect-1), mirror_reflect_coefficient);
+		}
 
 	}
 
@@ -101,8 +116,8 @@ vec3 tracing(Ray& ray, SceneNode* root,
 	// night blue light (0.33, 0.42, 0.67), dark (0.075, 0.1, 0.4)
 	if (isBackground) {
 		vec3 normal_ray = glm::normalize(ray.getDirection());
-		color = (1.0 - normal_ray.x) * lightBlue/4 + normal_ray.x * drakBlue/3
-		+  (1.0 - normal_ray.y)* lightBlue/4 + normal_ray.y * drakBlue/3;
+		color = 2*((1.0 - normal_ray.x) * lightBlue/4 + normal_ray.x * drakBlue/3
+		+  (1.0 - normal_ray.y)* lightBlue/4 + normal_ray.y * drakBlue/3);
 	} else {
 		color += res.m_material->diffuse()*ambient;
 	}
@@ -169,10 +184,23 @@ void A5_Render(
 	for (uint t = 0; t<h*w; t++) {
 		uint x = tasks[t].first;
 		uint y = tasks[t].second;
+		glm::vec3 color;
+		#ifndef SUPER_SAMPLING
 		vec3 direction = m_lowerLeftCorner + x*x_axis + (h-y-1)*y_axis;
 		Ray ray = Ray(eye, direction);
-		glm::vec3 color;
 		color += tracing(ray, root, eye, ambient, lights);
+		#else
+		for (int sps = 0; sps < super_samples; ++sps)
+        {
+            float u = static_cast<float>(x + drand48());
+            float v = static_cast<float>(y + drand48());
+			vec3 direction = m_lowerLeftCorner + u*x_axis + (h-v-1)*y_axis;
+            Ray ray = Ray(eye, direction);
+            color += tracing(ray, root, eye, ambient, lights);
+        }
+		color /= static_cast<float>(super_samples);
+		#endif
+		
 		// Red: 
 		image(x, y, 0) = (double)color.r;
 		// Green: 
@@ -193,10 +221,22 @@ void A5_Render(
 			for (int i = r.begin(); i < r.end(); ++i) {
 				uint x = tasks[i].first;
 				uint y = tasks[i].second;
+				glm::vec3 color;
+				#ifndef SUPER_SAMPLING
 				vec3 direction = m_lowerLeftCorner + x*x_axis + (h-y-1)*y_axis;
 				Ray ray = Ray(eye, direction);
-				glm::vec3 color;
 				color += tracing(ray, root, eye, ambient, lights);
+				#else
+				for (int sps = 0; sps < super_samples; ++sps)
+				{
+					float u = static_cast<float>(x + drand48());
+					float v = static_cast<float>(y + drand48());
+					vec3 direction = m_lowerLeftCorner + u*x_axis + (h-v-1)*y_axis;
+					Ray ray = Ray(eye, direction);
+					color += tracing(ray, root, eye, ambient, lights);
+				}
+				color /= static_cast<float>(super_samples);
+				#endif
 				// Red: 
 				image(x, y, 0) = (double)color.r;
 				// Green: 

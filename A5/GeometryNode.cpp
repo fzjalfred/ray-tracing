@@ -47,6 +47,7 @@ bool GeometryNode::hit(Ray &ray, const float& t_min, const float& t_max, HitReco
 			// cout<<glm::to_string(trans)<<endl;
 			record.m_position = vec3(trans*vec4(tmpRecord.m_position,1.0));
 			record.m_normal = normalize(transpose(mat3(invtrans))*tmpRecord.m_normal);
+			record.m_material = tmpRecord.m_material;
 			// cout<<glm::to_string(record.m_normal)<<endl;
 		}
 	}

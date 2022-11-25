@@ -1,8 +1,8 @@
 -- A simple scene with five spheres
 
-mat1 = gr.material({0.7, 1.0, 0.7}, {0.5, 0.7, 0.5}, 25)
-mat2 = gr.material({0.5, 0.5, 0.5}, {0.5, 0.7, 0.5}, 25)
-mat3 = gr.material({1.0, 0.6, 0.1}, {0.5, 0.7, 0.5}, 25)
+mat1 = gr.material({0.7, 1.0, 0.7}, {0.5, 0.7, 0.5}, 25, "glossy")
+mat2 = gr.material({0.5, 0.5, 0.5}, {0.5, 0.7, 0.5}, 25, "")
+mat3 = gr.material({1.0, 0.6, 0.1}, {0.5, 0.7, 0.5}, 25, "")
 
 scene_root = gr.node('root')
 
@@ -34,6 +34,6 @@ scene_root:translate(-20, 0, 0)
 -- s2:translate(400, 0, 0)
 -- s4:translate(800, 0, 0)
 
-gr.render(scene_root, 'simple.png', 256, 256,
+gr.render(scene_root, 'simple.png', 512, 512,
 	  {0, 0, 800}, {0, 0, -800}, {0, 1, 0}, 50,
 	  {0.3, 0.3, 0.3}, {white_light, magenta_light})
