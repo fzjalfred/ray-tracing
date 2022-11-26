@@ -10,7 +10,11 @@
 
 
 #define MirrorReflection
-// #define TBB_MULTI_THREADING
+
+
+#define TBB_MULTI_THREADING
+
+
 #define SUPER_SAMPLING
 
 
