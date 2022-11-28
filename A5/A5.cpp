@@ -11,18 +11,23 @@
 #include <tbb/global_control.h>
 #include <chrono>
 #include <pthread.h>
+#include "tools.hpp"
 using namespace std::chrono;
 
 
 vec3 drakBlue = vec3(0.075, 0.1, 0.4);
 vec3 lightBlue = vec3(0.33, 0.42, 0.67);
 
-int super_samples = 100;
+
+double camera_dof = 1;
+int super_samples = 10;
 float mirror_reflect_coefficient = 0.9;
 int NUM_THREADS = 4;
 
 pthread_mutex_t counter_mutex_ = PTHREAD_MUTEX_INITIALIZER;
 using namespace std;
+
+float mdistance = 0;
 
 vec3 phongModel(vec3 fragPosition, vec3 fragNormal, const Light& ray, const vec3& eye, Material& material, const vec3& ambient) {
 
@@ -91,24 +96,13 @@ vec3 tracing(Ray& ray, SceneNode* root,
 
 	#ifdef MirrorReflection
 
-	// if (reflect != 0 && isBackground == false) {
-	// 	vec3 reflection_direction = ray.getDirection() - 2 * res.m_normal * dot(ray.getDirection(), res.m_normal);
-	// 	Ray reflection_ray(res.m_position + 0.015*reflection_direction, reflection_direction); // with epsilon check.
-		
-
-	// 	color = glm::mix(color, tracing(reflection_ray, root, eye, ambient, lights, reflect-1), mirror_reflect_coefficient);
-		
-	// 	//cout<<glm::to_string(color)<<endl;
-
-	// }
-
 	if (reflect != 0 && isBackground == false) {
 		// vec3 reflection_direction = ray.getDirection() - 2 * res.m_normal * dot(ray.getDirection(), res.m_normal);
 		Ray scattered; // with epsilon check.
 		vec3 attenuation; 
 		if (res.m_material != nullptr) {
 			res.m_material->scatter(ray, res, attenuation, scattered);
-			color = glm::mix(color, tracing(scattered, root, eye, ambient, lights, reflect-1), mirror_reflect_coefficient);
+			color = glm::mix(color, tracing(scattered, root, eye, ambient, lights, reflect-1), res.m_material->reflectness());
 		}
 
 	}
@@ -172,9 +166,13 @@ void* f_task(void* threadarg) {
         uint x = tasks[i].first;
         uint y = tasks[i].second;
         glm::vec3 color;
+
+	glm::vec3 camera_eye = eye;
+
+
 #ifndef SUPER_SAMPLING
         vec3 direction = m_lowerLeftCorner + x * x_axis + (h - y - 1) * y_axis;
-        Ray ray = Ray(eye, direction);
+        Ray ray = Ray(camera_eye, direction);
         color += tracing(ray, root, eye, ambient, lights);
 #else
         for (int sps = 0; sps < super_samples; ++sps) {
@@ -182,7 +180,16 @@ void* f_task(void* threadarg) {
             float v = static_cast<float>(y + drand48());
             vec3 direction =
                 m_lowerLeftCorner + u * x_axis + (h - v - 1) * y_axis;
-            Ray ray = Ray(eye, direction);
+#ifdef CAMERA_DOF
+			vec3 move = vec3(drand48()*0.12, drand48()*0.12, 0);
+			float focal_plane = 10.0f;
+			vec3 focal_direction = direction* (mdistance-focal_plane) / mdistance;
+			camera_eye = eye + move;
+			Ray ray = Ray(camera_eye, focal_direction-move);
+#else
+			Ray ray = Ray(camera_eye, direction);
+#endif
+            
             color += tracing(ray, root, eye, ambient, lights);
         }
         color /= static_cast<float>(super_samples);
@@ -248,8 +255,10 @@ void A5_Render(
 	vec3 x_axis = normalize(cross(-z_axis,up));
 	vec3 y_axis = normalize(up);
 
-	float d = h/2/glm::tan(glm::radians(fovy/2));
-	vec3 m_lowerLeftCorner = d*(-z_axis) - w/2*x_axis - h/2*y_axis;
+	// camera_dof = glm::length(eye)*camera_dof;
+
+	mdistance = h/2/glm::tan(glm::radians(fovy/2)); // 
+	vec3 m_lowerLeftCorner = mdistance*(-z_axis) - w/2*x_axis - h/2*y_axis;
 
 	uint total = h*w;
 	auto tasks = std::vector<pair<uint,uint>>();
@@ -320,10 +329,10 @@ void A5_Render(
 #endif
 	
     auto stop = high_resolution_clock::now();
-	auto duration = duration_cast<microseconds>(stop - start);
+	auto duration = duration_cast<seconds>(stop - start);
 	std::cout<<"Time consumption: " << duration.count() <<" sec."<< std::endl;
 	
-	pthread_exit(NULL);
+	
 }
 
 

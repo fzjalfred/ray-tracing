@@ -15,6 +15,7 @@ public:
   glm::vec3 diffuse() override;
   glm::vec3 specular() override;
   double shininess() override;
+  double reflectness() override;
   bool scatter(const Ray& in, const HitRecord &rec, vec3& attenuation, Ray& scattered) override;
 
 private:

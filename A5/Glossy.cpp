@@ -37,6 +37,10 @@ double Glossy::shininess() {
 	return m_shininess;
 }
 
+double Glossy::reflectness() {
+	return 0.8;
+}
+
 bool Glossy::scatter(const Ray& in, const HitRecord &rec, vec3& attenuation, Ray& scattered) {
     vec3 reflection_direction = in.getDirection() - 2 * rec.m_normal * dot(in.getDirection(), rec.m_normal);
 	scattered = Ray(rec.m_position + 0.015*reflection_direction, reflection_direction + m_fuzz * randomInUnitSphere()); // with epsilon check.

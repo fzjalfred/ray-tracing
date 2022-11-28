@@ -4,10 +4,12 @@
 -- transformations.
 
 red = gr.material({0.65, 0.05, 0.05}, {0.1, 0.1, 0.1}, 1, "")
-white = gr.material({0.5,0.5, 0.5}, {0.5, 0.5, 0.5}, 1, "lamb")
+white = gr.material({0.5,0.5, 0.5}, {0.5, 0.5, 0.5}, 1, "")
 green = gr.material({0.12, 0.45, 0.15}, {0.1, 0.1, 0.1}, 0, "")
 
 lightBlue = gr.material({0.3, 0.3, 1.0}, {0.1, 0.1, 0.1}, 10, "", 0.8)
+
+waterBlue = gr.material({0.3, 0.3, 1.0}, {0.1, 0.1, 0.1}, 10, "glossy", 0.2)
 
 pearlWhite = gr.material({248/255, 246/255, 220/255}, {0.1, 0.1, 0.1}, 10, "")
 brown = gr.material({0.8,0.5, 0.25}, {0.1, 0.1, 0.1}, 10, "")
@@ -20,26 +22,6 @@ gold = gr.material({0.9, 0.8, 0.4}, {0.8, 0.8, 0.4}, 25, "")
 grass = gr.material({0.1, 0.7, 0.1}, {0.0, 0.0, 0.0}, 0, "")
 
 scene = gr.node('scene')
-scene:rotate('X', 0)
-
-
-s = gr.sphere('test')
-s:scale(2,2,2)
-s:translate(0, 0, -22)
-s:set_material(lightBlue)
-scene:add_child(s)
-
-s1 = gr.sphere('s1_near')
-s1:scale(2,2,2)
-s1:translate(1, 0.0, -8)
-s1:set_material(red)
-scene:add_child(s1)
-
-s2 = gr.sphere('s2_near')
-s2:scale(2,2,2)
-s2:translate(1, 0, -28)
-s2:set_material(green)
-scene:add_child(s2)
 
 -- cow = gr.mesh('cow', 'cow.obj')
 -- cow:set_material(slightDarkbrown)
@@ -48,11 +30,40 @@ scene:add_child(s2)
 -- cow:translate(-1, -1.8, -10)
 -- scene:add_child(cow)
 
--- helmet = gr.mesh('head', './kabutack/head.obj')
--- helmet:set_material(pearlWhite)
--- helmet:scale(0.5,0.5,0.5)
--- helmet:translate(1, -3.2, -7)
--- scene:add_child(helmet)
+kabutack = gr.node('kabutack')
+kabutack:translate(0,-3, -14)
+scene:add_child(kabutack)
+
+helmet = gr.mesh('head', './kabutack/head.obj')
+helmet:set_material(red)
+kabutack:add_child(helmet)
+
+face = gr.mesh('face', './kabutack/face.obj')
+face:set_material(pearlWhite)
+kabutack:add_child(face)
+
+torso = gr.mesh('torso', './kabutack/torso.obj')
+torso:set_material(red)
+kabutack:add_child(torso)
+
+torso_deco = gr.mesh('torso_deco', './kabutack/torso_decorate.obj')
+torso_deco:set_material(golden)
+kabutack:add_child(torso_deco)
+
+eyes = gr.mesh('eyes', './kabutack/eyes.obj')
+eyes:set_material(black)
+kabutack:add_child(eyes)
+
+nose = gr.mesh('nose', './kabutack/nose.obj')
+nose:set_material(lightBlue)
+kabutack:add_child(nose)    
+
+
+water = gr.mesh('water', './kabutack/water.obj')
+water:set_material(waterBlue)
+water:translate(0,-3,-10)
+scene:add_child(water)    
+
 
 -- the floor
 plane = gr.mesh( 'plane', 'plane.obj' )
@@ -96,7 +107,7 @@ l1 = gr.light({200,200,400}, {0.8, 0.8, 0.8}, {1, 0, 0})
 -- l2 = gr.light({1, 5, -20}, {0.4, 0.4, 0.8}, {1, 0, 0})
 -- l3 = gr.light({0, 0, 200}, {0.8, 0.8, 0.8}, {1, 0, 0})
 
-gr.render(scene, 'sample.png', 512, 512, 
+gr.render(scene, 'final.png', 512, 512, 
 	  {0, 0, 0,}, {0, 0, -1}, {0, 1, 0}, 50,
 	  {0.4, 0.4, 0.4}, {l1})
 

@@ -22,22 +22,22 @@ grass = gr.material({0.1, 0.7, 0.1}, {0.0, 0.0, 0.0}, 0, "")
 scene = gr.node('scene')
 scene:rotate('X', 0)
 
-
-s = gr.sphere('test')
-s:scale(2,2,2)
-s:translate(0, 0, -22)
-s:set_material(lightBlue)
-scene:add_child(s)
-
 s1 = gr.sphere('s1_near')
-s1:scale(2,2,2)
-s1:translate(1, 0.0, -8)
+s1:scale(1.5,1.5,1.5)
+s1:translate(3, 0.0, -8)
 s1:set_material(red)
 scene:add_child(s1)
 
+
+s = gr.sphere('test')
+s:scale(2,2,2)
+s:translate(3, 0, -20)
+s:set_material(lightBlue)
+scene:add_child(s)
+
 s2 = gr.sphere('s2_near')
 s2:scale(2,2,2)
-s2:translate(1, 0, -28)
+s2:translate(0, 0, -28)
 s2:set_material(green)
 scene:add_child(s2)
 
@@ -83,11 +83,11 @@ leftWall:set_material(green)
 leftWall:translate(-4, -3, -28)
 walls:add_child(leftWall)
 
-rightWall = gr.cube('right')
-rightWall:scale(1, 6, 24)
-rightWall:set_material(red)
-rightWall:translate(3, -3, -28)
-walls:add_child(rightWall)
+-- rightWall = gr.cube('right')
+-- rightWall:scale(1, 6, 24)
+-- rightWall:set_material(red)
+-- rightWall:translate(3, -3, -28)
+-- walls:add_child(rightWall)
 
 
 
@@ -96,7 +96,7 @@ l1 = gr.light({200,200,400}, {0.8, 0.8, 0.8}, {1, 0, 0})
 -- l2 = gr.light({1, 5, -20}, {0.4, 0.4, 0.8}, {1, 0, 0})
 -- l3 = gr.light({0, 0, 200}, {0.8, 0.8, 0.8}, {1, 0, 0})
 
-gr.render(scene, 'sample.png', 512, 512, 
+gr.render(scene, 'dof.png', 512, 512, 
 	  {0, 0, 0,}, {0, 0, -1}, {0, 1, 0}, 50,
 	  {0.4, 0.4, 0.4}, {l1})
 

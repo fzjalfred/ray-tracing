@@ -373,13 +373,18 @@ int gr_material_cmd(lua_State* L)
   
   data->material = new PhongMaterial(glm::vec3(kd[0], kd[1], kd[2]),
                                         glm::vec3(ks[0], ks[1], ks[2]),
-                                        shininess);
+                                        shininess, 0);
   
 
   const char* material_name = luaL_checkstring(L, 4);
   
-
-  if ((std::string)material_name == "glossy") {
+  if ((std::string)material_name == "reflect") {
+    double reflect = luaL_checknumber(L, 5);
+    data->material = new PhongMaterial(glm::vec3(kd[0], kd[1], kd[2]),
+                                        glm::vec3(ks[0], ks[1], ks[2]),
+                                        shininess, reflect);
+  }
+  else if ((std::string)material_name == "glossy") {
     double fuzz = luaL_checknumber(L, 5);
     data->material = new Glossy(glm::vec3(kd[0], kd[1], kd[2]),
                                         glm::vec3(ks[0], ks[1], ks[2]),

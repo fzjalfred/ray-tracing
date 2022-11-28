@@ -14,8 +14,8 @@
 
 #define TBB_MULTI_THREADING
 
-
-#define SUPER_SAMPLING
+// #define CAMERA_DOF
+// #define SUPER_SAMPLING
 
 
 void A5_Render(

@@ -4,10 +4,11 @@
 #include <glm/ext.hpp>
 
 PhongMaterial::PhongMaterial(
-	const glm::vec3& kd, const glm::vec3& ks, double shininess )
+	const glm::vec3& kd, const glm::vec3& ks, double shininess, double reflect_coefficient )
 	: m_kd(kd)
 	, m_ks(ks)
 	, m_shininess(shininess)
+	, m_reflect(reflect_coefficient)
 {}
 
 PhongMaterial::~PhongMaterial()
@@ -24,6 +25,10 @@ glm::vec3 PhongMaterial::specular() {
 
 double PhongMaterial::shininess() {
 	return m_shininess;
+}
+
+double PhongMaterial::reflectness() {
+	return m_reflect;
 }
 
 bool PhongMaterial::scatter(const Ray& in, const HitRecord &rec, vec3& attenuation, Ray& scattered) {

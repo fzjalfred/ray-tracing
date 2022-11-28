@@ -2,16 +2,16 @@
 
 #include "Lambertian.hpp"
 #include <glm/ext.hpp>
-
-static vec3 randomInUnitSphere()
-{
-    vec3 pos;
-    do
-    {
-    pos = vec3(drand48(), drand48(), drand48()) * 2.0f - vec3(1.0, 1.0, 1.0);
-    } while (glm::length(pos) >= 1.0);
-    return pos;
-}
+#include "tools.hpp"
+// static vec3 randomInUnitSphere()
+// {
+//     vec3 pos;
+//     do
+//     {
+//     pos = vec3(drand48(), drand48(), drand48()) * 2.0f - vec3(1.0, 1.0, 1.0);
+//     } while (glm::length(pos) >= 1.0);
+//     return pos;
+// }
 
 Lambertian::Lambertian(
 	const glm::vec3& kd, const glm::vec3& ks, double shininess )
@@ -34,6 +34,10 @@ glm::vec3 Lambertian::specular() {
 
 double Lambertian::shininess() {
 	return m_shininess;
+}
+
+double Lambertian::reflectness() {
+	return 0.8;
 }
 
 bool Lambertian::scatter(const Ray& in, const HitRecord &rec, vec3& attenuation, Ray& scattered) {
