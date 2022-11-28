@@ -70,7 +70,7 @@ vec3 tracing(Ray& ray, SceneNode* root,
 		const vec3& eye,
 		// Lighting parameters  
 		const glm::vec3 & ambient,
-		const std::list<Light *> & lights, int reflect = 2) {
+		const std::list<Light *> & lights, int reflect = 2, bool exitingRefract = false) {
 	HitRecord res;
 	bool isBackground = true;
 	vec3 color;
@@ -96,13 +96,28 @@ vec3 tracing(Ray& ray, SceneNode* root,
 
 	#ifdef MirrorReflection
 
-	if (reflect != 0 && isBackground == false) {
+	if (reflect != 0 && isBackground == false && res.m_material->reflectness() != 0.0) {
 		// vec3 reflection_direction = ray.getDirection() - 2 * res.m_normal * dot(ray.getDirection(), res.m_normal);
 		Ray scattered; // with epsilon check.
 		vec3 attenuation; 
 		if (res.m_material != nullptr) {
 			res.m_material->scatter(ray, res, attenuation, scattered);
 			color = glm::mix(color, tracing(scattered, root, eye, ambient, lights, reflect-1), res.m_material->reflectness());
+		}
+
+	}
+
+	#endif
+
+	#ifdef Refraction
+
+	if (reflect != 0 && isBackground == false && res.m_material->refractness() != 0.0) {
+		// vec3 reflection_direction = ray.getDirection() - 2 * res.m_normal * dot(ray.getDirection(), res.m_normal);
+		Ray scattered; // with epsilon check.
+		vec3 attenuation; 
+		if (res.m_material != nullptr) {
+			res.m_material->refract(ray, res, scattered, exitingRefract);
+			color = glm::mix(color, tracing(scattered, root, eye, ambient, lights, reflect-1, !exitingRefract), res.m_material->refractness());
 		}
 
 	}

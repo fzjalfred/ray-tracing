@@ -46,3 +46,12 @@ bool Glossy::scatter(const Ray& in, const HitRecord &rec, vec3& attenuation, Ray
 	scattered = Ray(rec.m_position + 0.015*reflection_direction, reflection_direction + m_fuzz * randomInUnitSphere()); // with epsilon check.
 	return true;
 }
+
+
+bool Glossy::refract(const Ray &in, const HitRecord &rec, Ray &refracted, bool flip = false) {
+	return false;
+}
+
+double Glossy::refractness() {
+	return 0.5;
+};

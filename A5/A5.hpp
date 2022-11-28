@@ -10,12 +10,12 @@
 
 
 #define MirrorReflection
-
+#define Refraction
 
 #define TBB_MULTI_THREADING
 
 // #define CAMERA_DOF
-// #define SUPER_SAMPLING
+#define SUPER_SAMPLING
 
 
 void A5_Render(

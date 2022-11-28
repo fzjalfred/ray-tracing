@@ -46,3 +46,11 @@ bool Lambertian::scatter(const Ray& in, const HitRecord &rec, vec3& attenuation,
     scattered = Ray(rec.m_position + 0.015*direction, direction);
 	return true;
 }
+
+bool Lambertian::refract(const Ray &in, const HitRecord &rec, Ray &refracted, bool flip = false) {
+	return false;
+}
+
+double Lambertian::refractness() {
+	return 0.0;
+};
