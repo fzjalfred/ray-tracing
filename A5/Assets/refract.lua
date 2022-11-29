@@ -1,9 +1,10 @@
 -- A simple scene with five spheres
 
 mat1 = gr.material({0.7, 1.0, 0.7}, {0.5, 0.7, 0.5}, 25, "", 0.9)
-mat2 = gr.material({0.5, 0.5, 0.5}, {0.5, 0.7, 0.5}, 25, "", 0.6)
+mat2 = gr.material({0.5, 0.5, 0.5}, {0.5, 0.7, 0.5}, 25, "reflect", 0.6)
 mat3 = gr.material({1.0, 0.6, 0.1}, {0.5, 0.7, 0.5}, 25, "")
-refract = gr.material({0.4, 0.6, 0.1}, {0.5, 0.7, 0.5}, 35, "refract", 0.6)
+refract = gr.material({0.3, 0.6, 0.6}, {0.5, 0.7, 0.5}, 35, "refract", 0.6)
+lightBlue = gr.material({0.3, 0.6, 0.6}, {0.5, 0.7, 0.5}, 35, "", 0.6)
 
 scene_root = gr.node('root')
 
