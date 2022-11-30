@@ -20,9 +20,11 @@ vec3 lightBlue = vec3(0.33, 0.42, 0.67);
 
 
 double camera_dof = 1;
-int super_samples = 10;
+int super_samples = 50;
 float mirror_reflect_coefficient = 0.9;
 int NUM_THREADS = 4;
+
+int soft_shadow_ray_samples = 10;
 
 pthread_mutex_t counter_mutex_ = PTHREAD_MUTEX_INITIALIZER;
 using namespace std;
@@ -77,6 +79,9 @@ vec3 tracing(Ray& ray, SceneNode* root,
 	for (auto light: lights) {
 		if (root->hit(ray, 0.001f, 9999.9f, res, mat4())) {
 			isBackground = false;
+
+			double soft_shadow_coefficient = 1.0;
+#ifndef SOFT_SHADOW
 			// cast shadow ray to light
 			Ray shadowRay = Ray(res.m_position, light->position - res.m_position);
 			HitRecord shadowRecord;
@@ -84,8 +89,20 @@ vec3 tracing(Ray& ray, SceneNode* root,
 			if (root->hit(shadowRay, 0.01, 9999.9f, shadowRecord, mat4())) {
 				continue;
 			}
+#else
+			// cast shadow ray to light
+			int hits_count = 0;
+			for (int i = 0; i<soft_shadow_ray_samples; i++) {
+				Ray shadowRay = Ray(res.m_position, light->position - res.m_position + 30.0*randomInUnitSphere());
+				HitRecord shadowRecord;
 
-			color += phongModel(res.m_position, -res.m_normal, *light, eye, *(res.m_material), ambient);
+				if (root->hit(shadowRay, 0.01, 9999.9f, shadowRecord, mat4())) {
+					hits_count++;
+				}
+			}
+			soft_shadow_coefficient = 1 - hits_count/soft_shadow_ray_samples;
+#endif
+			color += soft_shadow_coefficient*phongModel(res.m_position, -res.m_normal, *light, eye, *(res.m_material), ambient);
 			// if (color.r<0.1&&color.g<0.1&&color.b<0.1) {
 			// 	cout<<glm::to_string(color)<<endl;
 			// 	cout<<glm::to_string(res.m_position)<<"pos"<<endl;
