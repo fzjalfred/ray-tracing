@@ -20,13 +20,13 @@ vec3 lightBlue = vec3(0.33, 0.42, 0.67);
 
 
 double camera_dof = 1;
-int super_samples = 50;
+int super_samples = 100;
 float mirror_reflect_coefficient = 0.9;
 int NUM_THREADS = 4;
 
 int soft_shadow_ray_samples = 10;
 
-pthread_mutex_t counter_mutex_ = PTHREAD_MUTEX_INITIALIZER;
+std::vector<std::vector<double>> shadow_map;
 using namespace std;
 
 float mdistance = 0;
@@ -92,14 +92,25 @@ vec3 tracing(Ray& ray, SceneNode* root,
 #else
 			// cast shadow ray to light
 			int hits_count = 0;
-			for (int i = 0; i<soft_shadow_ray_samples; i++) {
-				Ray shadowRay = Ray(res.m_position, light->position - res.m_position + 30.0*randomInUnitSphere());
+			Ray directShadowRay = Ray(res.m_position, light->position - res.m_position);
+			HitRecord directShadowRecord;
+			double sample_size;
+			
+			if (root->hit(directShadowRay, 0.01, 9999.9f, directShadowRecord, mat4())) {
+				double hit2LightDistance = glm::length(light->position - res.m_position);
+				double Occulusion2LightDistance = glm::length(light->position - directShadowRecord.m_position);
+				hits_count++;
+				sample_size = (1 - Occulusion2LightDistance/hit2LightDistance)*30.0;
+			}
+			for (int i = 0; i<=soft_shadow_ray_samples; i++) {
+				Ray shadowRay = Ray(res.m_position, light->position - res.m_position + sample_size*randomInUnitSphere());
 				HitRecord shadowRecord;
 
 				if (root->hit(shadowRay, 0.01, 9999.9f, shadowRecord, mat4())) {
 					hits_count++;
 				}
 			}
+			
 			soft_shadow_coefficient = 1 - hits_count/soft_shadow_ray_samples;
 #endif
 			color += soft_shadow_coefficient*phongModel(res.m_position, -res.m_normal, *light, eye, *(res.m_material), ambient);
@@ -294,9 +305,11 @@ void A5_Render(
 
 	uint total = h*w;
 	auto tasks = std::vector<pair<uint,uint>>();
+	shadow_map = std::vector<std::vector<double>> (w+1, std::vector<double>(h+1));
 	for (uint y = 0; y < h; ++y) {
 		for (uint x = 0; x < w; ++x) {
 			tasks.emplace_back(x, y);
+			shadow_map[x][y] = 0.0;
 		}
 	}
 	auto start = high_resolution_clock::now();

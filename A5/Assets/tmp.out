@@ -1,0 +1,29 @@
+plane.obj
+F22: Calling A5_Render(
+	SceneNode:[name:scene, id:0]
+	Image(width:512, height:512)
+	eye:  vec3(0.000000, 0.000000, 0.000000)
+	view: vec3(0.000000, 0.000000, -1.000000)
+	up:   vec3(0.000000, 1.000000, 0.000000)
+	fovy: 50
+	ambient: vec3(0.400000, 0.400000, 0.400000)
+	lights{
+		L[vec3(0.800000, 0.800000, 0.800000), vec3(20.000000, 20.000000, 40.000000), 1, 0, 0]
+	}
+)
+main() : creating thread, ranged from 0 65535
+main() : creating thread, ranged from 65536 131071
+main() : creating thread, ranged from 131072 196607
+main() : creating thread, ranged from 196608 262143
+rendering... (10000, 262144) 3.81%
+rendering... (20000, 262144) 7.63%
+rendering... (30000, 262144) 11.44%
+rendering... (40000, 262144) 15.26%
+rendering... (50000, 262144) 19.07%
+rendering... (60000, 262144) 22.89%
+rendering... (70000, 262144) 26.70%
+rendering... (80000, 262144) 30.52%
+rendering... (90000, 262144) 34.33%
+rendering... (100000, 262144) 38.15%
+rendering... (110000, 262144) 41.96%
+rendering... (120000, 262144) 45.78%

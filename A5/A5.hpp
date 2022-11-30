@@ -7,6 +7,7 @@
 #include "SceneNode.hpp"
 #include "Light.hpp"
 #include "Image.hpp"
+#include <vector>
 
 
 #define MirrorReflection

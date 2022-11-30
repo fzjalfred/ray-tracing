@@ -24,11 +24,11 @@ scene = gr.node('scene')
 scene:rotate('X', 0)
 
 
-s = gr.sphere('test')
-s:scale(2,2,2)
-s:translate(0, 0, -10)
-s:set_material(lightblue_refract)
-scene:add_child(s)
+-- s = gr.sphere('test')
+-- s:scale(2,2,2)
+-- s:translate(0, 0, -10)
+-- s:set_material(lightblue_refract)
+-- scene:add_child(s)
 
 -- s1 = gr.sphere('s1_near')
 -- s1:scale(1,1,1)
@@ -36,11 +36,11 @@ scene:add_child(s)
 -- s1:set_material(white_refract)
 -- scene:add_child(s1)
 
-s2 = gr.sphere('s2_near')
-s2:scale(2,2,2)
-s2:translate(1, 0, -28)
-s2:set_material(green)
-scene:add_child(s2)
+-- s2 = gr.sphere('s2_near')
+-- s2:scale(2,2,2)
+-- s2:translate(1, 0, -28)
+-- s2:set_material(green)
+-- scene:add_child(s2)
 
 -- cow = gr.mesh('cow', 'cow.obj')
 -- cow:set_material(slightDarkbrown)
@@ -84,20 +84,20 @@ scene:add_child(walls)
 -- leftWall:translate(-4, -3, -28)
 -- walls:add_child(leftWall)
 
--- rightWall = gr.cube('right')
--- rightWall:scale(1, 6, 24)
--- rightWall:set_material(red)
--- rightWall:translate(3, -3, -28)
--- walls:add_child(rightWall)
+rightWall = gr.cube('right')
+rightWall:scale(1, 6, 24)
+rightWall:set_material(red)
+rightWall:translate(3, -3, -28)
+walls:add_child(rightWall)
 
 
 
 -- The lights
-l1 = gr.light({-30,5,40}, {0.9, 0.9, 0.9}, {1, 0, 0})
+-- The lights
+l1 = gr.light({20,20,40}, {0.8, 0.8, 0.8}, {1, 0, 0})
 -- l2 = gr.light({1, 5, -20}, {0.4, 0.4, 0.8}, {1, 0, 0})
--- l3 = gr.light({30, 30, 20}, {0.7, 0.0, 0.7}, {1, 0, 0})
+-- l3 = gr.light({0, 0, 200}, {0.8, 0.8, 0.8}, {1, 0, 0})
 
-gr.render(scene, 'sample.png', 512, 512, 
+gr.render(scene, 'sample.png', 256, 256, 
 	  {0, 0, 0,}, {0, 0, -1}, {0, 1, 0}, 50,
-	  {0.4, 0.4, 0.4}, {l1, l3})
-
+	  {0.4, 0.4, 0.4}, {l1})
