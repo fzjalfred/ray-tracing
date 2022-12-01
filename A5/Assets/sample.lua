@@ -8,6 +8,8 @@ white = gr.material({0.5,0.5, 0.5}, {0.5, 0.5, 0.5}, 1, "")
 lightblue_refract = gr.material({0.3, 0.3, 0.6}, {0.5, 0.7, 0.5}, 25, "refract", 0.5)
 green = gr.material({0.12, 0.45, 0.15}, {0.1, 0.1, 0.1}, 0, "")
 
+earth_texture = gr.material({0.3, 0.3, 1.0}, {0.5, 0.5, 0.5}, 25, "")
+
 lightBlue = gr.material({0.3, 0.3, 1.0}, {0.1, 0.1, 0.1}, 30, "", 0.8)
 
 pearlWhite = gr.material({248/255, 246/255, 220/255}, {0.1, 0.1, 0.1}, 10, "")
@@ -23,18 +25,18 @@ grass = gr.material({0.1, 0.7, 0.1}, {0.0, 0.0, 0.0}, 0, "")
 scene = gr.node('scene')
 scene:rotate('X', 0)
 
-
+gr.texture(earth_texture, "texture/earthmap.jpg")
 -- s = gr.sphere('test')
 -- s:scale(2,2,2)
 -- s:translate(0, 0, -10)
 -- s:set_material(lightblue_refract)
 -- scene:add_child(s)
 
--- s1 = gr.sphere('s1_near')
--- s1:scale(1,1,1)
--- s1:translate(1, 0.0, -8)
--- s1:set_material(white_refract)
--- scene:add_child(s1)
+s1 = gr.sphere('s1_near')
+s1:scale(2,2,2)
+s1:translate(0, 0.0, -10)
+s1:set_material(earth_texture)
+scene:add_child(s1)
 
 -- s2 = gr.sphere('s2_near')
 -- s2:scale(2,2,2)

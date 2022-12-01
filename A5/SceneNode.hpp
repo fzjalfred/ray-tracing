@@ -42,6 +42,8 @@ public:
     void scale(const glm::vec3& amount);
     void translate(const glm::vec3& amount);
 
+    void texture(const std::string path);
+
 
 	friend std::ostream & operator << (std::ostream & os, const SceneNode & node);
 

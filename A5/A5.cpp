@@ -20,7 +20,7 @@ vec3 lightBlue = vec3(0.33, 0.42, 0.67);
 
 
 double camera_dof = 1;
-int super_samples = 100;
+int super_samples = 10;
 float mirror_reflect_coefficient = 0.9;
 int NUM_THREADS = 4;
 
@@ -31,8 +31,10 @@ using namespace std;
 
 float mdistance = 0;
 
-vec3 phongModel(vec3 fragPosition, vec3 fragNormal, const Light& ray, const vec3& eye, Material& material, const vec3& ambient) {
+vec3 phongModel(vec3 fragPosition, vec3 fragNormal, const Light& ray, const vec3& eye, HitRecord& res, const vec3& ambient) {
 
+
+	Material& material = *(res.m_material);
     // Direction from fragment to light source.
 	vec3 l = normalize(fragPosition - ray.position);
 
@@ -50,6 +52,10 @@ vec3 phongModel(vec3 fragPosition, vec3 fragNormal, const Light& ray, const vec3
 	vec3 R = 2*(dot(fragNormal, -l))*fragNormal+l;
 
 	vec3 diffuse;
+	if (res.m_material->m_texture != nullptr) {
+		vec3 sampled = res.m_material->m_texture->sample(res.u, res.v, vec3());
+		diffuse = sampled * n_dot_l;
+	} else
 	diffuse = material.diffuse() * n_dot_l;
 
     vec3 specular = vec3(0.0);
@@ -113,7 +119,7 @@ vec3 tracing(Ray& ray, SceneNode* root,
 			
 			soft_shadow_coefficient = 1 - hits_count/soft_shadow_ray_samples;
 #endif
-			color += soft_shadow_coefficient*phongModel(res.m_position, -res.m_normal, *light, eye, *(res.m_material), ambient);
+			color += soft_shadow_coefficient*phongModel(res.m_position, -res.m_normal, *light, eye, res, ambient);
 			// if (color.r<0.1&&color.g<0.1&&color.b<0.1) {
 			// 	cout<<glm::to_string(color)<<endl;
 			// 	cout<<glm::to_string(res.m_position)<<"pos"<<endl;

@@ -409,6 +409,24 @@ int gr_material_cmd(lua_State* L)
   return 1;
 }
 
+// bind texture to a material.
+extern "C"
+int gr_node_texture_cmd(lua_State* L)
+{
+  GRLUA_DEBUG_CALL;
+  
+  gr_material_ud* selfdata = (gr_material_ud*)luaL_checkudata(L, 1, "gr.material");
+  luaL_argcheck(L, selfdata != 0, 1, "Material expected");
+
+  Material* self = selfdata->material;
+
+  const char* texture_path = luaL_checkstring(L, 2);
+
+  luaL_argcheck(L, self->bindTexture(texture_path), 2, "Texture not found.");
+  
+  return 0;
+}
+
 // Add a Child to a node
 extern "C"
 int gr_node_add_child_cmd(lua_State* L)
@@ -559,6 +577,7 @@ static const luaL_Reg grlib_functions[] = {
   {"mesh", gr_mesh_cmd},
   {"light", gr_light_cmd},
   {"render", gr_render_cmd},
+  {"texture", gr_node_texture_cmd},
   {0, 0}
 };
 

@@ -7,7 +7,24 @@
 #include <glm/gtx/transform.hpp>
 #include <glm/ext.hpp>
 #include <iostream>
+#include "cs488-framework/MathUtils.hpp"
 using namespace glm;
+
+
+static void get_sphere_uv(const vec3& p, double& u, double& v) {
+    // p: a given point on the sphere of radius one, centered at the origin.
+    // u: returned value [0,1] of angle around the Y axis from X=-1.
+    // v: returned value [0,1] of angle from Y=-1 to Y=+1.
+    //     <1 0 0> yields <0.50 0.50>       <-1  0  0> yields <0.00 0.50>
+    //     <0 1 0> yields <0.50 1.00>       < 0 -1  0> yields <0.50 0.00>
+    //     <0 0 1> yields <0.25 0.50>       < 0  0 -1> yields <0.75 0.50>
+
+    auto theta = acos(-p.y);
+    auto phi = atan2(-p.z, p.x) + PI;
+
+    u = phi / (2*PI);
+    v = theta / PI;
+}
 
 Primitive::~Primitive()
 {
@@ -49,6 +66,8 @@ bool NonhierSphere::hit(Ray &ray, const float& t_min, const float& t_max, HitRec
             record.m_t = t_unit_solution;
             record.m_position = ray.getOrigin() + ray.getDirection()*t_solution;
             record.m_normal = (record.m_position - m_pos)/(float)m_radius;
+            vec3 outward_normal = (record.m_position - m_pos) / m_radius;
+            get_sphere_uv(outward_normal, record.u, record.v);
             return true;
         } else {
             // std::cout<<"t_max: "<<t_max<<std::endl;
@@ -121,3 +140,4 @@ NonhierBox::~NonhierBox()
 bool NonhierBox::hit(Ray &ray, const float& t_min, const float& t_max, HitRecord &record, const mat4& transToWorld) const {
     return cube_ptr->hit(ray, t_min, t_max, record, transToWorld);
 }
+

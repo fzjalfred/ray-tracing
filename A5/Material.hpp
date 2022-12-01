@@ -5,7 +5,7 @@
 #include <glm/glm.hpp>
 #include "Ray.hpp"
 #include "HitRecord.hpp"
-
+#include "Texture.hpp"
 
 class Material {
 public:
@@ -18,7 +18,9 @@ public:
   virtual bool scatter(const Ray& in, const HitRecord &rec, vec3& attenuation, Ray& scattered) = 0;
   virtual bool refract(const Ray &in, const HitRecord &rec, Ray &refracted, bool flip) = 0;
   
+  bool bindTexture(const std::string path); 
 
+  Texture* m_texture = nullptr;
 protected:
   Material();
 };
