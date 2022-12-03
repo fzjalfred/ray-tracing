@@ -10,13 +10,13 @@
 #include <vector>
 
 
-#define MirrorReflection
-#define Refraction
+// #define MirrorReflection
+// #define Refraction
 
 #define TBB_MULTI_THREADING
-#define SOFT_SHADOW
+// #define SOFT_SHADOW
 // #define CAMERA_DOF
-#define SUPER_SAMPLING
+// #define SUPER_SAMPLING
 
 
 void A5_Render(

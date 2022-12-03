@@ -376,29 +376,31 @@ int gr_material_cmd(lua_State* L)
                                         shininess, 0, 0);
   
 
-  const char* material_name = luaL_checkstring(L, 4);
+  if (lua_gettop(L) >= 4){
+    const char* material_name = luaL_checkstring(L, 4);
   
-  if ((std::string)material_name == "reflect") {
-    double reflect = luaL_checknumber(L, 5);
-    data->material = new PhongMaterial(glm::vec3(kd[0], kd[1], kd[2]),
-                                        glm::vec3(ks[0], ks[1], ks[2]),
-                                        shininess, reflect, 0);
-  }
-  else if ((std::string)material_name == "refract") {
-    double refract = luaL_checknumber(L, 5);
-    data->material = new PhongMaterial(glm::vec3(kd[0], kd[1], kd[2]),
-                                        glm::vec3(ks[0], ks[1], ks[2]),
-                                        shininess, 0, refract);
-  }
-  else if ((std::string)material_name == "glossy") {
-    double fuzz = luaL_checknumber(L, 5);
-    data->material = new Glossy(glm::vec3(kd[0], kd[1], kd[2]),
-                                        glm::vec3(ks[0], ks[1], ks[2]),
-                                        shininess, fuzz);
-  } else if ((std::string)material_name == "lamb") {
-    data->material = new Lambertian(glm::vec3(kd[0], kd[1], kd[2]),
-                                        glm::vec3(ks[0], ks[1], ks[2]),
-                                        shininess);
+    if ((std::string)material_name == "reflect") {
+      double reflect = luaL_checknumber(L, 5);
+      data->material = new PhongMaterial(glm::vec3(kd[0], kd[1], kd[2]),
+                                          glm::vec3(ks[0], ks[1], ks[2]),
+                                          shininess, reflect, 0);
+    }
+    else if ((std::string)material_name == "refract") {
+      double refract = luaL_checknumber(L, 5);
+      data->material = new PhongMaterial(glm::vec3(kd[0], kd[1], kd[2]),
+                                          glm::vec3(ks[0], ks[1], ks[2]),
+                                          shininess, 0, refract);
+    }
+    else if ((std::string)material_name == "glossy") {
+      double fuzz = luaL_checknumber(L, 5);
+      data->material = new Glossy(glm::vec3(kd[0], kd[1], kd[2]),
+                                          glm::vec3(ks[0], ks[1], ks[2]),
+                                          shininess, fuzz);
+    } else if ((std::string)material_name == "lamb") {
+      data->material = new Lambertian(glm::vec3(kd[0], kd[1], kd[2]),
+                                          glm::vec3(ks[0], ks[1], ks[2]),
+                                          shininess);
+    }
   }
   
   

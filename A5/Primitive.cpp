@@ -79,6 +79,8 @@ bool NonhierSphere::hit(Ray &ray, const float& t_min, const float& t_max, HitRec
             record.m_t = t_unit_solution;
             record.m_position = ray.getOrigin() + ray.getDirection()*t_solution;
             record.m_normal = (record.m_position - m_pos)/(float)m_radius;
+            vec3 outward_normal = (record.m_position - m_pos) / m_radius;
+            get_sphere_uv(outward_normal, record.u, record.v);
             // record.m_position = vec3(transToWorld*vec4(record.m_position,1.0));
             // record.m_normal = normalize(mat3(transToWorld)*record.m_normal);
             return true;

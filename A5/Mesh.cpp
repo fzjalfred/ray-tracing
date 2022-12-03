@@ -103,29 +103,77 @@ bool triangleIntersection(const Ray &ray, const vec3& vertex0, const vec3& verte
     return false;
 }
 
+// bool Mesh::triangleHit(const Ray &ray, const float &t_min, const float &t_max,
+//     HitRecord &ret, const vec3 &p0, const vec3 &p1,
+//     const vec3 &p2, const mat4& transToWorld, const vec3 & vn) const
+// {	
+// 	// vec3 normal = normalize(cross((p1-p0), (p2-p0)));
+// 	vec3 normal = vn;
+// 	float t;
+// 	float t_unit = glm::length(transToWorld*vec4(ray.getDirection(), 0.0f));
+// 	if (triangleIntersection(ray, p0, p1, p2,t)) {
+// 		if (t*t_unit < t_min || t*t_unit > t_max) {
+// 			return false;
+// 		} else {
+// 			ret.m_t = t*t_unit;
+// 			if ( dot( ray.getDirection(), normal ) > 0 ) 
+// 				normal = -normal;
+// 			ret.m_normal = normal;
+// 			//ret.m_normal = normalize(vec3(transToWorld*vec4(ret.m_normal,0.0)));
+// 			ret.m_position = ray.pointAt(t);
+// 			//ret.m_position = vec3(transToWorld*vec4(ret.m_position,1.0));
+// 			return true;
+// 		}
+// 	}
+// 	return false;
+// }
+
 bool Mesh::triangleHit(const Ray &ray, const float &t_min, const float &t_max,
     HitRecord &ret, const vec3 &p0, const vec3 &p1,
-    const vec3 &p2, const mat4& transToWorld) const
+    const vec3 &p2, const mat4& transToWorld, const vec3 & vn, const Triangle& triangle) const
 {	
-	vec3 normal = normalize(cross((p1-p0), (p2-p0)));
-	float t;
 	float t_unit = glm::length(transToWorld*vec4(ray.getDirection(), 0.0f));
-	if (triangleIntersection(ray, p0, p1, p2,t)) {
-		if (t*t_unit < t_min || t*t_unit > t_max) {
-			return false;
-		} else {
-			ret.m_t = t*t_unit;
-			if ( dot( ray.getDirection(), normal ) > 0 ) 
-				normal = -normal;
-			ret.m_normal = normal;
-			//ret.m_normal = normalize(vec3(transToWorld*vec4(ret.m_normal,0.0)));
-			ret.m_position = ray.pointAt(t);
-			//ret.m_position = vec3(transToWorld*vec4(ret.m_position,1.0));
-			return true;
-		}
+	vec3 normal = vn;
+	float n_dot_dir = dot(normal, ray.getDirection());
+    // no intersection.
+    if (n_dot_dir == 0.0)
+        return false;
+    float d = dot(-normal, p0);
+    float t = -(dot(normal, ray.getOrigin()) + d) / n_dot_dir;
+    if (t*t_unit < t_min || t*t_unit > t_max) {
+		return false;
 	}
-	return false;
+    ret.m_t = t*t_unit;
+    ret.m_position = ray.pointAt(t);
+    // judge inside or not.
+    vec3 r = ret.m_position - p0;
+    vec3 q1 = p1 - p0;
+    vec3 q2 = p2 - p0;
+    float q1_len = glm::length(q1);
+    float q2_len = glm::length(q2);
+    float q1_dot_q2 = dot(q1, q2);
+    float r_dot_q1 = dot(r, q1);
+    float r_dot_q2 = dot(r, q2);
+    float determinant = 1.0f / (q1_len*q1_len * q2_len*q2_len - q1_dot_q2 * q1_dot_q2);
+
+    float omega1 = determinant * (q2_len*q2_len * r_dot_q1 - q1_dot_q2 * r_dot_q2);
+    float omega2 = determinant * (-q1_dot_q2 * r_dot_q1 + q1_len*q1_len * r_dot_q2);
+    if (omega1 + omega2 > 1.0f || omega1 < 0.0f || omega2 < 0.0f)
+        return false;
+    if ( dot( ray.getDirection(), normal ) > 0 ) 
+		normal = -normal;
+	ret.m_normal = normal;
+	if (triangle.hasVtVn) {
+		vec3 texcoord = m_texture_vertices[triangle.vt1] * (1.0f - omega1 - omega2) + m_texture_vertices[triangle.vt2] * omega1 + m_texture_vertices[triangle.vt3] * omega2;
+		// std::cout<<"vt1: "<<triangle.vt1<<std::endl;
+		// std::cout<<glm::to_string(m_texture_vertices[triangle.vt1])<<std::endl;
+		ret.u = texcoord.x;
+		ret.v = texcoord.y;
+	}
+    
+    return true;
 }
+
 
 Mesh::Mesh(std::vector<glm::vec3>& m_vertices,
 	std::vector<Triangle>& m_faces): m_vertices(m_vertices),
@@ -152,27 +200,32 @@ Mesh::Mesh(std::vector<glm::vec3>& m_vertices,
 	}
 
 
-static inline void delimit_f_index(size_t& v, size_t& vt, size_t& vn, std::string s) {
+static inline int delimit_f_index(size_t& v, size_t& vt, size_t& vn, std::string s) {
 	std::string delimiter = "/";
 	size_t pos = 0;
 	std::string token;
+	int ret = 0;
 	if ((pos = s.find(delimiter)) != std::string::npos) {
 		token = s.substr(0, pos);
 		v = std::stoul(token);
+		ret |= 1 << 0;
 		s.erase(0, pos + delimiter.length());
 		if ((pos = s.find(delimiter)) != std::string::npos) {
 			token = s.substr(0, pos);
 			vt = std::stoul(token);
+			ret |= 1 << 1;
 			s.erase(0, pos + delimiter.length());
-			if ((pos = s.find(delimiter)) != std::string::npos) {
-				token = s.substr(0, pos);
+			if (s.size()>0) {
+				token = s;
 				vn = std::stoul(token);
-				s.erase(0, pos + delimiter.length());
+				ret |= 1 << 2;
 			}
 		}
 	} else {
 		v = std::stoul(s);
+		ret |= 1 << 0;
 	}
+	return ret;
 }
 
 
@@ -206,16 +259,22 @@ Mesh::Mesh( const std::string& fname )
 		} else if( code == "f" ) {
 			ifs >> st1 >> st2 >> st3;
 			
-			delimit_f_index(v1, vt1, vn1, st1);
+			int status = delimit_f_index(v1, vt1, vn1, st1);
 			delimit_f_index(v2, vt2, vn2, st2);
 			delimit_f_index(v3, vt3, vn3, st3);
 			
-			m_faces.push_back( Triangle( v1 - 1, v2 - 1, v3 - 1 ) );
+			if ((status>>1&1) && (status>>2&1)) {
+				m_faces.push_back( Triangle( v1 - 1, v2 - 1, v3 - 1, vt1 - 1, vt2 - 1, vt3 - 1, vn1 - 1 ) );
+			} else {
+				m_faces.push_back( Triangle( v1 - 1, v2 - 1, v3 - 1 ) );
+			}
 			
 		} else if ( code == "vt") {
 			ifs >> vx >> vy;
+			m_texture_vertices.push_back( glm::vec3( vx, vy, 0.0 ) );
 		} else if ( code == "vn") {
 			ifs >> vx >> vy >> vz;
+			m_normals.push_back( glm::vec3( vx, vy, vz ) );
 		}
 	}
 	if (m_vertices.size()>1) {
@@ -261,7 +320,13 @@ bool Mesh::hit(Ray &ray, const float& t_min, const float& t_max, HitRecord &reco
 	}
 	if (boundingVolume == nullptr || insideBound(ray.getOrigin(), boundingMinCoor, boundingMaxCoor)) {
 		for (auto triangle : m_faces) {
-			if (triangleHit(ray, t_min, closest, tmpHit, m_vertices[triangle.v1], m_vertices[triangle.v2], m_vertices[triangle.v3], transToWorld)) {
+			vec3 normal;
+			if (triangle.hasVtVn) {
+				normal = m_normals[triangle.vn];
+			} else {
+				normal = normalize(cross((m_vertices[triangle.v2]-m_vertices[triangle.v1]), (m_vertices[triangle.v3]-m_vertices[triangle.v1])));
+			}
+			if (triangleHit(ray, t_min, closest, tmpHit, m_vertices[triangle.v1], m_vertices[triangle.v2], m_vertices[triangle.v3], transToWorld, normal)) {
 				closest = tmpHit.m_t;
 				hitAny = true;
 				record = tmpHit;
@@ -274,8 +339,15 @@ bool Mesh::hit(Ray &ray, const float& t_min, const float& t_max, HitRecord &reco
 	|| boundingVolume->hit(ray, t_min, t_max, tmpHit, transToWorld) || 
 	insideBound(ray.getOrigin(), boundingMinCoor, boundingMaxCoor)
 	) {
-		for (auto triangle : m_faces) {
-			if (triangleHit(ray, t_min, closest, tmpHit, m_vertices[triangle.v1], m_vertices[triangle.v2], m_vertices[triangle.v3], transToWorld)) {
+		for (const auto& triangle : m_faces) {
+			vec3 normal;
+			if (triangle.hasVtVn) {
+				normal = m_normals[triangle.vn];
+			} else {
+				normal = normalize(cross((m_vertices[triangle.v2]-m_vertices[triangle.v1]), (m_vertices[triangle.v3]-m_vertices[triangle.v1])));
+			}
+
+			if (triangleHit(ray, t_min, closest, tmpHit, m_vertices[triangle.v1], m_vertices[triangle.v2], m_vertices[triangle.v3], transToWorld, normal, triangle)) {
 				closest = tmpHit.m_t;
 				hitAny = true;
 				record = tmpHit;
