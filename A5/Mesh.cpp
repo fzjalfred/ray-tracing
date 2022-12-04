@@ -71,29 +71,29 @@ bool Mesh::triangleHit(const Ray &ray, const float &t_min, const float &t_max,
 */
 
 // reference from github
-bool triangleIntersection(const Ray &ray, const vec3& vertex0, const vec3& vertex1, const vec3& vertex2, float &res) {
+bool triangleIntersection(const Ray &ray, const vec3& p0, const vec3& p1, const vec3& p2, float &res) {
 	const float EPSILON = 0.0000001;
-	glm::vec3 edge1, edge2, h, s, q;
+	glm::vec3 q1, q2, h, s, q;
 	float a, f, u, v;
-	edge1 = vertex1 - vertex0;
-	edge2 = vertex2 - vertex0; 
+	q1 = p1 - p0;
+	q2 = p2 - p0; 
 
-	h = glm::cross(ray.getDirection(), edge2);
-	a = glm::dot(edge1, h);
+	h = glm::cross(ray.getDirection(), q2);
+	a = glm::dot(q1, h);
 	if (a > -EPSILON && a < EPSILON)
 		return false;
 	f = 1 / a;
-	s = ray.getOrigin() - vertex0;
+	s = ray.getOrigin() - p0;
 	u = f * (glm::dot(s, h));
 	if (u < 0.0 || u > 1.0)
 		return false;
-	q = glm::cross(s, edge1);
+	q = glm::cross(s, q1);
 	v = f * glm::dot(ray.getDirection(), q);
 	if (v < 0.0 || u + v > 1.0)
 		return false;
 	// At this stage we can compute t to find out where the intersection point is on the line.
 
-	float t = f * glm::dot(edge2, q);
+	float t = f * glm::dot(q2, q);
 	if (t > EPSILON) // ray intersection
 	{
 		res = t;
@@ -105,7 +105,7 @@ bool triangleIntersection(const Ray &ray, const vec3& vertex0, const vec3& verte
 
 // bool Mesh::triangleHit(const Ray &ray, const float &t_min, const float &t_max,
 //     HitRecord &ret, const vec3 &p0, const vec3 &p1,
-//     const vec3 &p2, const mat4& transToWorld, const vec3 & vn) const
+//     const vec3 &p2, const mat4& transToWorld, const vec3 & vn, const Triangle& triangle) const
 // {	
 // 	// vec3 normal = normalize(cross((p1-p0), (p2-p0)));
 // 	vec3 normal = vn;
@@ -128,6 +128,64 @@ bool triangleIntersection(const Ray &ray, const vec3& vertex0, const vec3& verte
 // 	return false;
 // }
 
+bool Mesh::triangleHit(const Ray &ray, const float &t_min, const float &t_max,
+    HitRecord &ret, const vec3 &p0, const vec3 &p1,
+    const vec3 &p2, const mat4& transToWorld, const vec3 & vn, const Triangle& triangle) const
+{	
+	float t_unit = glm::length(transToWorld*vec4(ray.getDirection(), 0.0f));
+	vec3 normal = vn;
+
+	const float EPSILON = 0.0000001;
+	glm::vec3 q1, q2, h, s, q;
+	float a, f, u, v;
+	q1 = p1 - p0;
+	q2 = p2 - p0; 
+
+	h = glm::cross(ray.getDirection(), q2);
+	a = glm::dot(q1, h);
+	if (a > -EPSILON && a < EPSILON)
+		return false;
+	f = 1 / a;
+	s = ray.getOrigin() - p0;
+	u = f * (glm::dot(s, h));
+	if (u < 0.0 || u > 1.0)
+		return false;
+	q = glm::cross(s, q1);
+	v = f * glm::dot(ray.getDirection(), q);
+	if (v < 0.0 || u + v > 1.0)
+		return false;
+	// At this stage we can compute t to find out where the intersection point is on the line.
+
+	float t = f * glm::dot(q2, q);
+	if (t > EPSILON) // ray intersection
+	{
+		if (t*t_unit < t_min || t*t_unit > t_max) {
+			return false;
+		}
+		ret.m_t = t*t_unit;
+		if ( dot( ray.getDirection(), normal ) > 0 ) 
+			normal = -normal;
+		ret.m_normal = normal;
+		ret.m_position = ray.pointAt(t);
+		float omega1 = u;
+		float omega2 = v;
+
+		if (triangle.hasVtVn) {
+			vec3 texcoord = m_texture_vertices[triangle.vt1] * (1.0f - omega1 - omega2) + m_texture_vertices[triangle.vt2] * omega1 + m_texture_vertices[triangle.vt3] * omega2;
+			// std::cout<<"vt1: "<<triangle.vt1<<std::endl;
+			// std::cout<<glm::to_string(m_texture_vertices[triangle.vt1])<<std::endl;
+			ret.u = texcoord.x;
+			ret.v = texcoord.y;
+		}
+
+		return true;
+	}
+	else // This means that there is a line intersection but not a ray intersection.
+    return false;
+}
+
+
+/*
 bool Mesh::triangleHit(const Ray &ray, const float &t_min, const float &t_max,
     HitRecord &ret, const vec3 &p0, const vec3 &p1,
     const vec3 &p2, const mat4& transToWorld, const vec3 & vn, const Triangle& triangle) const
@@ -173,6 +231,7 @@ bool Mesh::triangleHit(const Ray &ray, const float &t_min, const float &t_max,
     
     return true;
 }
+*/
 
 
 Mesh::Mesh(std::vector<glm::vec3>& m_vertices,

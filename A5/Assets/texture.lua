@@ -94,11 +94,17 @@ scene:add_child(walls)
 -- leftWall:translate(-4, -3, -28)
 -- walls:add_child(leftWall)
 
-rightWall = gr.mesh('torso', './kabutack/torso.obj')
-rightWall:scale(2,2,2)
-rightWall:set_material(metal_armor)
-rightWall:translate(3, 0, -7)
-walls:add_child(rightWall)
+torso = gr.mesh('torso', './kabutack/torso.obj')
+torso:scale(2,2,2)
+torso:set_material(metal_armor)
+torso:translate(3, -0.5, -7)
+walls:add_child(torso)
+
+helmet = gr.mesh('head', './kabutack/head.obj')
+helmet:scale(2,2,2)
+helmet:set_material(metal_armor)
+helmet:translate(3, 0, -7)
+walls:add_child(helmet)
 
 
 
