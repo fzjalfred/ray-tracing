@@ -376,7 +376,7 @@ int gr_material_cmd(lua_State* L)
                                         shininess, 0, 0);
   
 
-  if (lua_gettop(L) >= 4){
+  if (lua_gettop(L) > 4){
     const char* material_name = luaL_checkstring(L, 4);
   
     if ((std::string)material_name == "reflect") {

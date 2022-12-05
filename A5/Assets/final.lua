@@ -3,13 +3,16 @@
 -- with the provided skeleton code.  It doesn't rely on hierarchical
 -- transformations.
 
-red = gr.material({0.65, 0.05, 0.05}, {0.1, 0.1, 0.1}, 1, "")
-white = gr.material({0.5,0.5, 0.5}, {0.5, 0.5, 0.5}, 1, "")
+red = gr.material({0.65, 0.05, 0.05}, {0.8, 0.8, 0.8}, 25, "")
+golden = gr.material({1.0, 0.8, 0.0}, {0.8, 0.8, 0.8}, 25, "")
+
+
+
 green = gr.material({0.12, 0.45, 0.15}, {0.1, 0.1, 0.1}, 0, "")
 
 lightBlue = gr.material({0.3, 0.3, 1.0}, {0.1, 0.1, 0.1}, 10, "", 0.8)
 
-waterBlue = gr.material({0.3, 0.3, 1.0}, {0.1, 0.1, 0.1}, 10, "glossy", 0.2)
+waterBlue = gr.material({0.3, 0.3, 1.0}, {0.1, 0.1, 0.1}, 10, "glossy", 0.1)
 
 pearlWhite = gr.material({248/255, 246/255, 220/255}, {0.1, 0.1, 0.1}, 10, "")
 brown = gr.material({0.8,0.5, 0.25}, {0.1, 0.1, 0.1}, 10, "")
@@ -17,21 +20,40 @@ darkbrown = gr.material({0.21, 0.14, 0.02}, {0.1, 0.1, 0.1}, 10, "")
 slightDarkbrown = gr.material({0.70, 0.47, 0.23}, {0.1, 0.1, 0.1}, 10, "")
 black = gr.material({0.0,0.0, 0.0}, {0.1, 0.1, 0.1}, 10, "")
 
-golden = gr.material({1.0, 0.8, 0.0}, {0.1, 0.1, 0.1}, 10, "")
+
 gold = gr.material({0.9, 0.8, 0.4}, {0.8, 0.8, 0.4}, 25, "")
 grass = gr.material({0.1, 0.7, 0.1}, {0.0, 0.0, 0.0}, 0, "")
 
 scene = gr.node('scene')
 
--- cow = gr.mesh('cow', 'cow.obj')
--- cow:set_material(slightDarkbrown)
--- cow:scale(0.5,0.5,0.5)
--- cow:rotate('Y', 60)
--- cow:translate(-1, -1.8, -10)
--- scene:add_child(cow)
+
+hanger_color = gr.material({0.7,0.6, 0.5}, {0.8, 0.8, 0.8}, 1, "")
+--  Texture Materials
+-- ========================================
+japan_wood = gr.material({0.8, 0.8, 0.4}, {0.8, 0.8, 0.8}, 10, "")
+gr.texture(japan_wood, "texture/JapanWood.jpg")
+
+bath_wall_tile = gr.material({0.8, 0.8, 0.8}, {0.8, 0.8, 0.8}, 30, "")
+gr.texture(bath_wall_tile, "texture/wall.jpg")
+
+fuji_paint = gr.material({0.8, 0.8, 0.8}, {0.8, 0.8, 0.8}, 10, "")
+gr.texture(fuji_paint, "texture/mt_fuji.jpg")
+
+plane_tile = gr.material({0.8, 0.8, 0.5}, {0.8, 0.8, 0.8}, 30, "")
+gr.texture(plane_tile, "texture/wood.jpg")
+metal_armor = gr.material({0.8, 0.8, 0.8}, {0.8, 0.8, 0.8}, 30, "")
+gr.texture(metal_armor, "texture/metal.jpg")
+
+
+
+--  kabutack model
+-- ========================================
 
 kabutack = gr.node('kabutack')
-kabutack:translate(0,-3, -14)
+kabutack:rotate('x', -18)
+kabutack:rotate('y', -30)
+kabutack:translate(4.4,-2.7,-13)
+-- kabutack:translate(5, 2, -14)
 scene:add_child(kabutack)
 
 helmet = gr.mesh('head', './kabutack/head.obj')
@@ -58,23 +80,82 @@ nose = gr.mesh('nose', './kabutack/nose.obj')
 nose:set_material(lightBlue)
 kabutack:add_child(nose)    
 
+leftArm = gr.mesh('leftArm', './kabutack/leftArm.obj')
+leftArm:set_material(black)
+kabutack:add_child(leftArm)    
+leftforearm = gr.mesh('leftforearm', './kabutack/leftforearm.obj')
+leftforearm:set_material(red)
+kabutack:add_child(leftforearm)    
+lefthand = gr.mesh('lefthand', './kabutack/lefthand.obj')
+lefthand:set_material(black)
+kabutack:add_child(lefthand)    
 
-water = gr.mesh('water', './kabutack/water.obj')
-water:set_material(waterBlue)
-water:translate(0,-3,-10)
-scene:add_child(water)    
+rightArm = gr.mesh('rightArm', './kabutack/rightArm.obj')
+rightArm:set_material(black)
+kabutack:add_child(rightArm)    
+rightforearm = gr.mesh('rightforearm', './kabutack/rightforearm.obj')
+rightforearm:set_material(red)
+kabutack:add_child(rightforearm)    
+righthand = gr.mesh('righthand', './kabutack/righthand.obj')
+righthand:set_material(black)
+kabutack:add_child(righthand)    
+
+-- ========================================
 
 
 -- the floor
 plane = gr.mesh( 'plane', 'plane.obj' )
 scene:add_child(plane)
-plane:set_material(white)
+plane:set_material(plane_tile)
 plane:scale(200, 30, 500)
-plane:translate(0, -3, -15)
+plane:rotate('x', -5)
+plane:translate(0, -4, -15)
 
-walls = gr.node('walls')
-walls:translate(0,0, -5)
-scene:add_child(walls)
+bathhouse = gr.node('bathhouse')
+bathhouse:translate(2,-3,-10)
+scene:add_child(bathhouse)
+
+fences = gr.mesh('fences', './kabutack/fences.obj')
+fences:set_material(japan_wood)
+bathhouse:add_child(fences)
+
+water = gr.mesh('water', './kabutack/water.obj')
+water:set_material(waterBlue)
+bathhouse:add_child(water)    
+
+mtfuji = gr.mesh('water', './kabutack/mtfuji.obj')
+mtfuji:translate(0.4,-2,0)
+mtfuji:scale(1.05, 1, 1)
+mtfuji:set_material(fuji_paint)
+bathhouse:add_child(mtfuji)    
+
+bath_wall = gr.mesh('wall', './kabutack/wall.obj')
+bath_wall:set_material(bath_wall_tile)
+bath_wall:translate(0.4,-1,0)
+bathhouse:add_child(bath_wall)   
+
+-- drink = gr.mesh('drink', './kabutack/drink.obj')
+-- drink:set_material(darkbrown)
+-- bathhouse:add_child(drink)   
+
+-- hanger = gr.node('hanger')
+-- hanger:translate(-6, 1, -1)
+-- bathhouse:add_child(hanger)
+
+-- torso_hanging = gr.mesh('torso_hang', './kabutack/torso.obj')
+-- torso_hanging:scale(1,1,1)
+-- torso_hanging:set_material(metal_armor)
+-- hanger:add_child(torso_hanging)
+
+-- helmet_hanging = gr.mesh('head', './kabutack/head.obj')
+-- helmet_hanging:scale(1,1,1)
+-- helmet_hanging:set_material(metal_armor)
+-- helmet_hanging:translate(0, 0.2, 0)
+-- hanger:add_child(helmet_hanging)
+
+-- armor_hanger = gr.mesh('armor_hanger', './kabutack/hanger.obj')
+-- armor_hanger:set_material(hanger_color)
+-- hanger:add_child(armor_hanger)
 
 -- ceil = gr.cube('ceil')
 -- ceil:scale(8, 1, 9)
@@ -88,26 +169,29 @@ scene:add_child(walls)
 -- backWall:translate(-3, -3, -14)
 -- walls:add_child(backWall)
 
-leftWall = gr.cube('left')
-leftWall:scale(1, 6, 24)
-leftWall:set_material(green)
-leftWall:translate(-4, -3, -28)
-walls:add_child(leftWall)
+-- leftWall = gr.cube('left')
+-- leftWall:scale(1, 6, 24)
+-- leftWall:set_material(green)
+-- leftWall:translate(-4, -3, -28)
+-- walls:add_child(leftWall)
 
+silver = gr.material({0.5,0.5, 0.5}, {0.6,0.6,0.6}, 25, "reflect", 0.7)
 rightWall = gr.cube('right')
-rightWall:scale(1, 6, 24)
-rightWall:set_material(red)
-rightWall:translate(3, -3, -28)
-walls:add_child(rightWall)
+rightWall:scale(1, 10, 12)
+rightWall:set_material(silver)
+rightWall:translate(6, 0, -12)
+bathhouse:add_child(rightWall)
 
 
 
 -- The lights
-l1 = gr.light({200,200,400}, {0.8, 0.8, 0.8}, {1, 0, 0})
--- l2 = gr.light({1, 5, -20}, {0.4, 0.4, 0.8}, {1, 0, 0})
+l1 = gr.light({-20,20,40}, {0.8, 0.8, 0.8}, {1, 0, 0})
+l2 = gr.light({-20, 0, 20}, {0.8, 0.7, 0.6}, {1, 0, 0})
 -- l3 = gr.light({0, 0, 200}, {0.8, 0.8, 0.8}, {1, 0, 0})
 
-gr.render(scene, 'final.png', 512, 512, 
-	  {0, 0, 0,}, {0, 0, -1}, {0, 1, 0}, 50,
+
+--  4:3
+gr.render(scene, 'final.png', 512, 384, 
+	  {0, 2, 0}, {0, -0.3, -1}, {0, 1, 0}, 50,
 	  {0.4, 0.4, 0.4}, {l1})
 

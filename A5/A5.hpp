@@ -10,7 +10,7 @@
 #include <vector>
 
 
-// #define MirrorReflection
+#define MirrorReflection
 // #define Refraction
 
 #define TBB_MULTI_THREADING

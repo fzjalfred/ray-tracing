@@ -174,8 +174,8 @@ bool Mesh::triangleHit(const Ray &ray, const float &t_min, const float &t_max,
 			vec3 texcoord = m_texture_vertices[triangle.vt1] * (1.0f - omega1 - omega2) + m_texture_vertices[triangle.vt2] * omega1 + m_texture_vertices[triangle.vt3] * omega2;
 			// std::cout<<"vt1: "<<triangle.vt1<<std::endl;
 			// std::cout<<glm::to_string(m_texture_vertices[triangle.vt1])<<std::endl;
-			ret.u = texcoord.x;
-			ret.v = texcoord.y;
+			ret.u = (texcoord.x) - std::floor(texcoord.x);
+			ret.v = (texcoord.y) - std::floor(texcoord.y);
 		}
 
 		return true;
@@ -271,8 +271,11 @@ static inline int delimit_f_index(size_t& v, size_t& vt, size_t& vn, std::string
 		s.erase(0, pos + delimiter.length());
 		if ((pos = s.find(delimiter)) != std::string::npos) {
 			token = s.substr(0, pos);
-			vt = std::stoul(token);
-			ret |= 1 << 1;
+			if (token != "") {
+				vt = std::stoul(token);
+				ret |= 1 << 1;
+			}
+				
 			s.erase(0, pos + delimiter.length());
 			if (s.size()>0) {
 				token = s;

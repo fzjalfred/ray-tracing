@@ -32,10 +32,13 @@ gr.texture(earth_texture, "texture/earthmap.jpg")
 -- s:set_material(lightblue_refract)
 -- scene:add_child(s)
 
+
+metal = gr.material({0.66, 0.66, 0.66}, {0.9, 0.9, 0.9}, 25)
+gr.texture(metal, 'texture/steel.jpg')
 s1 = gr.sphere('s1_near')
 s1:scale(2,2,2)
 s1:translate(0, 0.0, -10)
-s1:set_material(earth_texture)
+s1:set_material(metal)
 scene:add_child(s1)
 
 -- s2 = gr.sphere('s2_near')
@@ -100,6 +103,6 @@ l1 = gr.light({20,20,40}, {0.8, 0.8, 0.8}, {1, 0, 0})
 -- l2 = gr.light({1, 5, -20}, {0.4, 0.4, 0.8}, {1, 0, 0})
 -- l3 = gr.light({0, 0, 200}, {0.8, 0.8, 0.8}, {1, 0, 0})
 
-gr.render(scene, 'sample.png', 256, 256, 
+gr.render(scene, 'sample.png', 512, 512, 
 	  {0, 0, 0,}, {0, 0, -1}, {0, 1, 0}, 50,
 	  {0.4, 0.4, 0.4}, {l1})
