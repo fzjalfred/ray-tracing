@@ -37,7 +37,7 @@ double Lambertian::shininess() {
 }
 
 double Lambertian::reflectness() {
-	return 0.8;
+	return 0.2;
 }
 
 bool Lambertian::scatter(const Ray& in, const HitRecord &rec, vec3& attenuation, Ray& scattered) {

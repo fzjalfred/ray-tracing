@@ -39,8 +39,8 @@ gr.texture(bath_wall_tile, "texture/wall.jpg")
 fuji_paint = gr.material({0.8, 0.8, 0.8}, {0.8, 0.8, 0.8}, 10, "")
 gr.texture(fuji_paint, "texture/mt_fuji.jpg")
 
-plane_tile = gr.material({0.8, 0.8, 0.5}, {0.8, 0.8, 0.8}, 30, "")
-gr.texture(plane_tile, "texture/wood.jpg")
+plane_tile = gr.material({0.8, 0.8, 0.6}, {0.8, 0.8, 0.8}, 30, "")
+gr.texture(plane_tile, "texture/JapanWood.jpg")
 metal_armor = gr.material({0.8, 0.8, 0.8}, {0.8, 0.8, 0.8}, 30, "")
 gr.texture(metal_armor, "texture/metal.jpg")
 
@@ -104,15 +104,15 @@ kabutack:add_child(righthand)
 
 
 -- the floor
-plane = gr.mesh( 'plane', 'plane.obj' )
+plane = gr.mesh( 'plane', './kabutack/floor.obj' )
 scene:add_child(plane)
 plane:set_material(plane_tile)
-plane:scale(200, 30, 500)
+plane:scale(20, 20, 20)
 plane:rotate('x', -5)
 plane:translate(0, -4, -15)
 
 bathhouse = gr.node('bathhouse')
-bathhouse:translate(2,-3,-10)
+bathhouse:translate(1.7,-3,-10)
 scene:add_child(bathhouse)
 
 fences = gr.mesh('fences', './kabutack/fences.obj')
@@ -132,48 +132,56 @@ bathhouse:add_child(mtfuji)
 bath_wall = gr.mesh('wall', './kabutack/wall.obj')
 bath_wall:set_material(bath_wall_tile)
 bath_wall:translate(0.4,-1,0)
-bathhouse:add_child(bath_wall)   
+bathhouse:add_child(bath_wall)  
 
--- drink = gr.mesh('drink', './kabutack/drink.obj')
--- drink:set_material(darkbrown)
--- bathhouse:add_child(drink)   
+door_hanger = gr.node('door_hanger')
+door_hanger:translate(-5.5, 8, 3)
+bathhouse:add_child(door_hanger)
 
--- hanger = gr.node('hanger')
--- hanger:translate(-6, 1, -1)
--- bathhouse:add_child(hanger)
+paper_white = gr.material({0.8,0.8, 0.8}, {0.5, 0.5, 0.5}, 15, "lamb")
+gr.texture(paper_white, "texture/signature.jpg")
+rope1 = gr.mesh('rope', './kabutack/rope.obj')
+rope1:translate(0,1.7,0)
+rope1:set_material(black)
+door_hanger:add_child(rope1)
+lightblue_refract = gr.material({0.3, 0.3, 0.6}, {0.3, 0.4, 0.3}, 15, "refract", 0.8)
+s = gr.sphere('s')
+s:set_material(lightblue_refract)
+s:scale(0.7, 0.7, 0.7)
+s:translate(0, -2.8, 0) 
+door_hanger:add_child(s)
+paper = gr.mesh('paper', './kabutack/paper.obj')
+paper:translate(0, 0.18, 0)
+paper:set_material(paper_white)
+door_hanger:add_child(paper) 
 
--- torso_hanging = gr.mesh('torso_hang', './kabutack/torso.obj')
--- torso_hanging:scale(1,1,1)
--- torso_hanging:set_material(metal_armor)
--- hanger:add_child(torso_hanging)
+drink = gr.mesh('drink', './kabutack/drink.obj')
+drink:set_material(darkbrown)
+bathhouse:add_child(drink)   
 
--- helmet_hanging = gr.mesh('head', './kabutack/head.obj')
--- helmet_hanging:scale(1,1,1)
--- helmet_hanging:set_material(metal_armor)
--- helmet_hanging:translate(0, 0.2, 0)
--- hanger:add_child(helmet_hanging)
+drink1 = gr.mesh('drink', './kabutack/drink1.obj')
+drink1:translate(-2,0,0)
+drink1:set_material(golden)
+bathhouse:add_child(drink1)   
 
--- armor_hanger = gr.mesh('armor_hanger', './kabutack/hanger.obj')
--- armor_hanger:set_material(hanger_color)
--- hanger:add_child(armor_hanger)
+hanger = gr.node('hanger')
+hanger:translate(-7.4, 0.3, -3)
+bathhouse:add_child(hanger)
 
--- ceil = gr.cube('ceil')
--- ceil:scale(8, 1, 9)
--- ceil:set_material(white)
--- ceil:translate(-4, 3, -14)
--- walls:add_child(ceil)
+torso_hanging = gr.mesh('torso_hang', './kabutack/torso.obj')
+torso_hanging:scale(1,1,1)
+torso_hanging:set_material(metal_armor)
+hanger:add_child(torso_hanging)
 
--- backWall = gr.cube('back')
--- backWall:scale(6, 6, 1)
--- backWall:set_material(white)
--- backWall:translate(-3, -3, -14)
--- walls:add_child(backWall)
+helmet_hanging = gr.mesh('head', './kabutack/head.obj')
+helmet_hanging:scale(1,1,1)
+helmet_hanging:set_material(metal_armor)
+helmet_hanging:translate(0, 0.16, 0)
+hanger:add_child(helmet_hanging)
 
--- leftWall = gr.cube('left')
--- leftWall:scale(1, 6, 24)
--- leftWall:set_material(green)
--- leftWall:translate(-4, -3, -28)
--- walls:add_child(leftWall)
+armor_hanger = gr.mesh('armor_hanger', './kabutack/hanger.obj')
+armor_hanger:set_material(hanger_color)
+hanger:add_child(armor_hanger)
 
 silver = gr.material({0.5,0.5, 0.5}, {0.6,0.6,0.6}, 25, "reflect", 0.7)
 rightWall = gr.cube('right')
@@ -185,13 +193,15 @@ bathhouse:add_child(rightWall)
 
 
 -- The lights
-l1 = gr.light({-20,20,40}, {0.8, 0.8, 0.8}, {1, 0, 0})
+l1 = gr.light({-20,20,27}, {0.8, 0.8, 0.8}, {1, 0, 0})
 l2 = gr.light({-20, 0, 20}, {0.8, 0.7, 0.6}, {1, 0, 0})
 -- l3 = gr.light({0, 0, 200}, {0.8, 0.8, 0.8}, {1, 0, 0})
 
 
 --  4:3
-gr.render(scene, 'final.png', 512, 384, 
+-- 1024x768
+-- 512x384
+gr.render(scene, 'final.png', 1024, 768, 
 	  {0, 2, 0}, {0, -0.3, -1}, {0, 1, 0}, 50,
 	  {0.4, 0.4, 0.4}, {l1})
 

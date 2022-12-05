@@ -53,5 +53,5 @@ bool Glossy::refract(const Ray &in, const HitRecord &rec, Ray &refracted, bool f
 }
 
 double Glossy::refractness() {
-	return 0.5;
+	return 0;
 };
