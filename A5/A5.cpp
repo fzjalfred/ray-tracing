@@ -325,28 +325,44 @@ void A5_Render(
 		uint x = tasks[t].first;
 		uint y = tasks[t].second;
 		glm::vec3 color;
+		glm::vec3 camera_eye = eye;
 		#ifndef SUPER_SAMPLING
-		vec3 direction = m_lowerLeftCorner + x*x_axis + (h-y-1)*y_axis;
-		Ray ray = Ray(eye, direction);
-		color += tracing(ray, root, eye, ambient, lights);
+        vec3 direction = m_lowerLeftCorner + x * x_axis + (h - y - 1) * y_axis;
+        Ray ray = Ray(camera_eye, direction);
+        color += tracing(ray, root, eye, ambient, lights);
 		#else
-		for (int sps = 0; sps < super_samples; ++sps)
-        {
+        for (int sps = 0; sps < super_samples; ++sps) {
             float u = static_cast<float>(x + drand48());
             float v = static_cast<float>(y + drand48());
-			vec3 direction = m_lowerLeftCorner + u*x_axis + (h-v-1)*y_axis;
-            Ray ray = Ray(eye, direction);
+            vec3 direction =
+                m_lowerLeftCorner + u * x_axis + (h - v - 1) * y_axis;
+			#ifdef CAMERA_DOF
+			vec3 move = vec3(drand48()*0.12, drand48()*0.12, 0);
+			float focal_plane = 10.0f;
+			vec3 focal_direction = direction* (mdistance-focal_plane) / mdistance;
+			camera_eye = eye + move;
+			Ray ray = Ray(camera_eye, focal_direction-move);
+			#else
+			Ray ray = Ray(camera_eye, direction);
+			#endif
+            
             color += tracing(ray, root, eye, ambient, lights);
         }
-		color /= static_cast<float>(super_samples);
+        color /= static_cast<float>(super_samples);
 		#endif
-		
+        // Red:
 		// Red: 
-		image(x, y, 0) = (double)color.r;
+        // Red:
+        image(x, y, 0) = (double)color.r;
+        // Green:
 		// Green: 
-		image(x, y, 1) = (double)color.g;
+        // Green:
+        image(x, y, 1) = (double)color.g;
+        // Blue:
 		// Blue: 
-		image(x, y, 2) = (double)color.b;
+        // Blue:
+        image(x, y, 2) = (double)color.b;
+
 		if (t%10000 == 0) {
 			cout<<"rendering... ("<<t<<", "<<total<<") ";
 			printf("%0.2f%%",t/(float)total*100);

@@ -14,7 +14,7 @@
 #define Refraction
 
 #define TBB_MULTI_THREADING
-#define SOFT_SHADOW
+// #define SOFT_SHADOW
 // #define CAMERA_DOF
 #define SUPER_SAMPLING
 
