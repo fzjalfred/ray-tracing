@@ -1,5 +1,5 @@
 # Compilation
-In A3 folder,
+In A5 folder,
 ```
 cd A5
 premake4 gmake
@@ -15,24 +15,30 @@ cd Assets
 # Manual
 Follow assignment specifications.
 
-I implemented mirror reflection as my extra feature.
+1. Objective one.
+Complex modeling on Kabutack avatar and bathhouse.
+2. Objective two.
+Texture mapping on environmental objects such as grass and lanes.
+3. Objective three.
+Soft shadow
+4. Objective four.
+refraction
+5. Objective five.
+Glossy reflection/refraction
+6. Objective six.
+Super-sampling for anti-aliasing
+7. Objective seven.
+Simulation of camera focus blur, depth of field.
+8. Objective eight.
+Photon mapping
+9. Objective nine.
+Intel Thread Building Blocks multithreading rendering
+10. Objective ten.
+Final Scene
 
-The mirror reflection and bounding volumes rendering macros are defined in A5.hpp, Mesh.hpp
-
-The background is gradient from top-right to down-left.
-
-In the **root** directory, sample.png, screenshot.png is rendered from Assests/sample.lua with mirror reflection. Sample2.png is rendered from Assests/nonhier.png with mirror reflection. 
-They both satisfy the sample requirements including at least one of each required primitive type, at least one point light source, at least one shiny surface, a non-trivial background, and also mirror reflection as extra feature.
-
-
-In the **Assets** directory,
-For simple.png, hier.png, nonhier.png, mirror reflection is on.
-
-For others, mirror reflection is off.
-
-macho-cows-bb.png is provided for RENDER_BOUNDING_VOLUMES.
+In the **root** directory, screenshot.png is rendered from Assests/final.lua.
 
 I have my A5 run in Machine gl47.
 
-Noticed that I made serveral obj file with Blender v3.3.1.
+Note that I made obj files with Blender v3.3.1.
 

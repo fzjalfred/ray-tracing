@@ -20,7 +20,7 @@ vec3 lightBlue = vec3(0.33, 0.42, 0.67);
 
 
 double camera_dof = 1;
-int super_samples = 20;
+int super_samples = 25;
 float mirror_reflect_coefficient = 0.9;
 int NUM_THREADS = 4;
 
